@@ -1,0 +1,23 @@
+[package]
+name = "nexum-adapters"
+description = "Platform/vendor integrations implementing the Nexum Adapter trait"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+# Real Philips Hue integration (HTTP to the local bridge). Off by default so the
+# core build needs no TLS/network stack.
+hue = ["dep:reqwest"]
+
+[dependencies]
+nexum-core.workspace = true
+nexum-schema.workspace = true
+serde = { workspace = true }
+serde_json.workspace = true
+async-trait.workspace = true
+tokio = { workspace = true }
+# Cross-platform "open a file/url/protocol with the default handler".
+open = "5"
+# Hue: rustls (no system OpenSSL needed).
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"], optional = true }

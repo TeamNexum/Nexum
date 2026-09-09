@@ -1,0 +1,20 @@
+[package]
+name = "nexum-core"
+description = "Nexum orchestration engine: registry, adapter trait, event bus, automation, marketplace"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+# Emit TypeScript bindings for the engine/marketplace types (see nexum-schema).
+ts = ["dep:ts-rs"]
+
+[dependencies]
+nexum-schema.workspace = true
+serde = { workspace = true }
+serde_json.workspace = true
+async-trait.workspace = true
+thiserror.workspace = true
+tokio = { workspace = true }
+uuid.workspace = true
+ts-rs = { version = "10", optional = true }

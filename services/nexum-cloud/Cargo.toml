@@ -1,0 +1,28 @@
+[package]
+name = "nexum-cloud"
+description = "Nexum Cloud API: sync, marketplace, AI (skeleton)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "nexum-cloud"
+path = "src/main.rs"
+
+[features]
+# Real Claude-backed Mode-as-Code. Off by default so the build needs no TLS
+# stack; when on, set ANTHROPIC_API_KEY in the environment.
+claude = ["dep:reqwest"]
+
+[dependencies]
+nexum-schema.workspace = true
+nexum-core.workspace = true
+serde = { workspace = true }
+serde_json.workspace = true
+uuid.workspace = true
+tokio = { workspace = true }
+axum = "0.7"
+tower-http = { version = "0.5", features = ["cors"] }
+jsonwebtoken = "9"
+sha2 = "0.10"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"], optional = true }

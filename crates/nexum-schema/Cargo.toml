@@ -1,0 +1,17 @@
+[package]
+name = "nexum-schema"
+description = "Canonical Mode/Action data model — the shared Nexum DSL"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+# Emit TypeScript bindings. Off by default so normal builds/CI don't pull
+# ts-rs. `cargo test -p nexum-schema --features ts` regenerates the .ts files.
+ts = ["dep:ts-rs"]
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+uuid.workspace = true
+ts-rs = { version = "10", optional = true }

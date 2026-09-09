@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 160" width="560" height="160" role="img" aria-label="Nexum">
+  <defs>
+    <linearGradient id="nx-word" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#22D3EE"/>
+      <stop offset="0.5" stop-color="#7C5CFF"/>
+      <stop offset="1" stop-color="#F038A0"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(16 16) scale(0.5)">
+    <rect x="4" y="4" width="248" height="248" rx="56" fill="#0B0E14" stroke="#2A323F" stroke-width="2"/>
+    <g fill="none" stroke-width="22" stroke-linecap="round">
+      <path d="M175.5 161.3 A58 58 0 0 1 70.2 122.95" stroke="#22D3EE"/>
+      <path d="M175.5 161.3 A58 58 0 0 1 70.2 122.95" stroke="#7C5CFF" transform="rotate(120 128 128)"/>
+      <path d="M175.5 161.3 A58 58 0 0 1 70.2 122.95" stroke="#F038A0" transform="rotate(240 128 128)"/>
+    </g>
+    <circle cx="128" cy="128" r="13" fill="#E7EAF0"/>
+  </g>
+  <text x="168" y="104" font-family="Inter, system-ui, -apple-system, Segoe UI, sans-serif"
+        font-size="86" font-weight="800" letter-spacing="4" fill="url(#nx-word)">NEXUM</text>
+</svg>

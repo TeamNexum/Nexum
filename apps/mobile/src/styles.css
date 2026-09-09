@@ -1,0 +1,183 @@
+/* Brand palette — see docs/brand/PALETTE.md. Mobile-first, dark, big tap targets. */
+:root {
+  --bg: #0b0e14;
+  --panel: #151a22;
+  --panel-2: #1e2530;
+  --border: #2a323f;
+  --text: #e7eaf0;
+  --muted: #8a93a3;
+  --accent: #22d3ee;
+  --accent-2: #7c5cff;
+  --magenta: #f038a0;
+  --fail: #f0436e;
+  --gradient: linear-gradient(135deg, #22d3ee 0%, #7c5cff 50%, #f038a0 100%);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: radial-gradient(900px 500px at 70% -10%, #1a2030 0%, var(--bg) 60%);
+  color: var(--text);
+}
+
+.app {
+  min-height: 100dvh;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: max(16px, env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding-top: 6px;
+}
+.logo {
+  font-weight: 800;
+  letter-spacing: 1px;
+  font-size: 22px;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.sub {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* Auth form */
+.auth {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.auth label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 14px;
+  font: inherit;
+  font-size: 16px; /* >=16px avoids iOS zoom-on-focus */
+}
+
+button {
+  border: 0;
+  border-radius: 14px;
+  padding: 16px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.5;
+}
+button.primary {
+  background: var(--accent);
+  color: #04211a;
+  font-size: 17px;
+}
+button.ghost {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+button.link {
+  background: none;
+  color: var(--muted);
+  padding: 8px 4px;
+  font-weight: 600;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.err {
+  color: #ffb3cf;
+  background: #3a1523;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+
+/* Modes */
+.modes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.bar {
+  display: flex;
+  justify-content: space-between;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.mode {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 18px;
+  padding: 18px 14px;
+  min-height: 116px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+  text-align: left;
+  transition: transform 0.08s, border-color 0.15s;
+}
+.mode:active {
+  transform: scale(0.97);
+  border-color: var(--accent);
+}
+.mode .ic {
+  font-size: 30px;
+}
+.mode .nm {
+  font-weight: 700;
+  font-size: 16px;
+}
+.mode .ds {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  background: var(--panel-2);
+  border: 1px solid var(--accent);
+  color: var(--text);
+  padding: 12px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+}

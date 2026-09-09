@@ -1,0 +1,28 @@
+{
+  "name": "nexum-monorepo",
+  "private": true,
+  "description": "Nexum monorepo root",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:cloud": "cargo run -p nexum-cloud",
+    "dev:desktop": "npm run tauri dev --workspace=nexum-desktop",
+    "dev:web": "npm run dev --workspace=nexum-desktop",
+    "dev": "concurrently -n \"cloud,desktop\" -c \"blue,green\" \"npm run dev:cloud\" \"npm run dev:desktop\"",
+    "dev:all": "concurrently -n \"cloud,desktop\" -c \"blue,green\" \"npm run dev:cloud\" \"npm run dev:desktop\"",
+    "dev:all:web": "concurrently -n \"cloud,web\" -c \"blue,cyan\" \"npm run dev:cloud\" \"npm run dev:web\"",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test:desktop": "npm run test --workspace=nexum-desktop",
+    "test:mobile": "npm run test --workspace=nexum-mobile",
+    "build:desktop": "npm run build --workspace=nexum-desktop",
+    "build:mobile": "npm run build --workspace=nexum-mobile",
+    "gen:types": "cargo test -p nexum-schema --features ts && cargo test -p nexum-core --features ts"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  }
+}
