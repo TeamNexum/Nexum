@@ -25,14 +25,20 @@
 - Coordinatrices : **Lisa Nay, Faizal Nguyen** — via **help.epitech.eu** (pas Teams).
 - Rituel équipe conseillé : **stand-up hebdo (30 min)** + **revue de sprint toutes les 2 semaines**.
 
-## Rôles (à assigner) ⚠️
+## Rôles
 
 | Rôle | Personne | Responsabilité principale |
 |---|---|---|
-| Lead produit / PM | ⚠️ | Roadmap, board, jalons, suivi intra |
-| Dev / tech | ⚠️ | Build, déploiement, MVP, RNCP QA/déploiement |
+| Lead produit / PM + généraliste | Arnaud (`Arjouan`) | Roadmap, board, jalons, suivi intra ; un peu de front et de back |
+| Dev / tech — main Front + généraliste | Rares Dragomir (`RaresFZ`) | UI ; un peu de front et de back |
+| Dev / tech — main Back | Max Epinat (`Max-Epinat`) | Build, MVP, RNCP QA/déploiement |
+| Dev / tech — Back (aide) + Database/CI-CD (intérim) | Raphael Grissonnanche (`Raphie10`) | Aide Max sur le Back ; couvre le Database/CI-CD en attendant Enzo |
+| Dev / tech — Database + CI/CD | Enzo ⚠️ | N'a pas encore rejoint le repo GitHub — Raph couvre #2, #5, #14, #21 en intérim |
 | Marché / business | ⚠️ | Interviews, BMC, KPIs, modèle financier |
 | Comms / image | ⚠️ | Réseaux sociaux, pitch, image de marque |
+
+> Détail de la répartition des 21 tickets GitHub par personne : voir
+> [TASK_ASSIGNMENTS.md](TASK_ASSIGNMENTS.md).
 
 ---
 
