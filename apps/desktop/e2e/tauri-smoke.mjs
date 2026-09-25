@@ -105,11 +105,11 @@ try {
     script: "arguments[0].scrollIntoView({ block: 'center', inline: 'center' }); arguments[0].click();",
     args: [{ "element-6066-11e4-a52e-4f735466cecf": card }],
   });
-  await until(async () => (await textOf(".activity-stream")).includes("Orchestration avec erreurs"));
+  await until(async () => (await textOf(".activity-stream")).includes("Certaines actions ont échoué"));
   const feed = await textOf(".activity-stream");
   assert.match(feed, /Nexum smoke mode/);
   assert.match(feed, /Lancer|application/i);
-  assert.match(feed, /Orchestration avec erreurs/);
+  assert.match(feed, /Certaines actions ont échoué/);
   console.log("Tauri smoke test passed: launched, activated a mode, and observed the engine event feed.");
 } finally {
   if (session) {
