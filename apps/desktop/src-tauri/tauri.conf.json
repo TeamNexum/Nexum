@@ -14,6 +14,7 @@
     "windows": [
       {
         "title": "Nexum",
+        "decorations": false,
         "width": 1000,
         "height": 720
       }

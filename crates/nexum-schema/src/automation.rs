@@ -13,14 +13,17 @@ fn default_true() -> bool {
 /// A single automation rule.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts", derive(ts_rs::TS))]
-#[cfg_attr(feature = "ts", ts(export, export_to = "../../packages/schema-ts/src/generated/"))]
+#[cfg_attr(
+    feature = "ts",
+    ts(export, export_to = "../../../packages/schema-ts/src/generated/")
+)]
 pub struct AutomationRule {
     #[cfg_attr(feature = "ts", ts(type = "string"))]
     pub id: Uuid,
     pub name: String,
     #[serde(default = "default_true")]
     pub enabled: bool,
-    /// The mode activated when this rule fires.
+    // The mode activated when this rule fires.
     #[cfg_attr(feature = "ts", ts(type = "string"))]
     pub target_mode_id: Uuid,
     pub trigger: Trigger,
@@ -31,7 +34,10 @@ pub struct AutomationRule {
 /// What can start a rule.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts", derive(ts_rs::TS))]
-#[cfg_attr(feature = "ts", ts(export, export_to = "../../packages/schema-ts/src/generated/"))]
+#[cfg_attr(
+    feature = "ts",
+    ts(export, export_to = "../../../packages/schema-ts/src/generated/")
+)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum Trigger {
     /// Local time reaches HH:MM (24h clock).
@@ -47,7 +53,10 @@ pub enum Trigger {
 /// Extra guards that must all hold for a rule to fire.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts", derive(ts_rs::TS))]
-#[cfg_attr(feature = "ts", ts(export, export_to = "../../packages/schema-ts/src/generated/"))]
+#[cfg_attr(
+    feature = "ts",
+    ts(export, export_to = "../../../packages/schema-ts/src/generated/")
+)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum Condition {
     /// Only on these weekdays (0 = Monday .. 6 = Sunday).
@@ -64,12 +73,25 @@ pub enum Condition {
 /// Events the outside world feeds into the automation engine.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts", derive(ts_rs::TS))]
-#[cfg_attr(feature = "ts", ts(export, export_to = "../../packages/schema-ts/src/generated/"))]
+#[cfg_attr(
+    feature = "ts",
+    ts(export, export_to = "../../../packages/schema-ts/src/generated/")
+)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum SystemEvent {
     /// Periodic clock tick (the scheduler emits one per minute).
-    Tick { hour: u8, minute: u8, weekday: u8 },
-    AppLaunched { name: String },
-    Battery { percent: u8 },
-    LocationEntered { place: String },
+    Tick {
+        hour: u8,
+        minute: u8,
+        weekday: u8,
+    },
+    AppLaunched {
+        name: String,
+    },
+    Battery {
+        percent: u8,
+    },
+    LocationEntered {
+        place: String,
+    },
 }

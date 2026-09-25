@@ -4,7 +4,7 @@
 // Types come from @nexum/schema (generated from Rust), so the companion can't
 // drift from the desktop's model.
 
-import type { Mode } from "../../../packages/schema-ts/src/generated";
+import type { Mode } from "../../../packages/schema-ts/src";
 
 const URL_KEY = "nexum.cloud.url";
 const TOKEN_KEY = "nexum.cloud.token";

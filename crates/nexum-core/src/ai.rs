@@ -3,7 +3,7 @@
 //! This is a **heuristic stand-in** for the production pipeline. In production,
 //! the keyword matching below is replaced by a Claude API call whose system
 //! prompt asks for exactly this `Mode` JSON (constrained to known action_types),
-//! followed by a `dry_run` simulation and capability check. Crucially, the
+//! followed by validation and a capability check. Crucially, the
 //! *output type is the contract* — swapping the heuristic for the LLM changes
 //! nothing downstream. The LLM never emits code, only declarative data.
 
@@ -34,7 +34,10 @@ fn detect_category(p: &str) -> Category {
         Category::Gaming
     } else if matches_any(p, &["work", "travail", "code", "focus", "dev"]) {
         Category::Work
-    } else if matches_any(p, &["chill", "relax", "détente", "detente", "music", "musique"]) {
+    } else if matches_any(
+        p,
+        &["chill", "relax", "détente", "detente", "music", "musique"],
+    ) {
         Category::Chill
     } else if matches_any(p, &["night", "nuit", "sleep", "dodo"]) {
         Category::Night
@@ -74,30 +77,66 @@ pub fn generate_mode(prompt: &str, id: Uuid) -> Mode {
 
     match category {
         Category::Gaming => {
-            steps.push(step(2, ids::DISPLAY_SET_BRIGHTNESS, json!({ "percent": 100 })));
-            steps.push(step(3, ids::IOT_HUE_ACTIVATE_SCENE, json!({ "scene": "Gaming" })));
+            steps.push(step(
+                2,
+                ids::DISPLAY_SET_BRIGHTNESS,
+                json!({ "percent": 100 }),
+            ));
+            steps.push(step(
+                3,
+                ids::IOT_HUE_ACTIVATE_SCENE,
+                json!({ "scene": "Gaming" }),
+            ));
         }
         Category::Work => {
-            steps.push(step(2, ids::DISPLAY_SET_BRIGHTNESS, json!({ "percent": 70 })));
-            steps.push(step(3, ids::SYSTEM_OPEN_URL, json!({ "url": "https://docs.google.com" })));
+            steps.push(step(
+                2,
+                ids::DISPLAY_SET_BRIGHTNESS,
+                json!({ "percent": 70 }),
+            ));
+            steps.push(step(
+                3,
+                ids::SYSTEM_OPEN_URL,
+                json!({ "url": "https://docs.google.com" }),
+            ));
         }
         Category::Chill => {
-            steps.push(step(2, ids::IOT_HUE_ACTIVATE_SCENE, json!({ "scene": "Sunset Glow" })));
-            steps.push(step(3, ids::SYSTEM_OPEN_URL, json!({ "url": "https://open.spotify.com" })));
+            steps.push(step(
+                2,
+                ids::IOT_HUE_ACTIVATE_SCENE,
+                json!({ "scene": "Sunset Glow" }),
+            ));
+            steps.push(step(
+                3,
+                ids::SYSTEM_OPEN_URL,
+                json!({ "url": "https://open.spotify.com" }),
+            ));
         }
         Category::Streaming => {
             steps.push(step(2, ids::SYSTEM_LAUNCH_APP, json!({ "path": "obs64" })));
-            steps.push(step(3, ids::IOT_HUE_ACTIVATE_SCENE, json!({ "scene": "Studio" })));
+            steps.push(step(
+                3,
+                ids::IOT_HUE_ACTIVATE_SCENE,
+                json!({ "scene": "Studio" }),
+            ));
         }
         Category::Night => {
-            steps.push(step(2, ids::DISPLAY_SET_BRIGHTNESS, json!({ "percent": 20 })));
+            steps.push(step(
+                2,
+                ids::DISPLAY_SET_BRIGHTNESS,
+                json!({ "percent": 20 }),
+            ));
         }
         Category::Custom => {}
     }
 
     if p.contains("steam") {
         let next = steps.len() as u32 + 1;
-        steps.push(step(next, ids::GAMING_LAUNCH_STEAM, json!({ "app_id": "000000" })));
+        steps.push(step(
+            next,
+            ids::GAMING_LAUNCH_STEAM,
+            json!({ "app_id": "000000" }),
+        ));
     }
 
     Mode {
@@ -115,11 +154,17 @@ mod tests {
 
     #[test]
     fn gaming_prompt_builds_a_gaming_mode() {
-        let mode = generate_mode("Set up my PC for a ranked gaming session on steam", Uuid::nil());
+        let mode = generate_mode(
+            "Set up my PC for a ranked gaming session on steam",
+            Uuid::nil(),
+        );
         assert_eq!(mode.category, Category::Gaming);
         // volume + brightness + hue + steam launch
         assert_eq!(mode.steps.len(), 4);
-        assert!(mode.steps.iter().any(|s| s.action_type == ids::GAMING_LAUNCH_STEAM));
+        assert!(mode
+            .steps
+            .iter()
+            .any(|s| s.action_type == ids::GAMING_LAUNCH_STEAM));
     }
 
     #[test]

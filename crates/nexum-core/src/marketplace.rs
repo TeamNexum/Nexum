@@ -10,7 +10,10 @@ use nexum_schema::Mode;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[cfg_attr(feature = "ts", derive(ts_rs::TS))]
-#[cfg_attr(feature = "ts", ts(export, export_to = "../../packages/schema-ts/src/generated/"))]
+#[cfg_attr(
+    feature = "ts",
+    ts(export, export_to = "../../../packages/schema-ts/src/generated/")
+)]
 #[serde(rename_all = "snake_case")]
 pub enum RiskLevel {
     Low,
@@ -22,7 +25,10 @@ pub enum RiskLevel {
 
 #[derive(Debug, Clone, Serialize)]
 #[cfg_attr(feature = "ts", derive(ts_rs::TS))]
-#[cfg_attr(feature = "ts", ts(export, export_to = "../../packages/schema-ts/src/generated/"))]
+#[cfg_attr(
+    feature = "ts",
+    ts(export, export_to = "../../../packages/schema-ts/src/generated/")
+)]
 pub struct RiskReport {
     pub score: u32,
     pub level: RiskLevel,
@@ -59,7 +65,12 @@ pub fn assess(mode: &Mode, allowlist: &[String]) -> RiskReport {
         RiskLevel::Low
     };
 
-    RiskReport { score, level, issues, unknown_actions: unknown }
+    RiskReport {
+        score,
+        level,
+        issues,
+        unknown_actions: unknown,
+    }
 }
 
 /// Per-action impact weight. Higher = more capable of harm/annoyance.
@@ -72,7 +83,6 @@ fn action_risk_weight(action_type: &str) -> u32 {
         "audio.set_volume" => 2,
         "display.set_brightness" => 2,
         "iot.hue.activate_scene" => 2,
-        "peripheral.apply_rgb_profile" => 2,
         _ => 15, // known but unclassified
     }
 }
@@ -104,22 +114,33 @@ mod tests {
     }
 
     fn allowlist() -> Vec<String> {
-        ["audio.set_volume", "system.close_app", "system.launch_app", "iot.hue.activate_scene"]
-            .iter()
-            .map(|s| s.to_string())
-            .collect()
+        [
+            "audio.set_volume",
+            "system.close_app",
+            "system.launch_app",
+            "iot.hue.activate_scene",
+        ]
+        .iter()
+        .map(|s| s.to_string())
+        .collect()
     }
 
     #[test]
     fn safe_mode_is_low_risk() {
-        let report = assess(&mode_with(&["audio.set_volume", "iot.hue.activate_scene"]), &allowlist());
+        let report = assess(
+            &mode_with(&["audio.set_volume", "iot.hue.activate_scene"]),
+            &allowlist(),
+        );
         assert_eq!(report.level, RiskLevel::Low);
         assert!(report.unknown_actions.is_empty());
     }
 
     #[test]
     fn unknown_action_is_rejected() {
-        let report = assess(&mode_with(&["audio.set_volume", "evil.rm_rf"]), &allowlist());
+        let report = assess(
+            &mode_with(&["audio.set_volume", "evil.rm_rf"]),
+            &allowlist(),
+        );
         assert_eq!(report.level, RiskLevel::Rejected);
         assert_eq!(report.unknown_actions, vec!["evil.rm_rf".to_string()]);
     }

@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 
-use nexum_core::{ActionOutcome, Adapter, AdapterError, Capability, ExecContext};
+use nexum_core::{ActionOutcome, Adapter, AdapterError, Capability};
 use nexum_schema::action_types::{ids, CloseAppParams, LaunchAppParams, OpenUrlParams};
 use nexum_schema::ActionStep;
 
@@ -23,10 +23,6 @@ impl Default for SystemAdapter {
 
 #[async_trait]
 impl Adapter for SystemAdapter {
-    fn name(&self) -> &str {
-        "system"
-    }
-
     fn supported_actions(&self) -> Vec<String> {
         vec![
             ids::SYSTEM_LAUNCH_APP.into(),
@@ -48,19 +44,12 @@ impl Adapter for SystemAdapter {
         }
     }
 
-    async fn execute(
-        &self,
-        step: &ActionStep,
-        ctx: &ExecContext,
-    ) -> Result<ActionOutcome, AdapterError> {
+    async fn execute(&self, step: &ActionStep) -> Result<ActionOutcome, AdapterError> {
         self.validate(step)?;
 
         match step.action_type.as_str() {
             ids::SYSTEM_LAUNCH_APP => {
                 let p: LaunchAppParams = deser(step)?;
-                if ctx.dry_run {
-                    return Ok(ok(step, format!("dry-run: would launch {}", p.path)));
-                }
                 std::process::Command::new(&p.path)
                     .args(&p.args)
                     .spawn()
@@ -69,17 +58,11 @@ impl Adapter for SystemAdapter {
             }
             ids::SYSTEM_OPEN_URL => {
                 let p: OpenUrlParams = deser(step)?;
-                if ctx.dry_run {
-                    return Ok(ok(step, format!("dry-run: would open {}", p.url)));
-                }
                 open::that(&p.url).map_err(|e| AdapterError::Execution(e.to_string()))?;
                 Ok(ok(step, format!("opened {}", p.url)))
             }
             ids::SYSTEM_CLOSE_APP => {
                 let p: CloseAppParams = deser(step)?;
-                if ctx.dry_run {
-                    return Ok(ok(step, format!("dry-run: would close {}", p.name)));
-                }
                 close_app(&p.name)?;
                 Ok(ok(step, format!("closed {}", p.name)))
             }

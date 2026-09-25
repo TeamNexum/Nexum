@@ -18,7 +18,6 @@ import {
   IconLink,
   IconSteam,
   IconHue,
-  IconRgb,
   IconSliders,
 } from "./components/Icons";
 
@@ -32,17 +31,16 @@ export function catStyle(color: string): CSSProperties {
 export interface CategoryInfo {
   label: string;
   color: string;
-  icon: string; // text fallback for option tags
   Icon: ComponentType<{ size?: number; className?: string }>;
 }
 
 export const CATEGORY_META: Record<Category, CategoryInfo> = {
-  gaming: { label: "Gaming", color: "#F038A0", icon: "Gaming", Icon: IconGaming },
-  work: { label: "Travail", color: "#22D3EE", icon: "Travail", Icon: IconWork },
-  chill: { label: "Détente", color: "#7C5CFF", icon: "Détente", Icon: IconChill },
-  streaming: { label: "Stream", color: "#F0436E", icon: "Stream", Icon: IconStreaming },
-  night: { label: "Nuit", color: "#4F628E", icon: "Nuit", Icon: IconNight },
-  custom: { label: "Personnalisé", color: "#8A93A3", icon: "Perso", Icon: IconSparkles },
+  gaming: { label: "Gaming", color: "#F038A0", Icon: IconGaming },
+  work: { label: "Travail", color: "#22D3EE", Icon: IconWork },
+  chill: { label: "Détente", color: "#7C5CFF", Icon: IconChill },
+  streaming: { label: "Stream", color: "#F0436E", Icon: IconStreaming },
+  night: { label: "Nuit", color: "#4F628E", Icon: IconNight },
+  custom: { label: "Personnalisé", color: "#8A93A3", Icon: IconSparkles },
 };
 
 export function categoryMeta(cat: string): CategoryInfo {
@@ -52,7 +50,6 @@ export function categoryMeta(cat: string): CategoryInfo {
 export interface ActionInfo {
   label: string;
   domain: string;
-  icon: string; // text fallback
   Icon: ComponentType<{ size?: number; className?: string }>;
   describe: (p: Params) => string;
 }
@@ -61,72 +58,56 @@ export const ACTION_META: Record<string, ActionInfo> = {
   "audio.set_volume": {
     label: "Régler le volume",
     domain: "Audio",
-    icon: "Audio",
     Icon: IconAudio,
     describe: (p) => `Volume fixé à ${p.percent ?? "?"}%`,
   },
   "display.set_brightness": {
     label: "Régler la luminosité",
     domain: "Écran",
-    icon: "Écran",
     Icon: IconDisplay,
     describe: (p) => `Luminosité fixée à ${p.percent ?? "?"}%`,
   },
   "system.launch_app": {
     label: "Lancer une application",
     domain: "Système",
-    icon: "App",
     Icon: IconApp,
     describe: (p) => `Lancer ${p.path ?? "l'application"}`,
   },
   "system.close_app": {
     label: "Fermer une application",
     domain: "Système",
-    icon: "Stop",
     Icon: IconCloseApp,
     describe: (p) => `Fermer ${p.name ?? "l'application"}`,
   },
   "system.open_url": {
     label: "Ouvrir un lien",
     domain: "Système",
-    icon: "Web",
     Icon: IconLink,
     describe: (p) => `Ouvrir ${p.url ?? "un lien web"}`,
   },
   "gaming.launch_steam": {
     label: "Lancer un jeu Steam",
     domain: "Jeux",
-    icon: "Steam",
     Icon: IconSteam,
     describe: (p) => (p.app_id ? `Lancer Steam (App ID: ${p.app_id})` : "Lancer un jeu Steam"),
   },
   "gaming.launch_epic": {
     label: "Lancer un jeu Epic",
     domain: "Jeux",
-    icon: "Epic",
     Icon: IconGaming,
     describe: (p) => (p.name ? `Lancer Epic : ${p.name}` : "Lancer un jeu Epic"),
   },
   "gaming.launch_gog": {
     label: "Lancer un jeu GOG",
     domain: "Jeux",
-    icon: "GOG",
     Icon: IconGaming,
     describe: (p) => (p.game_id ? `Lancer GOG (${p.game_id})` : "Lancer un jeu GOG"),
   },
   "iot.hue.activate_scene": {
     label: "Ambiance Philips Hue",
     domain: "Éclairage",
-    icon: "Hue",
     Icon: IconHue,
     describe: (p) => `Hue : Scène « ${p.scene ?? "?"} »`,
-  },
-  "peripheral.apply_rgb_profile": {
-    label: "Profil RGB périphériques",
-    domain: "Périphériques",
-    icon: "RGB",
-    Icon: IconRgb,
-    describe: (p) => `Profil RGB : ${p.profile ?? "?"}`,
   },
 };
 
@@ -135,7 +116,6 @@ export function actionMeta(type: string): ActionInfo {
     ACTION_META[type] ?? {
       label: type,
       domain: "Autre",
-      icon: "Action",
       Icon: IconSliders,
       describe: () => type,
     }
@@ -176,8 +156,7 @@ export const STARTER_TEMPLATES: CatalogMode[] = [
       step(1, "audio.set_volume", { percent: 80 }),
       step(2, "display.set_brightness", { percent: 100 }),
       step(3, "iot.hue.activate_scene", { scene: "Purple Night" }),
-      step(4, "peripheral.apply_rgb_profile", { profile: "Neon Wave" }),
-      step(5, "gaming.launch_steam", { app_id: "1030300" }),
+      step(4, "gaming.launch_steam", { app_id: "1030300" }),
     ],
   },
   {

@@ -2,14 +2,17 @@ use serde::Serialize;
 
 use nexum_schema::{Mode, OnError};
 
-use crate::adapter::ExecContext;
+use crate::adapter::Capability;
 use crate::bus::{EngineEvent, EventBus};
 use crate::registry::ActionRegistry;
 
 /// Outcome of a single step, surfaced to the UI and persisted as a log.
 #[derive(Debug, Clone, Serialize)]
 #[cfg_attr(feature = "ts", derive(ts_rs::TS))]
-#[cfg_attr(feature = "ts", ts(export, export_to = "../../packages/schema-ts/src/generated/"))]
+#[cfg_attr(
+    feature = "ts",
+    ts(export, export_to = "../../../packages/schema-ts/src/generated/")
+)]
 pub struct StepReport {
     pub order: u32,
     pub action_type: String,
@@ -20,7 +23,10 @@ pub struct StepReport {
 /// Full result of activating a mode.
 #[derive(Debug, Clone, Serialize)]
 #[cfg_attr(feature = "ts", derive(ts_rs::TS))]
-#[cfg_attr(feature = "ts", ts(export, export_to = "../../packages/schema-ts/src/generated/"))]
+#[cfg_attr(
+    feature = "ts",
+    ts(export, export_to = "../../../packages/schema-ts/src/generated/")
+)]
 pub struct ExecutionReport {
     pub mode_id: String,
     pub success: bool,
@@ -55,7 +61,7 @@ impl Engine {
     /// step's adapter from the registry. Failures are captured per step and
     /// honor the step's `on_error` policy. The returned report never hides a
     /// failure — the whole activation is `success` only if every step was.
-    pub async fn activate(&self, mode: &Mode, ctx: &ExecContext) -> ExecutionReport {
+    pub async fn activate(&self, mode: &Mode) -> ExecutionReport {
         self.bus.emit(EngineEvent::ModeStarted {
             mode_id: mode.id.to_string(),
             name: mode.name.clone(),
@@ -75,10 +81,18 @@ impl Engine {
             });
 
             let (success, message) = match self.registry.resolve(&step.action_type) {
-                None => (false, format!("no adapter registered for '{}'", step.action_type)),
-                Some(adapter) => match adapter.execute(step, ctx).await {
-                    Ok(outcome) => (outcome.success, outcome.message),
-                    Err(err) => (false, err.to_string()),
+                None => (
+                    false,
+                    format!("no adapter registered for '{}'", step.action_type),
+                ),
+                Some(adapter) => match adapter.is_available().await {
+                    Capability::Unavailable { reason } => {
+                        (false, format!("adapter unavailable: {reason}"))
+                    }
+                    Capability::Available => match adapter.execute(step).await {
+                        Ok(outcome) => (outcome.success, outcome.message),
+                        Err(err) => (false, err.to_string()),
+                    },
                 },
             };
 

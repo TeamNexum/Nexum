@@ -14,7 +14,7 @@ peripherals and IoT.
 - **Automation engine** — declarative WHEN/IF/THEN rules, evaluated in pure Rust (tested).
 - **Marketplace safety** — static analysis + risk scoring of shared modes against an allowlist (tested).
 - **AI "Mode-as-Code"** — natural language → validated Mode DSL (`nexum-core::ai`, tested; heuristic today, swaps to a Claude API call in production). Exposed in the cloud API and the editor's ✨ button.
-- **Adapters** — System / Gaming (real, cross-platform), Audio (Linux), real **Philips Hue** (behind the `hue` feature), Display/RGB (mock/TODO).
+- **Adapters** — real System / Gaming, Windows and Linux Audio, Windows and Linux Display, and Philips Hue (behind the `hue` feature). RGB remains unimplemented.
 - **Persistence** — `ModeStore` trait, in-memory always, **SQLite** behind the `sqlite` feature.
 - **Cloud** — axum API skeleton.
 - **Desktop app** — Tauri 2 + React with 4 tabs: **Dashboard** (activate modes, live event feed),
@@ -39,7 +39,7 @@ nexum/
 ├── crates/
 │   ├── nexum-schema     # The Mode/Action DSL — single source of truth
 │   ├── nexum-core       # Engine, Registry, Adapter trait, Event Bus (OS-agnostic, tested)
-│   ├── nexum-adapters   # System / Audio / Gaming / Display integrations (+ Mock)
+│   ├── nexum-adapters   # System / Audio / Gaming / Display / Hue integrations
 │   └── nexum-store      # Persistence trait + in-memory impl (SQLite to follow)
 ├── services/
 │   └── nexum-cloud      # axum API skeleton (sync, marketplace, AI later)
@@ -64,7 +64,7 @@ build machinery never affects the core build/CI.
 
 ## Prerequisites
 
-- **Rust** (stable) — https://rustup.rs   (⚠️ not currently installed on this machine)
+- **Rust** (stable) — https://rustup.rs
 - **Node.js + npm** (for the desktop frontend / Tauri CLI)
 - Tauri OS deps: see https://tauri.app/start/prerequisites/
   (Linux also needs `libdbus`/`pactl` for the audio adapter).
@@ -94,8 +94,10 @@ npm run tauri dev
 
 You should see three demo modes. Activating one runs the **real** engine:
 `system.open_url` / `gaming.launch_steam` actually fire; `audio.set_volume`
-works on Linux; brightness/Hue/RGB are handled by a mock for now (each step
-reports its real success/failure in the "Live actions" panel).
+works on Windows and Linux. Brightness controls supported displays, and Hue
+uses a configured bridge. RGB is not offered in the action catalog; older saved
+modes with an RGB action report that no adapter is registered. The live action
+monitor shows each step's result.
 
 ## Status of adapters (V1)
 
@@ -103,15 +105,11 @@ reports its real success/failure in the "Live actions" panel).
 |---------------------------------|-----------------------------------------------|
 | `system.launch_app / close_app / open_url` | ✅ cross-platform                   |
 | `gaming.launch_steam`           | ✅ via `steam://` (official, anti-cheat-safe) |
-| `audio.set_volume`              | ✅ Linux · ⛔ Windows Core Audio **TODO**     |
-| `display.set_brightness`        | ⛔ TODO (validates only)                       |
-| `iot.hue.activate_scene`        | 🔸 mocked — real Hue integration Phase 1      |
-| `peripheral.apply_rgb_profile`  | 🔸 mocked — Phase 1                            |
+| `audio.set_volume`              | ✅ Windows Core Audio and Linux                |
+| `display.set_brightness`        | ✅ Windows/Linux where hardware supports it   |
+| `iot.hue.activate_scene`        | ✅ with a configured Hue bridge and scene name|
+| `peripheral.apply_rgb_profile`  | ⛔ no adapter yet                              |
 
-## Immediate Phase-0 TODOs
-
-1. Fix **Windows volume** via the `windows` crate (Core Audio). Windows is the priority OS.
-2. Wire **ts-rs** into `nexum-schema` to auto-generate `packages/schema-ts` (kill hand-mirroring).
-3. Real **SQLite** `ModeStore` (offline-first) behind the existing trait.
-4. First real **Philips Hue** adapter (best live-demo payoff).
-5. **no-code mode editor** UI.
+The Windows volume adapter, generated TypeScript bindings, SQLite desktop
+store, Hue scene lookup, and no-code editor are implemented. Hardware
+integrations still need live device testing.

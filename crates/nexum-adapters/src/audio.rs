@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 
-use nexum_core::{ActionOutcome, Adapter, AdapterError, Capability, ExecContext};
+use nexum_core::{ActionOutcome, Adapter, AdapterError, Capability};
 use nexum_schema::action_types::{ids, SetVolumeParams};
 use nexum_schema::ActionStep;
 
@@ -10,6 +10,14 @@ use crate::util::{deser, ok};
 pub struct AudioAdapter;
 
 impl AudioAdapter {
+    /// Read the default endpoint without changing its volume or mute state.
+    pub fn probe() -> Result<(), AdapterError> {
+        #[cfg(target_os = "windows")]
+        { probe_windows_audio() }
+        #[cfg(not(target_os = "windows"))]
+        { Err(AdapterError::Unavailable("Diagnostic audio disponible uniquement sur Windows".into())) }
+    }
+
     pub fn new() -> Self {
         Self
     }
@@ -23,16 +31,12 @@ impl Default for AudioAdapter {
 
 #[async_trait]
 impl Adapter for AudioAdapter {
-    fn name(&self) -> &str {
-        "audio"
-    }
-
     fn supported_actions(&self) -> Vec<String> {
         vec![ids::AUDIO_SET_VOLUME.into()]
     }
 
     async fn is_available(&self) -> Capability {
-        if cfg!(target_os = "linux") {
+        if cfg!(any(target_os = "linux", target_os = "windows")) {
             Capability::Available
         } else {
             Capability::Unavailable {
@@ -52,16 +56,9 @@ impl Adapter for AudioAdapter {
         Ok(())
     }
 
-    async fn execute(
-        &self,
-        step: &ActionStep,
-        ctx: &ExecContext,
-    ) -> Result<ActionOutcome, AdapterError> {
+    async fn execute(&self, step: &ActionStep) -> Result<ActionOutcome, AdapterError> {
         self.validate(step)?;
         let p: SetVolumeParams = deser(step)?;
-        if ctx.dry_run {
-            return Ok(ok(step, format!("dry-run: would set volume to {}%", p.percent)));
-        }
         set_volume(p.percent)?;
         Ok(ok(step, format!("volume set to {}%", p.percent)))
     }
@@ -88,7 +85,10 @@ fn set_volume(percent: u8) -> Result<(), AdapterError> {
             return Ok(());
         }
         let _ = try_run("pactl", &["set-sink-mute", "@DEFAULT_SINK@", "0"]);
-        if try_run("pactl", &["set-sink-volume", "@DEFAULT_SINK@", &format!("{percent}%")]) {
+        if try_run(
+            "pactl",
+            &["set-sink-volume", "@DEFAULT_SINK@", &format!("{percent}%")],
+        ) {
             return Ok(());
         }
         Err(AdapterError::Execution(
@@ -97,14 +97,7 @@ fn set_volume(percent: u8) -> Result<(), AdapterError> {
     }
     #[cfg(target_os = "windows")]
     {
-        // TODO(nexum, Phase 0): implement via Windows Core Audio
-        // (IMMDeviceEnumerator -> IAudioEndpointVolume::SetMasterVolumeLevelScalar)
-        // using the `windows` crate. The prototype's PowerShell approach was a
-        // NO-OP and must not be reused. Windows is the priority OS.
-        let _ = percent;
-        Err(AdapterError::Unavailable(
-            "windows volume control not yet implemented (Core Audio TODO)".into(),
-        ))
+        set_windows_volume(percent)
     }
     #[cfg(not(any(target_os = "linux", target_os = "windows")))]
     {
@@ -114,3 +107,74 @@ fn set_volume(percent: u8) -> Result<(), AdapterError> {
         ))
     }
 }
+
+#[cfg(target_os = "windows")]
+fn set_windows_volume(percent: u8) -> Result<(), AdapterError> {
+    use windows::Win32::Foundation::RPC_E_CHANGED_MODE;
+    use windows::Win32::Media::Audio::Endpoints::IAudioEndpointVolume;
+    use windows::Win32::Media::Audio::{
+        eMultimedia, eRender, IMMDeviceEnumerator, MMDeviceEnumerator,
+    };
+    use windows::Win32::System::Com::{
+        CoCreateInstance, CoInitializeEx, CoUninitialize, CLSCTX_ALL, COINIT_MULTITHREADED,
+    };
+
+    // Core Audio is COM based. A Tauri worker may already have initialized COM
+    // with a different apartment model; in that case COM is still usable.
+    unsafe {
+        let init = CoInitializeEx(None, COINIT_MULTITHREADED);
+        if init.is_err() && init != RPC_E_CHANGED_MODE {
+            return Err(AdapterError::Execution(format!(
+                "COM initialization failed: {init}"
+            )));
+        }
+        let result = (|| -> windows::core::Result<()> {
+            let enumerator: IMMDeviceEnumerator =
+                CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL)?;
+            let device = enumerator.GetDefaultAudioEndpoint(eRender, eMultimedia)?;
+            let endpoint: IAudioEndpointVolume = device.Activate(CLSCTX_ALL, None)?;
+            endpoint.SetMasterVolumeLevelScalar(f32::from(percent) / 100.0, std::ptr::null())?;
+            Ok(())
+        })();
+        if init.is_ok() {
+            CoUninitialize();
+        }
+        result.map_err(|e| AdapterError::Execution(format!("Core Audio: {e}")))
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn probe_windows_audio() -> Result<(), AdapterError> {
+    use windows::Win32::Foundation::RPC_E_CHANGED_MODE;
+    use windows::Win32::Media::Audio::Endpoints::IAudioEndpointVolume;
+    use windows::Win32::Media::Audio::{
+        eMultimedia, eRender, IMMDeviceEnumerator, MMDeviceEnumerator,
+    };
+    use windows::Win32::System::Com::{
+        CoCreateInstance, CoInitializeEx, CoUninitialize, CLSCTX_ALL, COINIT_MULTITHREADED,
+    };
+
+    // Core Audio is COM based. A Tauri worker may already have initialized COM
+    // with a different apartment model; in that case COM is still usable.
+    unsafe {
+        let init = CoInitializeEx(None, COINIT_MULTITHREADED);
+        if init.is_err() && init != RPC_E_CHANGED_MODE {
+            return Err(AdapterError::Execution(format!(
+                "COM initialization failed: {init}"
+            )));
+        }
+        let result = (|| -> windows::core::Result<()> {
+            let enumerator: IMMDeviceEnumerator =
+                CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL)?;
+            let device = enumerator.GetDefaultAudioEndpoint(eRender, eMultimedia)?;
+            let endpoint: IAudioEndpointVolume = device.Activate(CLSCTX_ALL, None)?;
+            let _ = endpoint.GetMasterVolumeLevelScalar()?;
+            Ok(())
+        })();
+        if init.is_ok() {
+            CoUninitialize();
+        }
+        result.map_err(|e| AdapterError::Execution(format!("Core Audio: {e}")))
+    }
+}
+

@@ -29,7 +29,6 @@ Allowed action_type values and their params:\n\
 - system.open_url {\"url\":string}\n\
 - gaming.launch_steam {\"app_id\":string}\n\
 - iot.hue.activate_scene {\"scene\":string}\n\
-- peripheral.apply_rgb_profile {\"profile\":string}\n\
 Use ONLY those action types. Order steps from 1."
         .to_string()
 }

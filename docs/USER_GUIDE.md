@@ -150,10 +150,9 @@ Si une étape échoue (par exemple, une lampe connectée est éteinte), les autr
 étapes continuent de s'exécuter. Nexum vous indique simplement le point de blocage.
 
 > 💡 **Astuce** — Toutes les fonctions ne sont pas encore actives sur toutes les
-> plateformes à ce stade du projet. Par exemple, le réglage du volume fonctionne
-> aujourd'hui sur Linux ; le pilotage des lumières et du RGB peut être simulé sur
-> certaines configurations. Le journal indique toujours ce qui a réellement été
-> exécuté.
+> plateformes à ce stade du projet. Le volume fonctionne sur Windows et Linux ;
+> la luminosité dépend du matériel, et Hue nécessite un pont configuré. Le RGB
+> n'est pas encore proposé. Le journal indique toujours ce qui a été exécuté.
 
 ---
 
@@ -180,7 +179,6 @@ régler le son, allumer une lumière…).
    - **Régler le volume** → choisissez un niveau (de 0 à 100).
    - **Régler la luminosité de l'écran** → choisissez un niveau.
    - **Activer une scène de lumières (Philips Hue)** → choisissez la scène.
-   - **Appliquer un profil RGB (périphériques)** → choisissez le profil de couleurs.
 6. Remplissez les **champs** demandés par l'action sélectionnée (chaque type
    d'action affiche son propre petit formulaire).
 7. Répétez les étapes 4 à 6 pour ajouter autant d'actions que voulu.
@@ -324,18 +322,17 @@ Nexum est conçu pour rester sûr : il lance les jeux via les canaux officiels
 (par exemple le lien `steam://`) et n'injecte pas de code dans les jeux. L'objectif
 est d'être compatible avec les protections anti-triche.
 
-### Mon mode s'active mais une lumière / le RGB ne réagit pas
+### Mon mode s'active mais une lumière ne réagit pas
 
-C'est souvent normal à ce stade du projet : certaines intégrations (lumières,
-RGB, volume Windows) peuvent être **simulées** ou pas encore disponibles selon
-votre système. Vérifiez le **journal d'actions en direct** : il indique
-précisément quelle étape n'a pas abouti.
+Vérifiez la configuration du pont Hue (`NEXUM_HUE_BRIDGE` et `NEXUM_HUE_USER`)
+et le nom de la scène. Le **journal d'actions en direct** indique précisément
+quelle étape n'a pas abouti. Le RGB n'est pas encore proposé dans l'éditeur.
 
 ### Le réglage du volume ne fonctionne pas sur Windows
 
-Le contrôle du volume est disponible sur Linux ; sur Windows, cette action est en
-cours de finalisation. — « Hypothèse » : selon votre version, elle peut ne pas
-encore être active.
+Le contrôle du volume utilise Windows Core Audio. Vérifiez qu'un périphérique
+de sortie par défaut est disponible, puis consultez le journal d'actions pour
+voir le message d'erreur précis.
 
 ### L'application ne s'ouvre pas sur Windows
 

@@ -5,13 +5,30 @@ use tokio::sync::broadcast;
 /// cloud sync queue) react without the engine knowing they exist.
 #[derive(Debug, Clone, Serialize)]
 #[cfg_attr(feature = "ts", derive(ts_rs::TS))]
-#[cfg_attr(feature = "ts", ts(export, export_to = "../../packages/schema-ts/src/generated/"))]
+#[cfg_attr(
+    feature = "ts",
+    ts(export, export_to = "../../../packages/schema-ts/src/generated/")
+)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum EngineEvent {
-    ModeStarted { mode_id: String, name: String },
-    StepStarted { action_type: String, order: u32 },
-    StepFinished { action_type: String, order: u32, success: bool, message: String },
-    ModeFinished { mode_id: String, success: bool },
+    ModeStarted {
+        mode_id: String,
+        name: String,
+    },
+    StepStarted {
+        action_type: String,
+        order: u32,
+    },
+    StepFinished {
+        action_type: String,
+        order: u32,
+        success: bool,
+        message: String,
+    },
+    ModeFinished {
+        mode_id: String,
+        success: bool,
+    },
 }
 
 /// Thin wrapper over a Tokio broadcast channel.

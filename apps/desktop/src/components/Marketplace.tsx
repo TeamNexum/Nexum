@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
 import type { Mode, RiskReport } from "../types";
+import ProfileDetails from "./ProfileDetails";
 import {
   MARKETPLACE_CATALOG,
   categoryMeta,
@@ -21,6 +22,11 @@ export default function Marketplace({ modes, reload }: { modes: Mode[]; reload: 
   const [risks, setRisks] = useState<Record<string, RiskReport>>({});
   const [installing, setInstalling] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("all");
+  const [preview, setPreview] = useState<CatalogMode | null>(null);
+  const filtered = MARKETPLACE_CATALOG.filter(c => (category === "all" || c.category === category) && `${c.name} ${c.tagline}`.toLocaleLowerCase().includes(query.toLocaleLowerCase()));
 
   // Score every catalog mode with the real static analyzer, so the risk badge
   // shown on each card is genuine (not decorative). No-op in browser preview.
@@ -48,13 +54,15 @@ export default function Marketplace({ modes, reload }: { modes: Mode[]; reload: 
   async function install(c: CatalogMode) {
     setInstalling(c.name);
     setMsg(null);
+    setError(null);
     try {
       const id = await api.newId();
       await api.saveMode(toMode(c, id));
       reload();
       setMsg(`« ${c.name} » ajouté à votre bibliothèque.`);
+      setPreview(null);
     } catch (e) {
-      setMsg(String(e instanceof Error ? e.message : e));
+      setError(String(e instanceof Error ? e.message : e));
     } finally {
       setInstalling(null);
     }
@@ -63,13 +71,18 @@ export default function Marketplace({ modes, reload }: { modes: Mode[]; reload: 
   return (
     <div className="standard-view market">
       <section className="block">
-        <h2>Marketplace — modes de la communauté</h2>
+        <h2>Bibliothèque de profils</h2>
         <p className="muted">
-          Installez un mode en un clic. Chaque mode est une donnée déclarative validée par notre
-          analyse de sécurité : le badge de risque ci-dessous est réel, aucun code n'est exécuté.
+          Découvrez des modèles prêts à personnaliser. Leur niveau de risque est évalué
+          avant installation ; les actions ne s’exécutent qu’à l’activation du profil.
         </p>
+        <div className="catalog-toolbar">
+          <input aria-label="Rechercher un modèle" placeholder="Rechercher un modèle…" value={query} onChange={e => setQuery(e.target.value)} />
+          <select aria-label="Filtrer par catégorie" value={category} onChange={e => setCategory(e.target.value)}><option value="all">Toutes les catégories</option>{[...new Set(MARKETPLACE_CATALOG.map(c => c.category))].map(c => <option key={c} value={c}>{categoryMeta(c).label}</option>)}</select>
+          <span>{filtered.length} modèles</span>
+        </div>
         <div className="market-grid">
-          {MARKETPLACE_CATALOG.map((c) => {
+          {filtered.map((c) => {
             const cm = categoryMeta(c.category);
             const Icon = cm.Icon;
             const risk = risks[c.name];
@@ -92,6 +105,7 @@ export default function Marketplace({ modes, reload }: { modes: Mode[]; reload: 
                     <li key={i}>{describeStep(s)}</li>
                   ))}
                 </ul>
+                <button className="btn-secondary market-preview" onClick={() => { setError(null); setPreview(c); }}>Voir les {c.steps.length} actions</button>
                 <button
                   className="primary"
                   disabled={owned || installing != null}
@@ -103,10 +117,13 @@ export default function Marketplace({ modes, reload }: { modes: Mode[]; reload: 
             );
           })}
         </div>
+        {filtered.length === 0 && <p className="muted">Aucun modèle ne correspond à cette recherche.</p>}
         {msg && <div className="ok">{msg}</div>}
+        {error && <div className="error" role="alert">{error}</div>}
       </section>
 
-      <SafetyCheck modes={modes} />
+      <aside className="market-aside"><SafetyCheck modes={modes} /><section className="context-panel"><span className="workspace-kicker">DE L’IDÉE AU PROFIL</span><h2>Installez. Ajustez. Activez.</h2><ol className="guide-steps"><li><strong>Choisissez un modèle</strong><span>Consultez les actions incluses avant de l’ajouter.</span></li><li><strong>Faites-le vôtre</strong><span>Retrouvez-le dans le Studio pour régler chaque action.</span></li><li><strong>Lancez-le à votre rythme</strong><span>L’installation seule ne déclenche aucune action.</span></li></ol></section></aside>
+      {preview && <ProfileDetails mode={toMode(preview, "catalog-preview")} onClose={() => setPreview(null)} onAction={() => void install(preview)} busy={installing !== null} error={error} actionDisabled={modes.some(m => m.name.toLowerCase() === preview.name.toLowerCase())} actionLabel={modes.some(m => m.name.toLowerCase() === preview.name.toLowerCase()) ? "Déjà installé" : "Ajouter à ma bibliothèque"} />}
     </div>
   );
 }
@@ -115,11 +132,18 @@ export default function Marketplace({ modes, reload }: { modes: Mode[]; reload: 
 function SafetyCheck({ modes }: { modes: Mode[] }) {
   const [selected, setSelected] = useState<string>("");
   const [report, setReport] = useState<RiskReport | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   async function assess() {
     const mode = modes.find((m) => m.id === selected);
     if (!mode) return;
-    setReport(await api.assessMode(mode));
+    setError(null);
+    try {
+      setReport(await api.assessMode(mode));
+    } catch (e) {
+      setReport(null);
+      setError(String(e instanceof Error ? e.message : e));
+    }
   }
 
   return (
@@ -132,7 +156,7 @@ function SafetyCheck({ modes }: { modes: Mode[] }) {
       <div className="sim-row">
         <label>
           Mode à évaluer
-          <select value={selected} onChange={(e) => setSelected(e.target.value)}>
+          <select value={selected} onChange={(e) => { setSelected(e.target.value); setReport(null); setError(null); }}>
             <option value="">— choisir un mode —</option>
             {modes.map((m) => (
               <option key={m.id} value={m.id}>
@@ -145,6 +169,8 @@ function SafetyCheck({ modes }: { modes: Mode[] }) {
           Évaluer le risque
         </button>
       </div>
+
+      {error && <div className="error" role="alert">{error}</div>}
 
       {report && (
         <div className="risk">

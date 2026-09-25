@@ -26,6 +26,7 @@ function invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T> {
 }
 
 export const api = {
+  checkConnections: () => invoke<{ id: string; available: boolean; detail: string }[]>("check_connections"),
   getModes: () => invoke<Mode[]>("get_modes"),
   activateMode: (id: string) => invoke<ExecutionReport>("activate_mode", { id }),
   saveMode: (mode: Mode) => invoke<void>("save_mode", { mode }),

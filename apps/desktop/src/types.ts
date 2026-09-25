@@ -18,9 +18,9 @@ export type {
   RiskLevel,
   RiskReport,
   EngineEvent,
-} from "../../../packages/schema-ts/src/generated";
+} from "../../../packages/schema-ts/src";
 
-import type { Category } from "../../../packages/schema-ts/src/generated";
+import type { Category } from "../../../packages/schema-ts/src";
 
 /** All mode categories, for pickers/menus. */
 export const CATEGORIES: Category[] = ["gaming", "work", "chill", "streaming", "night", "custom"];

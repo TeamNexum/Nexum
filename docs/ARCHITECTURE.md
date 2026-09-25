@@ -31,7 +31,6 @@ flowchart TB
             A3["Gaming"]:::a
             A4["Display"]:::a
             A5["Hue (feature)"]:::a
-            A6["Mock"]:::a
         end
         Store["nexum-store<br/>InMemory · SQLite (feature)"]
     end
@@ -125,5 +124,5 @@ erDiagram
 | Cross-platform | Only adapters carry OS code; the mode never knows its OS. |
 | Extensible | New integration = new adapter + registry entry; the engine is untouched. |
 | Safe Marketplace | Shared modes are declarative data validated against an allowlist. |
-| AI Mode-as-Code | The LLM emits the same DSL, then it's simulated + capability-checked. |
+| AI Mode-as-Code | The LLM emits the same DSL; the engine checks adapter availability when a mode runs. |
 | Testable / QA | `nexum-core` is pure and OS-free → fast CI (RNCP Block 5). |

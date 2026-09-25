@@ -30,9 +30,12 @@ pub fn evaluate(event: &SystemEvent, rules: &[AutomationRule], ctx: &EvalContext
 
 fn trigger_matches(trigger: &Trigger, event: &SystemEvent) -> bool {
     match (trigger, event) {
-        (Trigger::TimeOfDay { hour, minute }, SystemEvent::Tick { hour: h, minute: m, .. }) => {
-            hour == h && minute == m
-        }
+        (
+            Trigger::TimeOfDay { hour, minute },
+            SystemEvent::Tick {
+                hour: h, minute: m, ..
+            },
+        ) => hour == h && minute == m,
         (Trigger::AppLaunched { name }, SystemEvent::AppLaunched { name: n }) => name == n,
         (Trigger::BatteryBelow { percent }, SystemEvent::Battery { percent: p }) => p < percent,
         (Trigger::LocationEntered { place }, SystemEvent::LocationEntered { place: pl }) => {
@@ -64,8 +67,13 @@ mod tests {
             name: "Chill after 18:00".into(),
             enabled: true,
             target_mode_id: target,
-            trigger: Trigger::TimeOfDay { hour: 18, minute: 0 },
-            conditions: vec![Condition::DayOfWeek { days: vec![0, 1, 2, 3, 4] }], // weekdays
+            trigger: Trigger::TimeOfDay {
+                hour: 18,
+                minute: 0,
+            },
+            conditions: vec![Condition::DayOfWeek {
+                days: vec![0, 1, 2, 3, 4],
+            }], // weekdays
         }
     }
 
@@ -73,8 +81,17 @@ mod tests {
     fn fires_when_time_and_conditions_match() {
         let target = Uuid::from_u128(99);
         let rules = vec![chill_after_18h(target)];
-        let event = SystemEvent::Tick { hour: 18, minute: 0, weekday: 2 };
-        let ctx = EvalContext { hour: 18, minute: 0, weekday: 2, active_modes: vec![] };
+        let event = SystemEvent::Tick {
+            hour: 18,
+            minute: 0,
+            weekday: 2,
+        };
+        let ctx = EvalContext {
+            hour: 18,
+            minute: 0,
+            weekday: 2,
+            active_modes: vec![],
+        };
         assert_eq!(evaluate(&event, &rules, &ctx), vec![target]);
     }
 
@@ -82,8 +99,17 @@ mod tests {
     fn does_not_fire_on_weekend() {
         let target = Uuid::from_u128(99);
         let rules = vec![chill_after_18h(target)];
-        let event = SystemEvent::Tick { hour: 18, minute: 0, weekday: 6 }; // Sunday
-        let ctx = EvalContext { hour: 18, minute: 0, weekday: 6, active_modes: vec![] };
+        let event = SystemEvent::Tick {
+            hour: 18,
+            minute: 0,
+            weekday: 6,
+        }; // Sunday
+        let ctx = EvalContext {
+            hour: 18,
+            minute: 0,
+            weekday: 6,
+            active_modes: vec![],
+        };
         assert!(evaluate(&event, &rules, &ctx).is_empty());
     }
 
@@ -92,8 +118,17 @@ mod tests {
         let target = Uuid::from_u128(99);
         let mut rule = chill_after_18h(target);
         rule.enabled = false;
-        let event = SystemEvent::Tick { hour: 18, minute: 0, weekday: 2 };
-        let ctx = EvalContext { hour: 18, minute: 0, weekday: 2, active_modes: vec![] };
+        let event = SystemEvent::Tick {
+            hour: 18,
+            minute: 0,
+            weekday: 2,
+        };
+        let ctx = EvalContext {
+            hour: 18,
+            minute: 0,
+            weekday: 2,
+            active_modes: vec![],
+        };
         assert!(evaluate(&event, &[rule], &ctx).is_empty());
     }
 
@@ -110,9 +145,18 @@ mod tests {
         };
         let ctx = EvalContext::default();
         assert_eq!(
-            evaluate(&SystemEvent::Battery { percent: 15 }, std::slice::from_ref(&rule), &ctx),
+            evaluate(
+                &SystemEvent::Battery { percent: 15 },
+                std::slice::from_ref(&rule),
+                &ctx
+            ),
             vec![target]
         );
-        assert!(evaluate(&SystemEvent::Battery { percent: 50 }, std::slice::from_ref(&rule), &ctx).is_empty());
+        assert!(evaluate(
+            &SystemEvent::Battery { percent: 50 },
+            std::slice::from_ref(&rule),
+            &ctx
+        )
+        .is_empty());
     }
 }

@@ -21,7 +21,6 @@ pub mod ids {
     pub const GAMING_LAUNCH_GOG: &str = "gaming.launch_gog";
 
     pub const IOT_HUE_ACTIVATE_SCENE: &str = "iot.hue.activate_scene";
-    pub const PERIPHERAL_APPLY_RGB_PROFILE: &str = "peripheral.apply_rgb_profile";
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

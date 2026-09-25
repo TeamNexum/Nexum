@@ -90,7 +90,9 @@ mod sqlite {
                 [],
             )
             .map_err(be)?;
-            Ok(Self { conn: Mutex::new(conn) })
+            Ok(Self {
+                conn: Mutex::new(conn),
+            })
         }
 
         pub fn in_memory() -> Result<Self, StoreError> {
@@ -197,5 +199,22 @@ mod tests {
         assert_eq!(store.list().await.unwrap().len(), 1);
         store.delete(id).await.unwrap();
         assert!(store.get(id).await.is_err());
+    }
+
+    #[cfg(feature = "sqlite")]
+    #[tokio::test]
+    async fn sqlite_modes_survive_reopening() {
+        let path = std::env::temp_dir().join(format!("nexum-store-{}.db", Uuid::new_v4()));
+        let filename = path.to_str().unwrap();
+        let id = Uuid::new_v4();
+        {
+            let store = SqliteStore::open(filename).unwrap();
+            store.upsert(sample(id)).await.unwrap();
+        }
+        {
+            let store = SqliteStore::open(filename).unwrap();
+            assert_eq!(store.get(id).await.unwrap().id, id);
+        }
+        std::fs::remove_file(path).unwrap();
     }
 }

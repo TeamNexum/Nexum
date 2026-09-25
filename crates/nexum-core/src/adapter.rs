@@ -21,36 +21,20 @@ pub struct ActionOutcome {
     pub message: String,
 }
 
-/// Runtime context handed to adapters. Extend with user/device/cloud handles
-/// as the project grows.
-#[derive(Debug, Default, Clone)]
-pub struct ExecContext {
-    /// When true, adapters must validate and report but perform NO side effects.
-    /// This powers the "simulation" step of AI Mode-as-Code and previews.
-    pub dry_run: bool,
-}
-
 /// Every integration (System, Audio, Gaming, IoT, ...) implements this trait.
 /// Adding a new integration means writing one `Adapter` and registering it —
 /// the engine never changes. This is the seam for the future plugin SDK.
 #[async_trait]
 pub trait Adapter: Send + Sync {
-    /// Human-readable name, for logs.
-    fn name(&self) -> &str;
-
     /// The `action_type`s this adapter can handle (e.g. `["audio.set_volume"]`).
     fn supported_actions(&self) -> Vec<String>;
 
     /// Is the underlying hardware/API usable right now?
     async fn is_available(&self) -> Capability;
 
-    /// Validate params without side effects (used for previews and risk scoring).
+    /// Validate params without side effects.
     fn validate(&self, step: &ActionStep) -> Result<(), AdapterError>;
 
-    /// Execute the action for real (unless `ctx.dry_run`).
-    async fn execute(
-        &self,
-        step: &ActionStep,
-        ctx: &ExecContext,
-    ) -> Result<ActionOutcome, AdapterError>;
+    /// Execute the action.
+    async fn execute(&self, step: &ActionStep) -> Result<ActionOutcome, AdapterError>;
 }

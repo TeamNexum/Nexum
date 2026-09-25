@@ -2,4 +2,7 @@
 import type { ActionStep } from "./ActionStep";
 import type { Category } from "./Category";
 
-export type Mode = { id: string, name: string, description?: string | null, category: Category, steps: Array<ActionStep>, };
+/**
+ * A Mode reshapes the user's whole setup when activated.
+ */
+export type Mode = { id: string, name: string, description: string | null, category: Category, steps: Array<ActionStep>, };

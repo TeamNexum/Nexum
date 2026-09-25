@@ -2,4 +2,7 @@
 import type { Condition } from "./Condition";
 import type { Trigger } from "./Trigger";
 
+/**
+ * A single automation rule.
+ */
 export type AutomationRule = { id: string, name: string, enabled: boolean, target_mode_id: string, trigger: Trigger, conditions: Array<Condition>, };

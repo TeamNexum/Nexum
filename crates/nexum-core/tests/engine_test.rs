@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use nexum_core::{
-    ActionOutcome, ActionRegistry, Adapter, AdapterError, Capability, Engine, EventBus, ExecContext,
+    ActionOutcome, ActionRegistry, Adapter, AdapterError, Capability, Engine, EventBus,
 };
 use nexum_schema::{ActionStep, Category, Mode, OnError};
 use uuid::Uuid;
@@ -17,9 +17,6 @@ struct TestAdapter;
 
 #[async_trait]
 impl Adapter for TestAdapter {
-    fn name(&self) -> &str {
-        "test"
-    }
     fn supported_actions(&self) -> Vec<String> {
         vec!["test.ok".into(), "test.fail".into(), "test.boom".into()]
     }
@@ -29,11 +26,7 @@ impl Adapter for TestAdapter {
     fn validate(&self, _step: &ActionStep) -> Result<(), AdapterError> {
         Ok(())
     }
-    async fn execute(
-        &self,
-        step: &ActionStep,
-        _ctx: &ExecContext,
-    ) -> Result<ActionOutcome, AdapterError> {
+    async fn execute(&self, step: &ActionStep) -> Result<ActionOutcome, AdapterError> {
         match step.action_type.as_str() {
             "test.boom" => Err(AdapterError::Execution("boom".into())),
             other => Ok(ActionOutcome {
@@ -74,13 +67,10 @@ fn mode(steps: Vec<ActionStep>) -> Mode {
 #[tokio::test]
 async fn runs_all_steps_in_order() {
     let report = engine()
-        .activate(
-            &mode(vec![
-                step(2, "test.ok", OnError::Continue),
-                step(1, "test.ok", OnError::Continue),
-            ]),
-            &ExecContext::default(),
-        )
+        .activate(&mode(vec![
+            step(2, "test.ok", OnError::Continue),
+            step(1, "test.ok", OnError::Continue),
+        ]))
         .await;
 
     assert!(report.success);
@@ -93,13 +83,10 @@ async fn runs_all_steps_in_order() {
 #[tokio::test]
 async fn continue_policy_keeps_going_after_failure() {
     let report = engine()
-        .activate(
-            &mode(vec![
-                step(1, "test.fail", OnError::Continue),
-                step(2, "test.ok", OnError::Continue),
-            ]),
-            &ExecContext::default(),
-        )
+        .activate(&mode(vec![
+            step(1, "test.fail", OnError::Continue),
+            step(2, "test.ok", OnError::Continue),
+        ]))
         .await;
 
     assert!(!report.success); // overall failed
@@ -111,14 +98,11 @@ async fn continue_policy_keeps_going_after_failure() {
 #[tokio::test]
 async fn abort_policy_stops_after_failure() {
     let report = engine()
-        .activate(
-            &mode(vec![
-                step(1, "test.ok", OnError::Continue),
-                step(2, "test.boom", OnError::Abort),
-                step(3, "test.ok", OnError::Continue),
-            ]),
-            &ExecContext::default(),
-        )
+        .activate(&mode(vec![
+            step(1, "test.ok", OnError::Continue),
+            step(2, "test.boom", OnError::Abort),
+            step(3, "test.ok", OnError::Continue),
+        ]))
         .await;
 
     assert!(!report.success);
@@ -129,7 +113,7 @@ async fn abort_policy_stops_after_failure() {
 async fn disabled_steps_are_skipped() {
     let mut s = step(1, "test.ok", OnError::Continue);
     s.enabled = false;
-    let report = engine().activate(&mode(vec![s]), &ExecContext::default()).await;
+    let report = engine().activate(&mode(vec![s])).await;
     assert!(report.success);
     assert_eq!(report.steps.len(), 0);
 }
@@ -137,12 +121,49 @@ async fn disabled_steps_are_skipped() {
 #[tokio::test]
 async fn unknown_action_type_is_a_failed_step() {
     let report = engine()
-        .activate(
-            &mode(vec![step(1, "does.not.exist", OnError::Continue)]),
-            &ExecContext::default(),
-        )
+        .activate(&mode(vec![step(1, "does.not.exist", OnError::Continue)]))
         .await;
     assert!(!report.success);
     assert_eq!(report.steps.len(), 1);
     assert!(report.steps[0].message.contains("no adapter"));
+}
+
+struct UnavailableAdapter;
+
+#[async_trait]
+impl Adapter for UnavailableAdapter {
+    fn supported_actions(&self) -> Vec<String> {
+        vec!["test.unavailable".into()]
+    }
+
+    async fn is_available(&self) -> Capability {
+        Capability::Unavailable {
+            reason: "device disconnected".into(),
+        }
+    }
+
+    fn validate(&self, _step: &ActionStep) -> Result<(), AdapterError> {
+        Ok(())
+    }
+
+    async fn execute(&self, _step: &ActionStep) -> Result<ActionOutcome, AdapterError> {
+        panic!("unavailable adapter must not execute")
+    }
+}
+
+#[tokio::test]
+async fn unavailable_adapter_reports_failed_step_without_executing() {
+    let mut registry = ActionRegistry::new();
+    registry.register(Arc::new(UnavailableAdapter));
+    let engine = Engine::new(registry, EventBus::new());
+    let report = engine
+        .activate(&mode(vec![step(1, "test.unavailable", OnError::Continue)]))
+        .await;
+
+    assert!(!report.success);
+    assert_eq!(report.steps.len(), 1);
+    assert_eq!(
+        report.steps[0].message,
+        "adapter unavailable: device disconnected"
+    );
 }

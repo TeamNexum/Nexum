@@ -30,8 +30,12 @@ pub fn issue_token(user_id: &str) -> String {
         sub: user_id.to_string(),
         exp: now_secs() + 60 * 60 * 24 * 30,
     };
-    encode(&Header::default(), &claims, &EncodingKey::from_secret(&secret()))
-        .expect("jwt encode should not fail")
+    encode(
+        &Header::default(),
+        &claims,
+        &EncodingKey::from_secret(&secret()),
+    )
+    .expect("jwt encode should not fail")
 }
 
 /// Verify a token and return the user id, or None if invalid/expired.

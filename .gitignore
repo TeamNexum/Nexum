@@ -7,6 +7,8 @@ node_modules
 dist
 dist-ssr
 *.local
+apps/desktop/test-results/
+apps/desktop/playwright-report/
 
 # Tauri
 apps/desktop/src-tauri/target
