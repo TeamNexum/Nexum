@@ -14,9 +14,9 @@
 //! the mobile companion, and the Marketplace import flow.
 
 mod auth;
-mod store;
 #[cfg(feature = "claude")]
 mod claude;
+mod store;
 
 use std::sync::Arc;
 

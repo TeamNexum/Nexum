@@ -52,7 +52,7 @@ cross-platform. Socle **Rust/Tauri** : empreinte minimale.
 ### Traction & roadmap
 - **Aujourd'hui :** socle technique fonctionnel (moteur d'orchestration, DSL
   déclaratif, moteur d'automatisation SI/ALORS, analyse de risque Marketplace,
-  IA Mode-as-Code, app desktop 4 onglets) — stade **POC → MVP**.
+  IA Mode-as-Code, app desktop 5 onglets, compagnon mobile PWA) — stade **POC → MVP**.
 - **Oct. 2026 :** verrouillage des objectifs de track.
 - **Janv. 2027 :** rendu du Beta Test Plan.
 - **Avr. 2027 :** Greenlight (jury blanc, visio).

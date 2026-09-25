@@ -29,7 +29,7 @@ pub enum RemoteCommand {
 
 #[derive(Default)]
 pub struct CloudStore {
-    users: RwLock<HashMap<String, User>>, // key: email
+    users: RwLock<HashMap<String, User>>,      // key: email
     modes: RwLock<HashMap<String, Vec<Mode>>>, // key: user id
     commands: RwLock<HashMap<String, VecDeque<RemoteCommand>>>, // key: user id
 }
@@ -48,7 +48,10 @@ impl CloudStore {
         let id = Uuid::new_v4().to_string();
         users.insert(
             email.to_string(),
-            User { id: id.clone(), pass_hash: hash(password) },
+            User {
+                id: id.clone(),
+                pass_hash: hash(password),
+            },
         );
         Ok(id)
     }
@@ -62,12 +65,20 @@ impl CloudStore {
 
     /// This user's modes (empty if none synced yet).
     pub fn get_modes(&self, user_id: &str) -> Vec<Mode> {
-        self.modes.read().unwrap().get(user_id).cloned().unwrap_or_default()
+        self.modes
+            .read()
+            .unwrap()
+            .get(user_id)
+            .cloned()
+            .unwrap_or_default()
     }
 
     /// Replace this user's modes (last-write-wins sync push).
     pub fn put_modes(&self, user_id: &str, modes: Vec<Mode>) {
-        self.modes.write().unwrap().insert(user_id.to_string(), modes);
+        self.modes
+            .write()
+            .unwrap()
+            .insert(user_id.to_string(), modes);
     }
 
     /// Queue a remote command for this user's desktop to pick up.
@@ -107,7 +118,10 @@ mod tests {
         let store = CloudStore::new();
         let uid = store.register("a@b.com", "pw").unwrap();
         assert!(store.register("a@b.com", "pw").is_err()); // duplicate email
-        assert_eq!(store.authenticate("a@b.com", "pw").as_deref(), Some(uid.as_str()));
+        assert_eq!(
+            store.authenticate("a@b.com", "pw").as_deref(),
+            Some(uid.as_str())
+        );
         assert!(store.authenticate("a@b.com", "wrong").is_none());
         assert!(store.get_modes(&uid).is_empty());
     }
@@ -117,8 +131,18 @@ mod tests {
         let store = CloudStore::new();
         let uid = store.register("c@d.com", "pw").unwrap();
         assert!(store.take_command(&uid).is_none());
-        store.enqueue_command(&uid, RemoteCommand::ActivateMode { mode_id: "one".into() });
-        store.enqueue_command(&uid, RemoteCommand::ActivateMode { mode_id: "two".into() });
+        store.enqueue_command(
+            &uid,
+            RemoteCommand::ActivateMode {
+                mode_id: "one".into(),
+            },
+        );
+        store.enqueue_command(
+            &uid,
+            RemoteCommand::ActivateMode {
+                mode_id: "two".into(),
+            },
+        );
         match store.take_command(&uid) {
             Some(RemoteCommand::ActivateMode { mode_id }) => assert_eq!(mode_id, "one"),
             None => panic!("expected a command"),

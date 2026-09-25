@@ -25,7 +25,10 @@ use uuid::Uuid;
 /// A Mode reshapes the user's whole setup when activated.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts", derive(ts_rs::TS))]
-#[cfg_attr(feature = "ts", ts(export, export_to = "../../packages/schema-ts/src/generated/"))]
+#[cfg_attr(
+    feature = "ts",
+    ts(export, export_to = "../../../packages/schema-ts/src/generated/")
+)]
 pub struct Mode {
     #[cfg_attr(feature = "ts", ts(type = "string"))]
     pub id: Uuid,
@@ -48,7 +51,10 @@ impl Mode {
 /// High-level grouping used for UI and defaults. Purely descriptive.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts", derive(ts_rs::TS))]
-#[cfg_attr(feature = "ts", ts(export, export_to = "../../packages/schema-ts/src/generated/"))]
+#[cfg_attr(
+    feature = "ts",
+    ts(export, export_to = "../../../packages/schema-ts/src/generated/")
+)]
 #[serde(rename_all = "snake_case")]
 pub enum Category {
     Gaming,
@@ -67,10 +73,13 @@ pub enum Category {
 /// SDK without touching the engine.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts", derive(ts_rs::TS))]
-#[cfg_attr(feature = "ts", ts(export, export_to = "../../packages/schema-ts/src/generated/"))]
+#[cfg_attr(
+    feature = "ts",
+    ts(export, export_to = "../../../packages/schema-ts/src/generated/")
+)]
 pub struct ActionStep {
     pub order: u32,
-    /// Namespaced identifier, e.g. `"audio.set_volume"`.
+    // Namespaced identifier, e.g. `"audio.set_volume"`.
     #[serde(rename = "type")]
     pub action_type: String,
     #[serde(default)]
@@ -89,7 +98,10 @@ fn default_true() -> bool {
 /// How the engine reacts when a step fails.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts", derive(ts_rs::TS))]
-#[cfg_attr(feature = "ts", ts(export, export_to = "../../packages/schema-ts/src/generated/"))]
+#[cfg_attr(
+    feature = "ts",
+    ts(export, export_to = "../../../packages/schema-ts/src/generated/")
+)]
 #[serde(rename_all = "snake_case")]
 pub enum OnError {
     /// Log the failure, skip the step, keep going (default — resilient).
@@ -111,8 +123,20 @@ mod tests {
             description: None,
             category: Category::Custom,
             steps: vec![
-                ActionStep { order: 3, action_type: "a".into(), params: serde_json::Value::Null, enabled: true, on_error: OnError::Continue },
-                ActionStep { order: 1, action_type: "b".into(), params: serde_json::Value::Null, enabled: true, on_error: OnError::Continue },
+                ActionStep {
+                    order: 3,
+                    action_type: "a".into(),
+                    params: serde_json::Value::Null,
+                    enabled: true,
+                    on_error: OnError::Continue,
+                },
+                ActionStep {
+                    order: 1,
+                    action_type: "b".into(),
+                    params: serde_json::Value::Null,
+                    enabled: true,
+                    on_error: OnError::Continue,
+                },
             ],
         };
         let ordered: Vec<u32> = mode.ordered_steps().iter().map(|s| s.order).collect();

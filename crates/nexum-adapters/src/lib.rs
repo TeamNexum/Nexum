@@ -6,18 +6,17 @@
 //! Status of the V1 adapters:
 //!   - [`SystemAdapter`] — launch/close apps, open URLs. Works on Win/Linux/macOS.
 //!   - [`GamingAdapter`] — launch a Steam game via `steam://`. Works everywhere Steam does.
-//!   - [`AudioAdapter`] — set volume. Works on Linux (PipeWire/Pulse); Windows impl is a
-//!     documented TODO (Core Audio) — the old prototype's PowerShell version was a no-op.
-//!   - [`DisplayAdapter`] — set brightness. TODO per-OS; slot exists and validates.
-//!   - [`MockAdapter`] — succeeds for any action_type you give it; used so the desktop
-//!     demo runs end-to-end while real integrations are built.
+//!   - [`AudioAdapter`] — set volume through Linux audio tools or Windows Core Audio.
+//!   - [`DisplayAdapter`] — set brightness through the OS display API.
+//!
+//! [`Switchable`] wraps any adapter so the user can turn its integration off.
 
 mod util;
 
 pub mod audio;
 pub mod display;
 pub mod gaming;
-pub mod mock;
+pub mod switchable;
 pub mod system;
 
 #[cfg(feature = "hue")]
@@ -26,8 +25,8 @@ pub mod hue;
 pub use audio::AudioAdapter;
 pub use display::DisplayAdapter;
 pub use gaming::GamingAdapter;
-pub use mock::MockAdapter;
+pub use switchable::Switchable;
 pub use system::SystemAdapter;
 
 #[cfg(feature = "hue")]
-pub use hue::HueAdapter;
+pub use hue::{HueAdapter, HueConfig, SharedHueConfig};

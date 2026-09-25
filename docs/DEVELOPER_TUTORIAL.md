@@ -15,9 +15,10 @@ for someone who has never touched the project.
 
 | Part | Command | Result |
 |---|---|---|
-| Rust core + tests | `cargo test` | Engine, DSL, adapters, automation, marketplace unit tests pass |
-| Cloud API | `cargo run -p nexum-cloud` | REST API on `http://127.0.0.1:8787` |
-| Desktop app | `npm run tauri dev` | The Nexum window (Dashboard, Editor, Automations, Marketplace) |
+| Rust core + tests | `cargo test` | Engine, DSL, adapters, automation, marketplace, cloud tests pass |
+| Cloud API | `cargo run -p nexum-cloud` | REST API on `http://127.0.0.1:8787` (auth, sync, commands, AI) |
+| Desktop app | `npm run tauri dev` | The Nexum window (Accueil, Studio, Règles, Découvrir, Système) |
+| Mobile companion | `cd apps/mobile && npm run dev` | PWA dev server for phone remote control |
 | Release build | `npm run tauri build` | Installers under `src-tauri/target/release/bundle/` |
 
 The repository root is the **`nexum/`** folder. All commands below assume you are
@@ -201,11 +202,13 @@ The **first** `npm run tauri dev` compiles the Tauri backend (slow once, ~1–3 
 after that it's quick. A window titled **Nexum** opens with three demo modes.
 
 Try it:
-- **Dashboard** → click **Activate** on a mode; watch the live event feed. Real
-  actions fire (`system.open_url`, `gaming.launch_steam`); `audio.set_volume` works on Linux.
-- **Mode Editor** → **+ New mode**, add steps, or type a prompt and click **✨ Generate with AI**.
-- **Automations** → set 18:00 and **Fire tick** to auto-activate "Chill".
-- **Marketplace** → pick a mode and **Assess risk**.
+- **Accueil (Dashboard)** → click **Activate** on a mode; watch the live event feed. Real
+  actions fire (`system.open_url`, `gaming.launch_steam`, `gaming.launch_epic`, `gaming.launch_gog`);
+  `audio.set_volume` works on Windows (Core Audio) and Linux (PipeWire/PulseAudio).
+- **Studio (Mode Editor)** → **+ New mode**, add steps, reorder, adjust sliders, or type a prompt and click **✨ Créer avec l'IA**.
+- **Règles (Automations)** → set 18:00 and **Test schedule** to auto-activate "Chill".
+- **Découvrir (Marketplace)** → browse community templates and inspect their real static risk scores.
+- **Système (Settings)** → connect your account, sync modes, inspect connection diagnostics, and adjust UI density.
 
 Frontend-only (browser, no native window):
 ```bash
@@ -255,14 +258,12 @@ in `src-tauri/icons/`. For signing/auto-update see [`rncp/DEPLOYMENT_CICD.md`](r
 
 | Feature | Crate | Turns on | Notes |
 |---|---|---|---|
-| `sqlite` | `nexum-store` | Persistent SQLite `ModeStore` | Needs a C compiler (bundled SQLite) |
-| `hue` | `nexum-adapters` | Real Philips Hue adapter | Env: `NEXUM_HUE_BRIDGE`, `NEXUM_HUE_USER` |
+| `sqlite` | `nexum-store` | Persistent SQLite `ModeStore` | Active by default in `apps/desktop/src-tauri` (`nexum.db`) |
+| `hue` | `nexum-adapters` | Real Philips Hue adapter | Active by default in desktop; Env: `NEXUM_HUE_BRIDGE`, `NEXUM_HUE_USER` |
 | `claude` | `nexum-cloud` | Real Claude Mode-as-Code | Env: `ANTHROPIC_API_KEY` |
 
 Enable a feature: `cargo build -p <crate> --features <feature>`.
-To use the Hue adapter in the desktop app, add `features = ["hue"]` to the
-`nexum-adapters` dependency in `apps/desktop/src-tauri/Cargo.toml` and register
-`HueAdapter` in `build_state()`.
+In the desktop app, `SqliteStore` and `HueAdapter` are already compiled in and configured.
 
 ---
 
@@ -282,6 +283,13 @@ npm run tauri dev               # run the desktop app (dev)
 npm run tauri build             # build installers
 npm run dev                     # frontend only (browser)
 npm run build                   # typecheck + build frontend bundle
+npm test                        # run frontend unit tests (Vitest)
+npm run test:e2e                # run Playwright E2E tests
+
+# from apps/mobile
+npm install                     # install mobile deps
+npm run dev                     # run companion PWA dev server
+npm test                        # run mobile cloud client unit tests
 ```
 
 ---
@@ -308,10 +316,11 @@ nexum/
 │   ├── nexum-schema     # Mode/Action DSL — the shared data model
 │   ├── nexum-core       # Engine, registry, event bus, automation, marketplace, AI
 │   ├── nexum-adapters   # System / Gaming / Audio / Display / Hue integrations
-│   └── nexum-store      # ModeStore trait + in-memory + SQLite (feature)
-├── services/nexum-cloud # axum REST API
+│   └── nexum-store      # ModeStore trait + in-memory + SQLite (default in desktop)
+├── services/nexum-cloud # axum REST API (auth, sync, remote commands, AI)
 ├── apps/desktop         # Tauri 2 + React app (own cargo workspace)
-├── packages/schema-ts   # TypeScript mirror of the DSL
+├── apps/mobile          # Companion PWA for remote control via phone
+├── packages/schema-ts   # TypeScript mirror of the DSL generated via ts-rs
 └── docs/                # this documentation
 ```
 

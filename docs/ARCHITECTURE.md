@@ -15,7 +15,7 @@ key decisions are recorded as [ADRs](adr/).
 ```mermaid
 flowchart TB
     subgraph Client["Nexum Desktop (Tauri 2)"]
-        UI["React UI<br/>Dashboard · Editor · Automations · Marketplace"]
+        UI["React UI<br/>Accueil · Studio · Règles · Découvrir · Système"]
         Bridge["Tauri bridge (commands + events)"]
         subgraph Core["nexum-core (Rust, OS-agnostic)"]
             Engine["Engine"]
@@ -26,31 +26,32 @@ flowchart TB
             Reg["Action Registry"]
         end
         subgraph Adapters["nexum-adapters (#cfg per OS)"]
-            A1["System"]:::a
-            A2["Audio"]:::a
-            A3["Gaming"]:::a
-            A4["Display"]:::a
-            A5["Hue (feature)"]:::a
-            A6["Mock"]:::a
+            A1["System (App, URL)"]:::a
+            A2["Audio (Win Core Audio, Linux wpctl/pactl)"]:::a
+            A3["Gaming (Steam, Epic, GOG)"]:::a
+            A4["Display (Brightness)"]:::a
+            A5["Hue (Bridge v1 REST)"]:::a
         end
-        Store["nexum-store<br/>InMemory · SQLite (feature)"]
+        Store["nexum-store<br/>InMemory · SQLite (défaut desktop)"]
     end
-    subgraph Cloud["nexum-cloud (axum + PostgreSQL)"]
+    subgraph Cloud["nexum-cloud (axum API)"]
         API["REST API"]
-        CMarket["Marketplace + moderation"]
-        CAI["AI service (Claude API)"]
+        CMarket["Marketplace + risk assessment"]
+        CAI["AI service (Claude API / heuristique)"]
+        CQueue["Command Queue (FIFO)"]
     end
-    Mobile["Nexum Mobile (Phase 2)"]
+    Mobile["Nexum Mobile (Companion PWA)<br/>Vite · React · Offline Shell"]
 
     UI <--> Bridge <--> Engine
     Engine --> Reg --> Adapters
     Engine <--> Bus
     Auto <--> Bus
     Engine <--> Store
-    Store <-->|sync| API
+    UI <-->|Sync & Remote Poll| API
     API --> CMarket
     API --> CAI
-    Mobile <--> API
+    API <--> CQueue
+    Mobile <-->|Sync & Push Commands| API
 
     classDef a fill:#1e2530,stroke:#2a323f,color:#e7eaf0;
 ```
@@ -125,5 +126,5 @@ erDiagram
 | Cross-platform | Only adapters carry OS code; the mode never knows its OS. |
 | Extensible | New integration = new adapter + registry entry; the engine is untouched. |
 | Safe Marketplace | Shared modes are declarative data validated against an allowlist. |
-| AI Mode-as-Code | The LLM emits the same DSL, then it's simulated + capability-checked. |
+| AI Mode-as-Code | The LLM emits the same DSL; the engine checks adapter availability when a mode runs. |
 | Testable / QA | `nexum-core` is pure and OS-free → fast CI (RNCP Block 5). |

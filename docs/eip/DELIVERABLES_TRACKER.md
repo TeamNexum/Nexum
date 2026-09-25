@@ -23,12 +23,12 @@ Mettre à jour à chaque suivi. Les ⚠️ marquent des infos à compléter (nom
 ## Code (jamais compilé ici)
 | Élément | État | Note |
 |---|---|---|
-| Monorepo + DSL + moteur + tests unitaires | 📝 | Écrit ; **`cargo test` sur machine dev requis** |
-| Adapters System/Gaming/Audio(Linux) | 📝 | À vérifier au build |
-| SQLite (feature), Hue (feature), Claude (feature) | 📝 | Feature-gated, hors CI par défaut |
-| App desktop (Tauri+React, 4 onglets) | 📝 | Vérifier la glue Tauri au 1er build |
-| CI GitHub Actions | ✅ | fmt+clippy+test / build front |
-| Windows volume (Core Audio) | 🎯 | Bug connu à corriger |
+| Monorepo + DSL + moteur + tests unitaires | ✅ | 100 % passants (`cargo test`, 23 tests) |
+| Adapters System/Gaming/Audio/Display/Hue | ✅ | Implémenté et validé au build |
+| SQLite (feature), Hue (feature), Claude (feature) | ✅ | Feature-gated, SQLite actif par défaut sur desktop |
+| App desktop (Tauri+React, 5 onglets) + PWA mobile | ✅ | Validé au build et tests front passants |
+| CI GitHub Actions | ✅ | fmt+clippy+test / build front / ts-rs |
+| Windows volume (Core Audio) | ✅ | Implémenté via l'API COM IAudioEndpointVolume |
 
 ## Exécution — équipe uniquement (le cœur de la note)
 | Action | État | Échéance |

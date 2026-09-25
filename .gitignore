@@ -7,6 +7,8 @@ node_modules
 dist
 dist-ssr
 *.local
+apps/desktop/test-results/
+apps/desktop/playwright-report/
 
 # Tauri
 apps/desktop/src-tauri/target
@@ -18,3 +20,4 @@ apps/desktop/src-tauri/gen
 .DS_Store
 .vscode/*
 !.vscode/extensions.json
+debug.log

@@ -42,7 +42,5 @@ to a Rust type that isn't accompanied by a regenerated binding blocks the PR.
 
 ## Consumers
 
-- `apps/desktop/src/types.ts` re-exports these (the desktop app imports its
-  types straight from here).
-- The mobile companion and any future TS client should import from
-  `@nexum/schema` too.
+- `apps/desktop/src/types.ts` re-exports these from this package's entry point.
+- The mobile companion imports from the same entry point.

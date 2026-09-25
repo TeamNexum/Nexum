@@ -15,6 +15,9 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
+      - name: Install Linux display dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libdbus-1-dev
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -42,7 +45,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libdbus-1-dev
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -89,7 +92,7 @@ jobs:
         run: npm run build
 
   e2e:
-    name: Desktop E2E (Playwright)
+    name: Desktop browser preview (Playwright)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -107,3 +110,27 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Run E2E
         run: npm run test:e2e
+
+  e2e-tauri:
+    name: Desktop native smoke (Tauri)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Linux OS dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libdbus-1-dev webkit2gtk-driver xvfb
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Install Tauri WebDriver
+        run: cargo install tauri-driver --locked
+      - name: Build native desktop app
+        run: npm run tauri build --workspace=nexum-desktop -- --debug --no-bundle
+      - name: Launch, activate, and inspect event feed
+        working-directory: apps/desktop
+        run: xvfb-run -a npm run test:e2e:tauri

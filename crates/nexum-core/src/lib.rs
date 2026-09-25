@@ -20,7 +20,7 @@ pub mod error;
 pub mod marketplace;
 pub mod registry;
 
-pub use adapter::{ActionOutcome, Adapter, Capability, ExecContext};
+pub use adapter::{ActionOutcome, Adapter, Capability};
 pub use automation::{evaluate, EvalContext};
 pub use bus::{EngineEvent, EventBus};
 pub use engine::{Engine, ExecutionReport, StepReport};

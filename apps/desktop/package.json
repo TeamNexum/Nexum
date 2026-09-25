@@ -11,11 +11,11 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:e2e:tauri": "node e2e/tauri-smoke.mjs",
     "gen:types": "cargo test -p nexum-schema --features ts --manifest-path ../../Cargo.toml && cargo test -p nexum-core --features ts --manifest-path ../../Cargo.toml"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",
-    "@tauri-apps/plugin-opener": "^2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

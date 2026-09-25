@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
 import { CATEGORIES, type ActionStep, type Mode } from "../types";
-import { CATEGORY_META, actionMeta, categoryMeta, catStyle } from "../modeMeta";
+import { CATEGORY_META, actionMeta, categoryMeta, catStyle, STARTER_TEMPLATES, toMode, type CatalogMode } from "../modeMeta";
+import ProfileArtwork from "./ProfileArtwork";
 import { IconSparkles, IconPlus, IconTrash, IconCheck, IconSliders } from "./Icons";
 
 // Param form specs per action_type (the "no-code" bit). Unknown types fall
@@ -17,29 +18,45 @@ const PARAM_SPECS: Record<string, Field[]> = {
   "gaming.launch_epic": [{ key: "name", label: "Identifiant jeu Epic", kind: "text" }],
   "gaming.launch_gog": [{ key: "game_id", label: "ID jeu GOG", kind: "text" }],
   "iot.hue.activate_scene": [{ key: "scene", label: "Nom de la scène Hue", kind: "text" }],
-  "peripheral.apply_rgb_profile": [{ key: "profile", label: "Profil RGB", kind: "text" }],
 };
 
 export default function ModeEditor({
   modes,
   reload,
+  initialModeId,
 }: {
   modes: Mode[];
   reload: () => void;
+  initialModeId?: string | null;
 }) {
   const [catalog, setCatalog] = useState<string[]>([]);
-  const [draft, setDraft] = useState<Mode | null>(null);
+  const [draft, setDraft] = useState<Mode | null>(() => {
+    const mode = modes.find(m => m.id === initialModeId);
+    return mode ? JSON.parse(JSON.stringify(mode)) : null;
+  });
   const [saving, setSaving] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
   const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     api.actionCatalog().then(setCatalog).catch(console.error);
   }, []);
 
   async function newMode() {
-    const id = await api.newId();
-    setDraft({ id, name: "Nouveau profil", description: "", category: "custom", steps: [] });
+    setError(null);
+    try {
+      const id = await api.newId();
+      setDraft({ id, name: "Nouveau profil", description: "", category: "custom", steps: [] });
+    } catch (e) {
+      setError(String(e instanceof Error ? e.message : e));
+    }
+  }
+
+  async function startTemplate(template: CatalogMode) {
+    setError(null);
+    try { setDraft(toMode(template, await api.newId())); }
+    catch (e) { setError(String(e instanceof Error ? e.message : e)); }
   }
 
   function edit(mode: Mode) {
@@ -48,11 +65,12 @@ export default function ModeEditor({
 
   async function generate() {
     if (!aiPrompt.trim()) return;
+    setError(null);
     setGenerating(true);
     try {
       setDraft(await api.aiGenerate(aiPrompt));
     } catch (e) {
-      console.error(e);
+      setError(String(e instanceof Error ? e.message : e));
     } finally {
       setGenerating(false);
     }
@@ -103,6 +121,11 @@ export default function ModeEditor({
 
   async function save() {
     if (!draft) return;
+    if (!draft.name.trim()) {
+      setError("Donnez un nom au profil avant de l’enregistrer.");
+      return;
+    }
+    setError(null);
     setSaving(true);
     try {
       const normalized = {
@@ -112,7 +135,7 @@ export default function ModeEditor({
       await api.saveMode(normalized);
       reload();
     } catch (e) {
-      console.error(e);
+      setError(String(e instanceof Error ? e.message : e));
     } finally {
       setSaving(false);
     }
@@ -120,9 +143,14 @@ export default function ModeEditor({
 
   async function remove() {
     if (!draft) return;
-    await api.deleteMode(draft.id);
-    setDraft(null);
-    reload();
+    setError(null);
+    try {
+      await api.deleteMode(draft.id);
+      setDraft(null);
+      reload();
+    } catch (e) {
+      setError(String(e instanceof Error ? e.message : e));
+    }
   }
 
   return (
@@ -132,7 +160,7 @@ export default function ModeEditor({
         <div className="ai-command-box">
           <div className="ai-box-head">
             <IconSparkles size={14} className="ai-icon" />
-            <span className="ai-box-title">Mode-as-Code IA</span>
+            <span className="ai-box-title">Une idée de profil ?</span>
           </div>
           <p className="ai-box-sub">Générez un profil à partir d'une consigne.</p>
           <div className="ai-input-wrap">
@@ -158,6 +186,7 @@ export default function ModeEditor({
           </div>
 
           <div className="preset-item-stack">
+            {modes.length === 0 && <p className="muted">Vos profils enregistrés apparaîtront ici. Commencez avec un modèle ou une page blanche.</p>}
             {modes.map((m) => {
               const cm = categoryMeta(m.category);
               const Icon = cm.Icon;
@@ -182,11 +211,19 @@ export default function ModeEditor({
             })}
           </div>
         </div>
+        {draft && <section className="context-panel draft-summary">
+          <span className="workspace-kicker">EN COURS D’ÉDITION</span><h2>{draft.name || "Sans nom"}</h2>
+          <div className="summary-strip"><div><strong>{draft.steps.filter(s => s.enabled).length}</strong><span>actions actives</span></div><div><strong>{draft.steps.filter(s => !s.enabled).length}</strong><span>désactivées</span></div></div>
+          <div className="category-strip">{[...new Set(draft.steps.map(s => actionMeta(s.type).domain))].map(domain => <span key={domain}>{domain}</span>)}</div>
+          <p className="muted">Les actions s’exécutent dans l’ordre indiqué. Enregistrez vos changements pour les retrouver à l’accueil.</p>
+        </section>}
       </aside>
 
       {/* MAIN WORKSPACE FORM */}
       <section className="editor-workspace">
+        {error && <div className="error editor-error" role="alert">{error}</div>}
         {!draft ? (
+          <div className="studio-start">
           <div className="editor-blank-slate">
             <IconSliders size={32} className="blank-icon" />
             <h3>Studio de Configuration</h3>
@@ -195,6 +232,9 @@ export default function ModeEditor({
               <IconPlus size={15} />
               <span>Créer un profil</span>
             </button>
+          </div>
+          <div className="studio-template-heading"><h2>Partir d’un modèle</h2><span>Personnalisez-le avant de l’enregistrer</span></div>
+          <div className="studio-templates">{STARTER_TEMPLATES.map(t => <button className="studio-template" key={t.name} onClick={() => startTemplate(t)}><ProfileArtwork category={t.category} /><strong>{t.name}</strong><span>{t.steps.length} actions · {t.tagline}</span></button>)}</div>
           </div>
         ) : (
           <div className="editor-sheet">
@@ -252,7 +292,7 @@ export default function ModeEditor({
               <div className="pipeline-header">
                 <div>
                   <span className="section-eyebrow">SÉQUENCE D'EXÉCUTION</span>
-                  <h3>Actions Orchestrées ({draft.steps.length})</h3>
+                  <h3>Actions du profil ({draft.steps.length})</h3>
                 </div>
                 <button className="btn-secondary" onClick={addStep}>
                   <IconPlus size={14} />

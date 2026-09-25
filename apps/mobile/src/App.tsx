@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { cloud, cloudUrl, setCloudUrl, isSignedIn } from "./cloud";
-import type { Mode } from "../../../packages/schema-ts/src/generated";
+import type { Mode } from "../../../packages/schema-ts/src";
 
 const ICON: Record<string, string> = {
   gaming: "🎮",

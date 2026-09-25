@@ -21,16 +21,6 @@ export function IconDashboard({ size = 18, ...props }: IconProps) {
   );
 }
 
-export function IconEditor({ size = 18, ...props }: IconProps) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="m18 15-6-6-6 6" />
-      <path d="M12 3v14" />
-      <path d="M5 21h14" />
-    </svg>
-  );
-}
-
 export function IconSliders({ size = 18, ...props }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -196,19 +186,6 @@ export function IconHue({ size = 16, ...props }: IconProps) {
   );
 }
 
-export function IconRgb({ size = 16, ...props }: IconProps) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <rect width="20" height="12" x="2" y="6" rx="2" />
-      <path d="M6 10h.01" strokeWidth="3" />
-      <path d="M10 10h.01" strokeWidth="3" />
-      <path d="M14 10h.01" strokeWidth="3" />
-      <path d="M18 10h.01" strokeWidth="3" />
-      <path d="M8 14h8" />
-    </svg>
-  );
-}
-
 export function IconSteam({ size = 16, ...props }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -224,26 +201,6 @@ export function IconCheck({ size = 16, ...props }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
       <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
-}
-
-export function IconRefresh({ size = 16, ...props }: IconProps) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-      <path d="M3 3v5h5" />
-      <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
-      <path d="M16 16h5v5" />
-    </svg>
-  );
-}
-
-export function IconPower({ size = 16, ...props }: IconProps) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M12 2v10" />
-      <path d="M18.4 6.6a9 9 0 1 1-12.8 0" />
     </svg>
   );
 }
@@ -291,4 +248,3 @@ export function IconAlert({ size = 16, ...props }: IconProps) {
     </svg>
   );
 }
-

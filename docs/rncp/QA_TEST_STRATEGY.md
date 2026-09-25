@@ -98,8 +98,8 @@ README) et seront complétés en Phase 1 pour couvrir le parcours d'exécution c
 
 ### 2.3 Niveau end-to-end (à venir — Phase 2/3)
 
-Parcours utilisateur réels dans l'application Tauri + React (4 onglets : Dashboard, Éditeur de modes,
-Automations, Marketplace) :
+Parcours utilisateur réels dans l'application Tauri + React (5 onglets : Accueil, Studio,
+Règles, Découvrir, Système) et le compagnon mobile PWA :
 
 - **Frontend isolé :** composants React et logique d'éditeur testés avec **Vitest** (+ Testing
   Library) — rapide, sans backend.
