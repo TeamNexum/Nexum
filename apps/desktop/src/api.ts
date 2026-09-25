@@ -6,6 +6,7 @@ import type {
   AutomationRule,
   EngineEvent,
   ExecutionReport,
+  ImportPreview,
   Mode,
   RiskReport,
 } from "./types";
@@ -37,6 +38,10 @@ export const api = {
   simulateTime: (hour: number, minute: number, weekday: number) =>
     invoke<string[]>("simulate_time", { hour, minute, weekday }),
   assessMode: (mode: Mode) => invoke<RiskReport>("assess_mode", { mode }),
+  /** Opens a native save dialog; resolves to the written path, or null if cancelled. */
+  exportMode: (id: string) => invoke<string | null>("export_mode", { id }),
+  previewImport: (contents: string) => invoke<ImportPreview>("preview_import", { contents }),
+  importMode: (contents: string) => invoke<Mode>("import_mode", { contents }),
   aiGenerate: (prompt: string) => invoke<Mode>("ai_generate", { prompt }),
 };
 

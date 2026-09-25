@@ -16,6 +16,7 @@ use nexum_adapters::{
 use nexum_core::Adapter;
 use nexum_core::automation::{evaluate, EvalContext};
 use nexum_core::marketplace::{assess, RiskReport};
+use nexum_core::share::{self, ImportPreview};
 use nexum_core::{ActionRegistry, Engine, EventBus, ExecutionReport};
 use nexum_schema::action_types::ids;
 use nexum_schema::automation::{AutomationRule, SystemEvent, Trigger};
@@ -24,6 +25,7 @@ use nexum_store::{ModeStore, SqliteStore};
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::{Emitter, Manager, State};
+use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
 use uuid::Uuid;
 
@@ -171,6 +173,70 @@ fn assess_mode(mode: Mode, state: State<'_, Arc<AppState>>) -> RiskReport {
     assess(&mode, &state.engine.action_types())
 }
 
+/// Write a mode to a `.nexum.json` file picked in a native save dialog.
+/// Returns the written path, or `None` when the user cancels.
+#[tauri::command]
+async fn export_mode(
+    id: String,
+    app: tauri::AppHandle,
+    state: State<'_, Arc<AppState>>,
+) -> Result<Option<String>, String> {
+    let uuid: Uuid = id.parse().map_err(|_| "invalid mode id".to_string())?;
+    let mode = state.store.get(uuid).await.map_err(|e| e.to_string())?;
+
+    let (tx, rx) = tokio::sync::oneshot::channel();
+    app.dialog()
+        .file()
+        .set_title("Exporter le profil")
+        .set_file_name(share::file_name(&mode))
+        .add_filter("Profil Nexum", &["json"])
+        .save_file(move |path| {
+            let _ = tx.send(path);
+        });
+    let chosen = rx
+        .await
+        .map_err(|_| "save dialog closed unexpectedly".to_string())?;
+    let Some(path) = chosen else {
+        return Ok(None);
+    };
+    let path = path.into_path().map_err(|e| e.to_string())?;
+    std::fs::write(&path, share::export(&mode))
+        .map_err(|e| format!("could not write {}: {e}", path.display()))?;
+    Ok(Some(path.display().to_string()))
+}
+
+/// Parse a shared mode file and score it, without saving anything.
+#[tauri::command]
+fn preview_import(
+    contents: String,
+    state: State<'_, Arc<AppState>>,
+) -> Result<ImportPreview, String> {
+    share::preview_import(&contents, &state.engine.action_types(), Uuid::new_v4())
+        .map_err(|e| e.to_string())
+}
+
+/// Import a shared mode under a fresh id. Refuses unknown actions (checked
+/// here, not only in the UI) and suffixes the name if it is already taken.
+#[tauri::command]
+async fn import_mode(contents: String, state: State<'_, Arc<AppState>>) -> Result<Mode, String> {
+    let ImportPreview { mut mode, .. } =
+        share::import(&contents, &state.engine.action_types(), Uuid::new_v4())
+            .map_err(|e| e.to_string())?;
+    let existing = state.store.list().await.map_err(|e| e.to_string())?;
+    if existing
+        .iter()
+        .any(|m| m.name.eq_ignore_ascii_case(&mode.name))
+    {
+        mode.name = format!("{} (importé)", mode.name);
+    }
+    state
+        .store
+        .upsert(mode.clone())
+        .await
+        .map_err(|e| e.to_string())?;
+    Ok(mode)
+}
+
 /// Mode-as-Code: generate a draft Mode from a natural-language prompt.
 /// (Heuristic today; swaps to a Claude API call in production — same output.)
 #[tauri::command]
@@ -183,6 +249,7 @@ fn ai_generate(prompt: String) -> Mode {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             // Persistent store under the OS app-data dir — modes survive restarts.
             let data_dir = app
@@ -352,6 +419,9 @@ pub fn run() {
             get_automations,
             simulate_time,
             assess_mode,
+            export_mode,
+            preview_import,
+            import_mode,
             ai_generate
         ])
         .run(tauri::generate_context!())

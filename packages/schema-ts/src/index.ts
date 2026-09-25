@@ -19,5 +19,6 @@ export type {
   ExecutionReport,
   RiskLevel,
   RiskReport,
+  ImportPreview,
   EngineEvent,
 } from "./generated";

@@ -14,4 +14,5 @@ export type { StepReport } from "./StepReport";
 export type { ExecutionReport } from "./ExecutionReport";
 export type { RiskLevel } from "./RiskLevel";
 export type { RiskReport } from "./RiskReport";
+export type { ImportPreview } from "./ImportPreview";
 export type { EngineEvent } from "./EngineEvent";
