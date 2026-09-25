@@ -13,10 +13,15 @@
 
 | Échéance | Date | Enjeu |
 |---|---|---|
-| 🔒 Verrouillage des objectifs de track | **Octobre 2026** | Aucun changement possible après |
-| 📄 BTP validé par le référent | **Janvier 2027** | Document central du Greenlight |
-| 🎥 Greenlight blanc (visio, 1 h) | **Avril 2027** | Répétition générale notée |
-| 🏆 Greenlight + jury RNCP (présentiel, Kremlin-Bicêtre) | **Juillet 2027** | **Démo live du projet déployé — vidéo interdite** |
+| 🔒 Choix de la track + objectifs majeurs / mineurs sur l'intra | **Semaine du 19/10/2026** | Track **Entrepreneuriat** confirmée au suivi du 25/09 ; objectifs figés ensuite |
+| 📄 BTP v1 | **07/02/2027** | Tout ce qui est dans le BTP doit être démontré et fonctionner |
+| 📄 BTP version finale | **04/04/2027** | Document central du Greenlight |
+| 🎥 Greenlight blanc | **05/04 → 16/04/2027** | Répétition générale notée |
+| 🏆 Greenlight + jury RNCP (présentiel, Kremlin-Bicêtre) | **05/07 → 16/07/2027** | **Démo live du projet déployé — vidéo interdite** |
+
+> Greenlight = go / no-go sur deux critères : un BTP assez conséquent pour 5 personnes sur un
+> an, et un BTP entièrement réalisé. Un BTP trop léger mène au no-go même si l'équipe a fait
+> plus que prévu (rappel du suivi du 25/09/2026).
 
 ## Cadence & contacts
 
@@ -29,15 +34,14 @@
 
 | Rôle | Personne | Responsabilité principale |
 |---|---|---|
-| Lead produit / PM + généraliste | Arnaud (`Arjouan`) | Roadmap, board, jalons, suivi intra ; un peu de front et de back |
-| Dev / tech — main Front + généraliste | Rares Dragomir (`RaresFZ`) | UI ; un peu de front et de back |
-| Dev / tech — main Back | Max Epinat (`Max-Epinat`) | Build, MVP, RNCP QA/déploiement |
-| Dev / tech — Back (aide) + Database/CI-CD (intérim) | Raphael Grissonnanche (`Raphie10`) | Aide Max sur le Back ; couvre le Database/CI-CD en attendant Enzo |
-| Dev / tech — Database + CI/CD | Enzo ⚠️ | N'a pas encore rejoint le repo GitHub — Raph couvre #2, #5, #14, #21 en intérim |
-| Marché / business | ⚠️ | Interviews, BMC, KPIs, modèle financier |
-| Comms / image | ⚠️ | Réseaux sociaux, pitch, image de marque |
+| Product owner / lead + Front (soutien) | Arnaud Jouan (`Arjouan`) | Roadmap, board, jalons, suivis ; compatibilité macOS / iOS |
+| Front principal | Rares Dragomir (`RaresFZ`) | UI ; messagerie centralisée (Gmail, Outlook, Teams) |
+| Back | Raphael Grissonnanche (`Raphie10`) | Installateur et mises à jour de l'app |
+| Back | Max Epinat (`Max-Epinat`) | Architecture plugins ; app Android |
+| Business / KPI + Database / CI-CD | Enzo (`MAD-TEK`) | Interviews, étude de marché, KPIs, modèle financier ; CI/CD |
+| Comms / image | Arnaud + Rares | Réseaux sociaux (Instagram, LinkedIn, TikTok), logo et charte, pitch |
 
-> Détail de la répartition des 21 tickets GitHub par personne : voir
+> Rôles décidés au suivi pédagogique du 25/09/2026. Détail des tickets GitHub par personne : voir
 > [TASK_ASSIGNMENTS.md](TASK_ASSIGNMENTS.md).
 
 ---
@@ -47,8 +51,9 @@
 
 **Administratif EIP**
 - [ ] Créer/valider le groupe projet sur l'**intra EIP** ⚠️
-- [ ] Créer le **dépôt GitHub** (voir [GITHUB_SETUP](../GITHUB_SETUP.md)) + board (Projects) + issues des jalons
-- [ ] Premier **suivi pédagogique** planifié (caméra ON)
+- [x] Créer le **dépôt GitHub** (voir [GITHUB_SETUP](../GITHUB_SETUP.md)) + board (Projects) + issues des jalons
+- [x] Premier **suivi pédagogique** (25/09/2026) — prochain à prendre entre le 26/09 et le 06/11
+- [x] Choisir la **track** : Entrepreneuriat (confirmée le 25/09/2026)
 - [ ] Choisir les **2 axes complémentaires** de la track (Stratégie & Vision / Image & Message)
 
 **Validation marché** — cœur de la note
@@ -59,10 +64,10 @@
 
 **Produit**
 - [ ] Premier **build + run sur machine dev** (Fedora) : `cargo test`, app desktop, cloud (déjà vérifié — garder vert)
-- [ ] Corriger le **bug volume Windows (Core Audio)** ⚠️
+- [x] Corriger le **bug volume Windows (Core Audio)** (#1)
 - [ ] Prioriser le **scope MVP** à partir des interviews
 
-**🔒 Jalon Octobre 2026 — VERROUILLAGE des objectifs de track (irréversible)**
+**🔒 Jalon semaine du 19/10/2026 — choix des objectifs de track sur l'intra (irréversible)**
 - [ ] Objectifs de track rédigés, relus par le référent, **figés**
 
 ---
@@ -77,7 +82,7 @@
 
 **Livrable central — BTP**
 - [ ] Finaliser le [Beta Test Plan](BTP_BETA_TEST_PLAN.md) (features beta, protocole de test, critères de succès)
-- [ ] **Faire valider le BTP par le référent EIP** ✅ *avant janvier 2027*
+- [ ] **Rendre le BTP v1** ✅ *le 07/02/2027*
 
 **Entrepreneuriat**
 - [ ] [KPIs & modèle financier](FINANCIAL_MODEL.md) : remplacer les hypothèses par des données réelles
@@ -103,7 +108,7 @@
 - [ ] Lancer les **comptes réseaux** + [calendrier éditorial](SOCIAL_EDITORIAL_CALENDAR.md) (drafts [prêts](SOCIAL_POSTS_DRAFTS.md))
 - [ ] Compléter le [pitch deck](PITCH_PRESENTATION.md) avec **noms d'équipe** ⚠️ et chiffres réels
 
-**🎥 Jalon Avril 2027 — Greenlight BLANC (visio 1 h)**
+**🎥 Jalon 05/04 → 16/04/2027 — Greenlight BLANC** (BTP final rendu le 04/04/2027)
 - [ ] Répéter le **pitch + démo** en conditions réelles
 - [ ] Intégrer le feedback du jury blanc dans un plan d'action jusqu'en juillet
 
@@ -127,7 +132,7 @@
 - [ ] Vérifier disponibilité + éventuel dépôt de la marque **« Nexum »** ⚠️
 - [ ] Décision sur la **constitution juridique** si commercialisation visée ⚠️
 
-**🏆 Jalon Juillet 2027 — Greenlight + RNCP (présentiel, Kremlin-Bicêtre)**
+**🏆 Jalon 05/07 → 16/07/2027 — Greenlight + RNCP (présentiel, Kremlin-Bicêtre)**
 - [ ] Matériel prêt (machine de démo, adaptateurs, connexion de secours)
 - [ ] Répétition finale J-1
 
@@ -139,7 +144,7 @@
 - **MVP** : ≥ 20 bêta-testeurs, **2 cycles d'itération** tracés sur des retours réels.
 - **Démo** : projet **déployé**, démontré **en live** (vidéo interdite), avec plan de secours.
 - **Outils entrepreneuriat** : BMC, KPIs + projections financières, roadmap — maîtrisés à l'oral.
-- **BTP** : validé par le référent **avant janvier 2027**.
+- **BTP** : v1 rendue le **07/02/2027**, version finale le **04/04/2027**, entièrement réalisée.
 - **RNCP** : blocs 5 (QA), 6 (déploiement), 7 (gestion de projet) démontrés.
 
 ## Risques à surveiller
@@ -148,7 +153,7 @@
 |---|---|
 | Interviews qui glissent → scope non validé à temps | Bloquer un créneau/semaine dès juillet ; viser 2 interviews/semaine |
 | Démo live qui échoue le jour J | Environnement de secours + répétitions chronométrées dès juin 2027 |
-| BTP non validé à temps | Soumettre une V1 au référent **dès novembre 2026** |
+| BTP trop léger → no-go | Viser large et honnête : chaque intégration de compte = une feature ; montrer une V1 au suivi dès novembre 2026 |
 | Objectifs de track figés « au hasard » en octobre | Les dériver des interviews, relus par le référent avant de figer |
 | Bêta-testeurs inactifs | Sur-recruter (viser 30 pour en garder 20 actifs) ; partenariats (assos gaming) |
 
