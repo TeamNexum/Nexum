@@ -82,14 +82,19 @@ impl HueAdapter {
         let response = reqwest::Client::new()
             .get(format!("http://{bridge}/api/{user}/config"))
             .timeout(std::time::Duration::from_secs(5))
-            .send().await
+            .send()
+            .await
             .map_err(|_| AdapterError::Unavailable("Pont Hue injoignable".into()))?
             .error_for_status()
             .map_err(|_| AdapterError::Unavailable("Le pont Hue a refusé la requête".into()))?;
-        let value: serde_json::Value = response.json().await
+        let value: serde_json::Value = response
+            .json()
+            .await
             .map_err(|_| AdapterError::Unavailable("Réponse Hue invalide".into()))?;
         if value.get("bridgeid").is_none() {
-            return Err(AdapterError::Unavailable("Accès Hue non autorisé ou réponse inattendue".into()));
+            return Err(AdapterError::Unavailable(
+                "Accès Hue non autorisé ou réponse inattendue".into(),
+            ));
         }
         Ok(())
     }

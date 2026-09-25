@@ -13,9 +13,15 @@ impl AudioAdapter {
     /// Read the default endpoint without changing its volume or mute state.
     pub fn probe() -> Result<(), AdapterError> {
         #[cfg(target_os = "windows")]
-        { probe_windows_audio() }
+        {
+            probe_windows_audio()
+        }
         #[cfg(not(target_os = "windows"))]
-        { Err(AdapterError::Unavailable("Diagnostic audio disponible uniquement sur Windows".into())) }
+        {
+            Err(AdapterError::Unavailable(
+                "Diagnostic audio disponible uniquement sur Windows".into(),
+            ))
+        }
     }
 
     pub fn new() -> Self {
@@ -177,4 +183,3 @@ fn probe_windows_audio() -> Result<(), AdapterError> {
         result.map_err(|e| AdapterError::Execution(format!("Core Audio: {e}")))
     }
 }
-
