@@ -52,7 +52,8 @@ struct ConnectionCheck {
 async fn check_connections() -> Vec<ConnectionCheck> {
     let audio = tokio::time::timeout(std::time::Duration::from_secs(6), tokio::task::spawn_blocking(AudioAdapter::probe));
     let display = tokio::time::timeout(std::time::Duration::from_secs(6), DisplayAdapter::probe());
-    let hue = HueAdapter::probe();
+    let hue_adapter = HueAdapter::new();
+    let hue = hue_adapter.probe();
     let (audio, display, hue) = tokio::join!(audio, display, hue);
     let audio = audio.map_err(|_| "Délai du diagnostic audio dépassé".to_string())
         .and_then(|result| result.map_err(|_| "Diagnostic audio interrompu".to_string()))

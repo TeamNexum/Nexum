@@ -1,15 +1,19 @@
 //! Real Philips Hue integration over the local bridge HTTP API (v1).
 //!
-//! Enabled with the `hue` feature. Configuration via environment:
+//! Enabled with the `hue` feature. The bridge address and API username come
+//! from a [`SharedHueConfig`] filled in by the app once the bridge is paired
+//! (the username is created by pressing the bridge link button; see
+//! https://developers.meethue.com/develop/get-started-2/). When nothing is
+//! paired, developers can still use the environment:
 //!   - `NEXUM_HUE_BRIDGE` — bridge IP (e.g. `192.168.1.42`)
-//!   - `NEXUM_HUE_USER`   — the API username (created by pressing the bridge
-//!     link button; see https://developers.meethue.com/develop/get-started-2/)
+//!   - `NEXUM_HUE_USER`   — the API username
 //!
 //! The `iot.hue.activate_scene` param `scene` is a user-visible scene name.
 
 use async_trait::async_trait;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::sync::{Arc, RwLock};
 
 use nexum_core::{ActionOutcome, Adapter, AdapterError, Capability};
 use nexum_schema::action_types::{ids, HueActivateSceneParams};
@@ -17,7 +21,20 @@ use nexum_schema::ActionStep;
 
 use crate::util::{deser, ok};
 
-pub struct HueAdapter;
+/// Bridge address plus the API username obtained by pressing its link button.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct HueConfig {
+    pub bridge: String,
+    pub user: String,
+}
+
+/// Config shared between the adapter and whatever pairs the bridge (the desktop
+/// app). Updating it takes effect on the next action, without a restart.
+pub type SharedHueConfig = Arc<RwLock<Option<HueConfig>>>;
+
+pub struct HueAdapter {
+    config: SharedHueConfig,
+}
 
 #[derive(Deserialize)]
 struct HueScene {
@@ -77,8 +94,8 @@ fn bridge_result(value: serde_json::Value) -> Result<(), AdapterError> {
 
 impl HueAdapter {
     /// Authenticated read-only request; deliberately omit URLs/tokens from errors.
-    pub async fn probe() -> Result<(), AdapterError> {
-        let (bridge, user) = Self::config()?;
+    pub async fn probe(&self) -> Result<(), AdapterError> {
+        let HueConfig { bridge, user } = self.config()?;
         let response = reqwest::Client::new()
             .get(format!("http://{bridge}/api/{user}/config"))
             .timeout(std::time::Duration::from_secs(5))
@@ -100,15 +117,24 @@ impl HueAdapter {
     }
 
     pub fn new() -> Self {
-        Self
+        Self::with_config(SharedHueConfig::default())
     }
 
-    fn config() -> Result<(String, String), AdapterError> {
+    pub fn with_config(config: SharedHueConfig) -> Self {
+        Self { config }
+    }
+
+    /// The paired bridge if there is one, else the `NEXUM_HUE_*` env vars
+    /// (kept as a developer fallback).
+    fn config(&self) -> Result<HueConfig, AdapterError> {
+        if let Some(config) = self.config.read().unwrap().clone() {
+            return Ok(config);
+        }
         let bridge = std::env::var("NEXUM_HUE_BRIDGE")
-            .map_err(|_| AdapterError::Unavailable("NEXUM_HUE_BRIDGE not set".into()))?;
+            .map_err(|_| AdapterError::Unavailable("Hue bridge not paired".into()))?;
         let user = std::env::var("NEXUM_HUE_USER")
-            .map_err(|_| AdapterError::Unavailable("NEXUM_HUE_USER not set".into()))?;
-        Ok((bridge, user))
+            .map_err(|_| AdapterError::Unavailable("Hue bridge not paired".into()))?;
+        Ok(HueConfig { bridge, user })
     }
 }
 
@@ -125,7 +151,7 @@ impl Adapter for HueAdapter {
     }
 
     async fn is_available(&self) -> Capability {
-        match Self::config() {
+        match self.config() {
             Ok(_) => Capability::Available,
             Err(e) => Capability::Unavailable {
                 reason: e.to_string(),
@@ -148,7 +174,7 @@ impl Adapter for HueAdapter {
         self.validate(step)?;
         let params: HueActivateSceneParams = deser(step)?;
 
-        let (bridge, user) = Self::config()?;
+        let HueConfig { bridge, user } = self.config()?;
         let client = reqwest::Client::new();
         let list_url = format!("http://{bridge}/api/{user}/scenes");
         let list = client
@@ -206,6 +232,18 @@ mod tests {
             resolve_scene(scenes, "purple night").unwrap(),
             ("abc".into(), "2".into())
         );
+    }
+
+    #[test]
+    fn paired_config_takes_effect_without_rebuilding_the_adapter() {
+        let shared = SharedHueConfig::default();
+        let adapter = HueAdapter::with_config(shared.clone());
+        let paired = HueConfig {
+            bridge: "192.168.1.42".into(),
+            user: "nexum-user".into(),
+        };
+        *shared.write().unwrap() = Some(paired.clone());
+        assert_eq!(adapter.config().unwrap(), paired);
     }
 
     #[test]

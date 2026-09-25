@@ -25,4 +25,4 @@ pub use gaming::GamingAdapter;
 pub use system::SystemAdapter;
 
 #[cfg(feature = "hue")]
-pub use hue::HueAdapter;
+pub use hue::{HueAdapter, HueConfig, SharedHueConfig};
