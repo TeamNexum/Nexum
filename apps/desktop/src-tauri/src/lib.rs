@@ -4,10 +4,16 @@
 //! automation rules, forwards engine events to the webview in real time, and
 //! exposes the command surface the frontend calls.
 
+mod integrations;
+
 use std::sync::Arc;
 
 use chrono::{Datelike, Timelike};
-use nexum_adapters::{AudioAdapter, DisplayAdapter, GamingAdapter, HueAdapter, SystemAdapter};
+use integrations::{IntegrationSettings, Integrations};
+use nexum_adapters::{
+    AudioAdapter, DisplayAdapter, GamingAdapter, HueAdapter, Switchable, SystemAdapter,
+};
+use nexum_core::Adapter;
 use nexum_core::automation::{evaluate, EvalContext};
 use nexum_core::marketplace::{assess, RiskReport};
 use nexum_core::{ActionRegistry, Engine, EventBus, ExecutionReport};
@@ -24,6 +30,7 @@ use uuid::Uuid;
 /// Shared application state handed to every command.
 struct AppState {
     engine: Engine,
+    integrations: Integrations,
     store: SqliteStore,
     rules: Vec<AutomationRule>,
 }
@@ -49,10 +56,10 @@ struct ConnectionCheck {
 }
 
 #[tauri::command]
-async fn check_connections() -> Vec<ConnectionCheck> {
+async fn check_connections(state: State<'_, Arc<AppState>>) -> Result<Vec<ConnectionCheck>, String> {
     let audio = tokio::time::timeout(std::time::Duration::from_secs(6), tokio::task::spawn_blocking(AudioAdapter::probe));
     let display = tokio::time::timeout(std::time::Duration::from_secs(6), DisplayAdapter::probe());
-    let hue_adapter = HueAdapter::new();
+    let hue_adapter = HueAdapter::with_config(state.integrations.hue());
     let hue = hue_adapter.probe();
     let (audio, display, hue) = tokio::join!(audio, display, hue);
     let audio = audio.map_err(|_| "Délai du diagnostic audio dépassé".to_string())
@@ -61,8 +68,25 @@ async fn check_connections() -> Vec<ConnectionCheck> {
     let display = display.map_err(|_| "Délai de lecture des écrans dépassé".to_string())
         .and_then(|result| result.map(|count| format!("{count} écran(s) lisible(s)")).map_err(|e| e.to_string()));
     let hue = hue.map(|_| "Pont Hue joignable et authentifié".to_string()).map_err(|e| e.to_string());
-    [("audio", audio), ("display", display), ("hue", hue)].into_iter()
-        .map(|(id, result)| ConnectionCheck { id, available: result.is_ok(), detail: result.unwrap_or_else(|e| e) }).collect()
+    Ok([("audio", audio), ("display", display), ("hue", hue)].into_iter()
+        .map(|(id, result)| ConnectionCheck { id, available: result.is_ok(), detail: result.unwrap_or_else(|e| e) }).collect())
+}
+
+#[tauri::command]
+fn get_integrations(state: State<'_, Arc<AppState>>) -> IntegrationSettings {
+    state.integrations.get()
+}
+
+/// Save integration settings; they apply to the next activation.
+#[tauri::command]
+fn set_integrations(
+    settings: IntegrationSettings,
+    state: State<'_, Arc<AppState>>,
+) -> Result<(), String> {
+    state
+        .integrations
+        .update(settings)
+        .map_err(|e| format!("could not save integration settings: {e}"))
 }
 
 #[tauri::command]
@@ -170,8 +194,10 @@ pub fn run() {
             let store = SqliteStore::open(db_path.to_string_lossy().as_ref())
                 .expect("failed to open the SQLite store");
 
+            let integrations = Integrations::load(data_dir.join("integrations.json"));
             let state = Arc::new(AppState {
-                engine: build_engine(),
+                engine: build_engine(&integrations),
+                integrations,
                 store,
                 rules: demo_rules(),
             });
@@ -315,6 +341,8 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             check_connections,
+            get_integrations,
+            set_integrations,
             get_modes,
             activate_mode,
             save_mode,
@@ -330,13 +358,20 @@ pub fn run() {
         .expect("error while running tauri application");
 }
 
-fn build_engine() -> Engine {
+/// Every adapter is wrapped in a `Switchable` tied to its integration's on/off
+/// setting; Hue reads the bridge paired through the app.
+fn build_engine(integrations: &Integrations) -> Engine {
+    let adapters: [(&str, Arc<dyn Adapter>); 5] = [
+        ("system", Arc::new(SystemAdapter::new())),
+        ("audio", Arc::new(AudioAdapter::new())),
+        ("display", Arc::new(DisplayAdapter::new())),
+        ("gaming", Arc::new(GamingAdapter::new())),
+        ("hue", Arc::new(HueAdapter::with_config(integrations.hue()))),
+    ];
     let mut registry = ActionRegistry::new();
-    registry.register(Arc::new(SystemAdapter::new()));
-    registry.register(Arc::new(AudioAdapter::new()));
-    registry.register(Arc::new(DisplayAdapter::new()));
-    registry.register(Arc::new(GamingAdapter::new()));
-    registry.register(Arc::new(HueAdapter::new()));
+    for (id, adapter) in adapters {
+        registry.register(Arc::new(Switchable::new(adapter, integrations.switch(id))));
+    }
 
     Engine::new(registry, EventBus::new())
 }
