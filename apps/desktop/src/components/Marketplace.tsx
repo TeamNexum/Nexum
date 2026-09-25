@@ -2,21 +2,16 @@ import { useEffect, useState } from "react";
 import { api } from "../api";
 import type { Mode, RiskReport } from "../types";
 import ProfileDetails from "./ProfileDetails";
+import ImportMode from "./ImportMode";
 import {
   MARKETPLACE_CATALOG,
+  RISK_LEVEL_LABEL,
   categoryMeta,
   catStyle,
   describeStep,
   toMode,
   type CatalogMode,
 } from "../modeMeta";
-
-const LEVEL_LABEL: Record<string, string> = {
-  low: "Risque faible — sûr à publier",
-  medium: "Risque moyen — relecture conseillée",
-  high: "Risque élevé — relecture manuelle requise",
-  rejected: "Rejeté — contient une action hors liste blanche",
-};
 
 export default function Marketplace({ modes, reload }: { modes: Mode[]; reload: () => void }) {
   const [risks, setRisks] = useState<Record<string, RiskReport>>({});
@@ -122,7 +117,7 @@ export default function Marketplace({ modes, reload }: { modes: Mode[]; reload: 
         {error && <div className="error" role="alert">{error}</div>}
       </section>
 
-      <aside className="market-aside"><SafetyCheck modes={modes} /><section className="context-panel"><span className="workspace-kicker">DE L’IDÉE AU PROFIL</span><h2>Installez. Ajustez. Activez.</h2><ol className="guide-steps"><li><strong>Choisissez un modèle</strong><span>Consultez les actions incluses avant de l’ajouter.</span></li><li><strong>Faites-le vôtre</strong><span>Retrouvez-le dans le Studio pour régler chaque action.</span></li><li><strong>Lancez-le à votre rythme</strong><span>L’installation seule ne déclenche aucune action.</span></li></ol></section></aside>
+      <aside className="market-aside"><ImportMode onImported={reload} /><SafetyCheck modes={modes} /><section className="context-panel"><span className="workspace-kicker">DE L’IDÉE AU PROFIL</span><h2>Installez. Ajustez. Activez.</h2><ol className="guide-steps"><li><strong>Choisissez un modèle</strong><span>Consultez les actions incluses avant de l’ajouter.</span></li><li><strong>Faites-le vôtre</strong><span>Retrouvez-le dans le Studio pour régler chaque action.</span></li><li><strong>Lancez-le à votre rythme</strong><span>L’installation seule ne déclenche aucune action.</span></li></ol></section></aside>
       {preview && <ProfileDetails mode={toMode(preview, "catalog-preview")} onClose={() => setPreview(null)} onAction={() => void install(preview)} busy={installing !== null} error={error} actionDisabled={modes.some(m => m.name.toLowerCase() === preview.name.toLowerCase())} actionLabel={modes.some(m => m.name.toLowerCase() === preview.name.toLowerCase()) ? "Déjà installé" : "Ajouter à ma bibliothèque"} />}
     </div>
   );
@@ -175,7 +170,7 @@ function SafetyCheck({ modes }: { modes: Mode[] }) {
       {report && (
         <div className="risk">
           <div className={`risk-badge ${report.level}`}>{report.level.toUpperCase()}</div>
-          <p>{LEVEL_LABEL[report.level]}</p>
+          <p>{RISK_LEVEL_LABEL[report.level]}</p>
           <p>
             Score de risque : <b>{report.score}</b>
           </p>

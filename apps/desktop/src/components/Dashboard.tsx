@@ -37,6 +37,7 @@ export default function Dashboard({
   const [toast, setToast] = useState<Toast | null>(null);
   const [addingName, setAddingName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [exportStatus, setExportStatus] = useState<string | null>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [selected, setSelected] = useState<{ id: string } | { template: CatalogMode } | null>(null);
@@ -67,6 +68,17 @@ export default function Dashboard({
       setError(String(e instanceof Error ? e.message : e));
     } finally {
       setPendingId(null);
+    }
+  }
+
+  async function exportMode(mode: Mode) {
+    setError(null);
+    setExportStatus(null);
+    try {
+      const path = await api.exportMode(mode.id);
+      if (path) setExportStatus(`Profil exporté vers ${path}`);
+    } catch (e) {
+      setError(String(e instanceof Error ? e.message : e));
     }
   }
 
@@ -217,11 +229,12 @@ export default function Dashboard({
         })}
       </div>
 
-      {selectedMode && selected && <ProfileDetails mode={selectedMode} onClose={() => setSelected(null)}
+      {selectedMode && selected && <ProfileDetails mode={selectedMode} onClose={() => { setSelected(null); setExportStatus(null); }}
         busy={pendingId !== null || addingName !== null} error={error}
-        status={toast ? (toast.ok ? 'Profil activé' : 'Certaines actions ont échoué') + ' · ' + toast.done + '/' + toast.total + ' actions réussies' : null}
+        status={toast ? (toast.ok ? 'Profil activé' : 'Certaines actions ont échoué') + ' · ' + toast.done + '/' + toast.total + ' actions réussies' : exportStatus}
         actionLabel={"template" in selected ? "Ajouter à ma bibliothèque" : "Activer ce profil"}
         onAction={() => { if ("template" in selected) void addTemplate(selected.template); else void activate(selectedMode); }}
+        onExport={"id" in selected ? () => void exportMode(selectedMode) : undefined}
         onEdit={"id" in selected ? () => { setSelected(null); onEdit(selectedMode.id); } : undefined}
         favorite={favorites.includes(selectedMode.id)}
         onFavorite={"id" in selected ? () => onFavorite(selectedMode.id) : undefined}

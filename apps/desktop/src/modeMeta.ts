@@ -3,7 +3,7 @@
 // This is UI-only sugar — the source of truth for the model stays in Rust.
 
 import type { ComponentType, CSSProperties } from "react";
-import type { ActionStep, Category, Mode } from "./types";
+import type { ActionStep, Category, Mode, RiskLevel } from "./types";
 import {
   IconGaming,
   IconWork,
@@ -125,6 +125,14 @@ export function actionMeta(type: string): ActionInfo {
 export function describeStep(step: ActionStep): string {
   return actionMeta(step.type).describe((step.params ?? {}) as Params);
 }
+
+/** Plain-language meaning of each marketplace risk level. */
+export const RISK_LEVEL_LABEL: Record<RiskLevel, string> = {
+  low: "Risque faible — sûr à publier",
+  medium: "Risque moyen — relecture conseillée",
+  high: "Risque élevé — relecture manuelle requise",
+  rejected: "Rejeté — contient une action hors liste blanche",
+};
 
 // ---- Starter templates & marketplace catalog ------------------------------
 

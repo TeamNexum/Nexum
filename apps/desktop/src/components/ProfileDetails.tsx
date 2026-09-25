@@ -3,9 +3,9 @@ import type { Mode } from "../types";
 import { actionMeta, categoryMeta, describeStep } from "../modeMeta";
 import ProfileArtwork from "./ProfileArtwork";
 
-export default function ProfileDetails({ mode, onClose, onAction, actionLabel, busy, onEdit, favorite, onFavorite, onMove, canMoveLeft, canMoveRight, error, status, actionDisabled }: {
+export default function ProfileDetails({ mode, onClose, onAction, actionLabel, busy, onEdit, onExport, favorite, onFavorite, onMove, canMoveLeft, canMoveRight, error, status, actionDisabled }: {
   mode: Mode; onClose: () => void; onAction: () => void; actionLabel: string; busy: boolean;
-  onEdit?: () => void; favorite?: boolean; onFavorite?: () => void;
+  onEdit?: () => void; onExport?: () => void; favorite?: boolean; onFavorite?: () => void;
   onMove?: (direction: -1 | 1) => void; canMoveLeft?: boolean; canMoveRight?: boolean; error?: string | null;
   status?: string | null;
   actionDisabled?: boolean;
@@ -38,6 +38,6 @@ export default function ProfileDetails({ mode, onClose, onAction, actionLabel, b
       {error && <p role="alert" className="error">{error}</p>}
       {status && <p role="status" className="muted">{status}</p>}
     </div>
-    <footer className="drawer-footer">{onEdit && <button className="btn-secondary" disabled={busy} onClick={onEdit}>Modifier dans le Studio</button>}<button className="primary" disabled={busy || actionDisabled} onClick={onAction}>{busy ? "En cours…" : actionLabel}</button></footer>
+    <footer className="drawer-footer">{onExport && <button className="btn-secondary" disabled={busy} onClick={onExport}>Exporter</button>}{onEdit && <button className="btn-secondary" disabled={busy} onClick={onEdit}>Modifier dans le Studio</button>}<button className="primary" disabled={busy || actionDisabled} onClick={onAction}>{busy ? "En cours…" : actionLabel}</button></footer>
   </dialog>;
 }

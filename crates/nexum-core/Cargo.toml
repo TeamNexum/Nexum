@@ -7,7 +7,7 @@ license.workspace = true
 
 [features]
 # Emit TypeScript bindings for the engine/marketplace types (see nexum-schema).
-ts = ["dep:ts-rs"]
+ts = ["dep:ts-rs", "nexum-schema/ts"]
 
 [dependencies]
 nexum-schema.workspace = true

@@ -276,6 +276,22 @@ Vous pouvez récupérer un mode déjà tout prêt au lieu de le construire.
 > programme), il ne peut effectuer que des actions autorisées et vérifiées par
 > Nexum : vous restez protégé.
 
+### Partager un mode par fichier
+
+Vous pouvez aussi échanger un mode directement, sans passer par le catalogue
+(par exemple entre collègues d'un même chantier).
+
+- **Exporter** : sur le Dashboard, ouvrez un de vos profils puis cliquez sur
+  **Exporter**. Choisissez où enregistrer le fichier `.nexum.json`.
+- **Importer** : dans l'onglet **Marketplace**, section **Importer un
+  profil**, cliquez sur **Choisir un fichier…**. Nexum affiche le niveau de
+  risque du mode avant de l'ajouter :
+  - un mode contenant une action inconnue est **refusé** ;
+  - un mode à **risque élevé** demande une confirmation explicite ;
+  - le mode importé reçoit un nouvel identifiant (et le suffixe « (importé) »
+    si vous avez déjà un profil du même nom), il n'écrase donc jamais un de
+    vos modes.
+
 ---
 
 ## 10. L'espace Système (Réglages)
