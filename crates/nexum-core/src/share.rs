@@ -85,7 +85,12 @@ pub fn file_name(mode: &Mode) -> String {
     format!("{slug}{FILE_EXTENSION}")
 }
 
-
+/// Parse a shared file, give the mode `new_id` and score it against the
+/// `allowlist` of known action_types. Only fails on unreadable input; an
+/// unknown action is reported as [`RiskLevel::Rejected`] in the preview so the
+/// UI can explain why. Use [`import`] to enforce the refusal.
+///
+/// Accepts both the versioned envelope and a bare `Mode` object.
 pub fn preview_import(
     contents: &str,
     allowlist: &[String],
