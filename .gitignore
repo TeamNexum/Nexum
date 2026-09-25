@@ -20,3 +20,4 @@ apps/desktop/src-tauri/gen
 .DS_Store
 .vscode/*
 !.vscode/extensions.json
+debug.log
