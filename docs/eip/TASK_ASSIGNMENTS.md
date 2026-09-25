@@ -44,7 +44,7 @@ tickets qui mélangent front et back leur reviennent en binôme.
 | [#8](../../../issues/8) | feat(ui): gestion granulaire par élément dans un mode | Front | Rares |
 | [#9](../../../issues/9) | feat(ui): panneau de contrôle par app (Task Manager) | Front | Rares |
 | [#10](../../../issues/10) | feat(core): notifications contextuelles selon le mode | Back | Max |
-| [#11](../../../issues/11) | feat(setup): wizard d'installation d'extensions (DLC) | Front + Back | Arnaud + Rares |
+| [#11](../../../issues/11) | feat(setup): onboarding premier lancement — détection des intégrations + appairage Hue | Front + Back | Arnaud + Rares |
 | [#13](../../../issues/13) | feat(ui): éditeur no-code pour créer un mode | Front | Rares |
 | [#14](../../../issues/14) | feat(cloud): auth + sync cloud minimale (axum/PostgreSQL) | Database/CI-CD | Raph *(intérim — Enzo pas encore sur le repo)* |
 
@@ -57,6 +57,7 @@ tickets qui mélangent front et back leur reviennent en binôme.
 | [#16](../../../issues/16) | feat(marketplace): partage + import de modes (v1) | Front + Back | Arnaud + Rares |
 | [#17](../../../issues/17) | feat(marketplace): allowlist + score de risque IA + modération | Front + Back | Arnaud + Rares |
 | [#18](../../../issues/18) | feat(mobile): télécommande — activer un mode à distance | Front + Back | Arnaud + Rares |
+| [#23](../../../issues/23) | feat(extensions): extensions installables à la demande (« modèle DLC », scindé de #11) | Front + Back | Arnaud + Rares |
 
 ## Tickets GitHub — Phase 3 (Finalisation & jury)
 
