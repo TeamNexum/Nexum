@@ -104,31 +104,32 @@ complète est décrite dans le document `docs/GETTING_STARTED.md`.
 ## 3. Premier lancement
 
 1. Ouvrez Nexum.
-2. L'application s'ouvre directement sur le **Dashboard**.
-3. Vous y voyez déjà **trois modes de démonstration** (Gaming, Stream, Chill)
-   pour découvrir le fonctionnement.
-4. Prenez le temps d'explorer les quatre onglets en haut (ou sur le côté) :
-   **Dashboard**, **Éditeur de modes**, **Automatisations**, **Marketplace**.
+2. L'application s'ouvre directement sur l'écran **Accueil** (Dashboard).
+3. Vous y voyez vos profils enregistrés (Gaming, Work, Chill) pour découvrir le fonctionnement.
+4. Explorez les **cinq espaces de travail** accessibles depuis la barre supérieure :
+   - **Accueil** : activez vos profils, consultez l'activité récente, gérez vos favoris (★) et réorganisez vos profils.
+   - **Studio** : composez vos profils action par action, ajustez les curseurs et utilisez l'IA.
+   - **Règles** : consultez vos règles d'automatisation et testez un horaire avec le simulateur.
+   - **Découvrir** : parcourez le catalogue de modèles avec analyse de sécurité et installez-les en un clic.
+   - **Système** : synchronisez avec le cloud, lancez un diagnostic des connexions et réglez la densité de l'interface.
 
-> 💡 **Astuce** — Vous pouvez utiliser Nexum **sans compte** : vos modes sont
-> enregistrés en local sur votre machine. Un compte n'est utile que si vous
-> voulez synchroniser vos modes entre plusieurs appareils (fonction Premium).
+> 💡 **Astuce** — Vous pouvez utiliser Nexum **sans compte** : vos profils sont enregistrés localement dans une base SQLite robuste (`nexum.db`). Un compte n'est utile que pour synchroniser vos profils entre plusieurs machines ou avec la télécommande mobile.
+>
+> ⌨️ **Raccourci** — Appuyez sur **`Ctrl + K`** (ou `Cmd + K`) pour ouvrir la palette de commandes et naviguer instantanément entre vos profils et vos réglages.
 
 ---
 
-## 4. Le Dashboard
+## 4. L'Accueil (Dashboard)
 
-Le Dashboard est votre écran d'accueil. C'est là que vous activez vos modes au
-quotidien.
+L'Accueil est votre centre de contrôle quotidien.
 
 On y trouve :
 
-- **La liste de vos modes** : chaque mode est présenté sous forme de carte avec
-  son nom et son icône.
-- **Le bouton d'activation** : un clic lance le mode.
-- **Le journal d'actions en direct** (« Live actions ») : une zone qui affiche,
-  étape par étape, ce que Nexum est en train de faire, avec pour chaque action un
-  indicateur de réussite ✅ ou d'échec ❌.
+- **Le carrousel cinématique** : tous vos profils sous forme de cartes d'ambiance avec leur catégorie visuelle.
+- **Les commandes rapides** : un bouton de lecture directe ▶️ pour activer un profil sans ouvrir ses détails, une étoile ★ pour épingler en favoris, et une poignée ⠿ pour réordonner par glisser-déposer.
+- **L'aperçu détaillé (tiroir)** : cliquez sur une carte pour ouvrir son détail complet, vérifier la liste des actions ordonnées et lancer l'activation.
+- **Le journal d'activité récente (« Live actions »)** : un flux en direct qui affiche l'état d'exécution de chaque étape (✅ succès, ❌ échec, indicateur en cours).
+- **Le panneau récapitulatif de votre bibliothèque** : compteurs de profils, actions actives, et accès rapides.
 
 > 💡 **Astuce** — Le journal en direct est votre meilleur ami pour comprendre ce
 > qui se passe. Si une lumière ne s'allume pas, le journal vous dira précisément
@@ -277,28 +278,29 @@ Vous pouvez récupérer un mode déjà tout prêt au lieu de le construire.
 
 ---
 
-## 10. Réglages
+## 10. L'espace Système (Réglages)
 
-Les réglages regroupent les préférences générales de l'application. Selon votre
-version, vous y trouverez notamment :
+L'onglet **Système** rassemble la gestion de votre compte, la synchronisation et la maintenance de votre installation :
 
-- **Compte et synchronisation** : connexion, synchronisation cloud de vos modes
-  entre plusieurs appareils *(fonction Premium)*.
-- **Démarrage** : lancer Nexum automatiquement au démarrage de l'ordinateur.
-- **Périphériques et intégrations** : connecter vos objets et matériels, par
-  exemple le pont **Philips Hue** (adresse du pont + identifiant), les
-  périphériques RGB, etc.
-- **Langue** et **thème** (clair / sombre).
-- **Confidentialité** : gestion des données ; Nexum fonctionne en priorité en
-  local (offline-first).
+- **Compte & synchronisation** :
+  - Créez un compte ou connectez-vous avec votre e-mail et mot de passe.
+  - **⬆ Envoyer les profils** (*Push*) : téléverse vos profils locaux vers le cloud.
+  - **⬇ Récupérer depuis le cloud** (*Pull*) : importe les profils synchronisés sur votre machine.
+  - Déconnexion en un clic.
+- **Diagnostic en lecture seule (État des connexions)** :
+  - Teste en temps réel la disponibilité de vos intégrations sans modifier vos réglages actuels :
+    - **Audio** : disponibilité de la sortie audio par défaut (Windows Core Audio ou Linux PipeWire/PulseAudio).
+    - **Écran** : détection des moniteurs compatibles avec le réglage de luminosité.
+    - **Philips Hue** : vérification de l'accès au pont Hue et validation de l'authentification.
+    - **Cloud** : contrôle de l'accessibilité de l'API Nexum Cloud.
+- **Densité d'affichage de l'interface** :
+  - Choisissez entre **Compact** (espacement réduit, idéal pour petits écrans ou fenêtres réduites) et **Confort** (espacement aéré). La préférence est conservée pour chaque lancement.
+- **Serveur de synchronisation** :
+  - Indiquez l'URL du serveur Nexum Cloud (par défaut `http://localhost:8787` en local, ou l'adresse IP de votre PC pour le compagnon mobile).
+- **Statistiques de la bibliothèque locale** :
+  - Nombre de profils enregistrés en SQLite, nombre d'actions actives, et état de l'environnement (Application de bureau vs Aperçu navigateur).
 
-> 💡 **Astuce (Philips Hue)** — Pour piloter réellement vos lumières Hue, il faut
-> renseigner l'**adresse de votre pont Hue** et un **identifiant Hue**. En cas de
-> doute, reportez-vous à la documentation de votre pont Philips Hue pour obtenir
-> ces informations.
-
-> ⚠️ La liste exacte des réglages disponibles dépend de la version installée et
-> pourra évoluer. — « Hypothèse » sur le contenu final de l'écran Réglages.
+> 💡 **Astuce (Philips Hue)** — Pour piloter vos lumières Hue, configurez les variables d'environnement `NEXUM_HUE_BRIDGE` (adresse IP de votre pont) et `NEXUM_HUE_USER` (nom d'utilisateur généré sur le pont). L'outil de diagnostic confirmera immédiatement l'accès.
 
 ---
 

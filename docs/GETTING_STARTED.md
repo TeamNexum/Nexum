@@ -72,27 +72,39 @@ npm install
 npm run tauri dev        # launches the Tauri window with hot reload
 ```
 
-The app opens on the **Dashboard** with three demo modes. Explore:
-- **Dashboard** — activate a mode; watch the live event feed (real engine results).
-- **Mode Editor** — build a mode with no code; try **✨ Generate with AI** ("chill music").
-- **Automations** — fire a simulated clock tick at 18:00 to auto-trigger "Chill".
-- **Marketplace** — assess a mode's risk.
+The app opens on **Accueil** with demo modes. Explore the 5 workspaces:
+- **Accueil (Dashboard)** — activate a mode; watch the real-time event feed, manage favorites (★) and reorder modes.
+- **Studio (Mode Editor)** — compose modes with no code, order actions, adjust sliders, or try **✨ Créer avec l'IA**.
+- **Règles (Automations)** — inspect rules and test clock triggers at 18:00 to auto-activate "Chill".
+- **Découvrir (Marketplace)** — browse community templates with real static risk scores.
+- **Système (Settings)** — connect your cloud account, push/pull modes, run live connection diagnostics (Audio, Display, Hue, Cloud), and adjust UI density.
 
-### Optional features
+### Integrations and configuration
 
-**Persistence (SQLite):** swap `InMemoryStore` for `SqliteStore` in
-`apps/desktop/src-tauri/src/lib.rs` and add `features = ["sqlite"]` to the
-`nexum-store` dependency there.
+- **Persistence (SQLite)**: Active by default in the desktop app (`SqliteStore::open` stores modes in `nexum.db` under the OS app data directory).
+- **Philips Hue**: The `HueAdapter` is registered out-of-the-box. To control physical lights, set the environment variables:
+  ```bash
+  export NEXUM_HUE_BRIDGE=192.168.1.42
+  export NEXUM_HUE_USER=<your-hue-api-username>
+  ```
+- **Claude AI (optional)**: Run `cargo run -p nexum-cloud --features claude` with `ANTHROPIC_API_KEY` set. Without it, the built-in heuristic generator is used.
 
-**Real Philips Hue:** enable the adapter and set env vars.
+## 5. Run the mobile companion (PWA)
+
 ```bash
-# in apps/desktop/src-tauri/Cargo.toml: nexum-adapters = { path = "...", features = ["hue"] }
-# then register HueAdapter in build_state() instead of the Hue mock, and:
-export NEXUM_HUE_BRIDGE=192.168.1.42
-export NEXUM_HUE_USER=<your-hue-api-username>
+# Terminal 1: run cloud bound to LAN
+cd nexum
+NEXUM_CLOUD_ADDR=0.0.0.0:8787 cargo run -p nexum-cloud
+
+# Terminal 2: run mobile PWA
+cd nexum/apps/mobile
+npm install
+npm run dev
 ```
 
-## 5. Build a release
+Open the Network URL on your phone's browser, sign in with the same account as the desktop app, and trigger modes remotely.
+
+## 6. Build a release
 
 ```bash
 cd nexum/apps/desktop
