@@ -18,10 +18,13 @@ serde_json.workspace = true
 async-trait.workspace = true
 # Cross-platform "open a file/url/protocol with the default handler".
 open = "5"
-brightness = "0.8"
-futures = "0.3"
 # Hue: rustls (no system OpenSSL needed).
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"], optional = true }
 
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.61", features = ["Win32_Foundation", "Win32_Media_Audio", "Win32_Media_Audio_Endpoints", "Win32_System_Com", "Win32_System_Com_StructuredStorage", "Win32_System_Variant"] }
+
+# `brightness` has no macOS backend (compile_error! on other targets).
+[target.'cfg(any(windows, target_os = "linux"))'.dependencies]
+brightness = "0.8"
+futures = "0.3"
