@@ -102,7 +102,7 @@ try {
     return false;
   });
   await request("POST", path("/execute/sync"), {
-    script: "arguments[0].scrollIntoView({ block: 'center', inline: 'center' }); arguments[0].click();",
+    script: "arguments[0].scrollIntoView({ block: 'center', inline: 'center' }); arguments[0].querySelector('.profile-quick-play').click();",
     args: [{ "element-6066-11e4-a52e-4f735466cecf": card }],
   });
   await until(async () => (await textOf(".activity-stream")).includes("Certaines actions ont échoué"));
