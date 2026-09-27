@@ -1,101 +1,130 @@
 # Nexum — Attribution des tâches par membre
 
-> Suite à la réunion du 2026-09-14 (`docs/eip/meetings/2026-09-14-fonctionnalites-organisation.md`),
-> prochaine étape actée : *« Attribuer les tickets GitHub à chaque membre »*. Ce document liste
-> les 21 issues déjà créées (voir `docs/GITHUB_SETUP.md` et le board
-> https://github.com/orgs/TeamNexum/projects/1) regroupées par zone technique, plus les tâches
-> non-techniques du plan d'exécution (`PLAN_EXECUTION_EQUIPE.md`), pour pouvoir les assigner.
->
-> **Mise à jour 2026-09-22 :** roster confirmé par Arnaud, assignation faite sur GitHub via
-> `gh issue edit <n> --add-assignee <user>` (vérifié avec `gh issue list --json
-> number,assignees`).
+> Répartition des issues GitHub **ouvertes** par phase, telle qu'elle est sur GitHub au
+> **2026-09-25** (après le premier suivi pédagogique, voir
+> `docs/eip/meetings/2026-09-25-suivi-pedagogique.md`). La source de vérité reste GitHub et le
+> board https://github.com/orgs/TeamNexum/projects/1 : ce fichier est un instantané pour les
+> suivis et le dossier RNCP (bloc 7).
 
-## Roster (confirmé 2026-09-22)
+## Équipe et rôles (décidés au suivi du 2026-09-25)
 
-| Prénom | Nom complet | Compte GitHub | Rôle | Statut |
-|---|---|---|---|---|
-| Arnaud | Arnaud Jouan | `Arjouan` | Généraliste (un peu de tout, front + back) + PM/lead | ✅ confirmé |
-| Rares | Rares Dragomir | `RaresFZ` | Généraliste (un peu de tout) + **main dev Front** | ✅ confirmé |
-| Max | Max Epinat | `Max-Epinat` (= `MaxCrimson`, même personne/compte) | **Main dev Back** | ✅ confirmé |
-| Raph | Raphael Grissonnanche | `Raphie10` | Back (aide Max) + Database/CI-CD (intérim, voir Enzo) | ✅ confirmé |
-| Enzo | ? | — | Database + CI/CD | ⚠️ n'a pas encore rejoint le repo GitHub — Raph couvre en attendant |
-| — (Comms/image) | ? | ? | Réseaux sociaux + design | ⚠️ non réparti (voir plus bas) |
-| — (Marché/business) | ? | ? | Interviews, BMC, KPIs | ⚠️ non réparti (voir plus bas) |
-
-Pas de membres dédiés "Front/Back" séparés : Arnaud et Rares touchent un peu de tout, donc les
-tickets qui mélangent front et back leur reviennent en binôme.
-
-## Tickets GitHub — Phase 0 (Fondations, à faire en premier)
-
-| # | Titre | Zone | Assigné |
+| Prénom | Nom complet | Compte GitHub | Rôle |
 |---|---|---|---|
-| [#1](../../../issues/1) | feat(adapters): Windows volume via Core Audio | Back | Max |
-| [#2](../../../issues/2) | chore(schema): wire ts-rs → packages/schema-ts | Database/CI-CD | Raph *(intérim — Enzo pas encore sur le repo)* |
-| [#3](../../../issues/3) | feat(store): SqliteStore dans l'app desktop | Back | Max |
-| [#4](../../../issues/4) | feat(adapters): Philips Hue scene lookup réel | Back | Raph |
-| [#5](../../../issues/5) | test(e2e): Tauri end-to-end smoke test | Database/CI-CD | Raph *(intérim — Enzo pas encore sur le repo)* |
-| [#12](../../../issues/12) | feat(adapters): display/brightness réel | Back | Max |
+| Arnaud | Arnaud Jouan | `Arjouan` | Product owner / lead ; Front en soutien + compatibilité macOS / iOS ; comms (avec Rares) |
+| Rares | Rares Dragomir | `RaresFZ` | **Front principal** ; comms (avec Arnaud) ; messagerie centralisée |
+| Raphaël | Raphael Grissonnanche | `Raphie10` | Back ; installateur et mises à jour |
+| Max | Max Epinat | `Max-Epinat` (= `MaxCrimson`) | Back ; architecture plugins ; Android |
+| Enzo | ⚠️ nom à compléter | `MAD-TEK` | Business / KPI ; Database + CI/CD |
 
-## Tickets GitHub — Phase 1 (MVP + BTP)
+Les tickets sont souvent en binôme « responsable + aide » : on ajoute un co-assigné plutôt que
+de retirer un ticket à quelqu'un.
 
-| # | Titre | Zone | Assigné |
-|---|---|---|---|
-| [#7](../../../issues/7) | feat(ui): hub centralisé de gestion des modes | Front | Rares |
-| [#8](../../../issues/8) | feat(ui): gestion granulaire par élément dans un mode | Front | Rares |
-| [#9](../../../issues/9) | feat(ui): panneau de contrôle par app (Task Manager) | Front | Rares |
-| [#10](../../../issues/10) | feat(core): notifications contextuelles selon le mode | Back | Max |
-| [#11](../../../issues/11) | feat(setup): onboarding premier lancement — détection des intégrations + appairage Hue | Front + Back | Arnaud + Rares |
-| [#13](../../../issues/13) | feat(ui): éditeur no-code pour créer un mode | Front | Rares |
-| [#14](../../../issues/14) | feat(cloud): auth + sync cloud minimale (axum/PostgreSQL) | Database/CI-CD | Raph *(intérim — Enzo pas encore sur le repo)* |
+## Charge actuelle
 
-## Tickets GitHub — Phase 2 (Bêta, itérations, Greenlight blanc)
+69 issues ouvertes, 27 fermées. Issues ouvertes par personne (un ticket en binôme compte pour les deux) :
 
-| # | Titre | Zone | Assigné |
-|---|---|---|---|
-| [#6](../../../issues/6) | feat: Unified inbox (messages/emails agrégés) | Front + Back | Arnaud + Rares |
-| [#15](../../../issues/15) | feat(core): moteur d'automatisation SI/ALORS | Back | Raph |
-| [#16](../../../issues/16) | feat(marketplace): partage + import de modes (v1) | Front + Back | Arnaud + Rares |
-| [#17](../../../issues/17) | feat(marketplace): allowlist + score de risque IA + modération | Front + Back | Arnaud + Rares |
-| [#18](../../../issues/18) | feat(mobile): télécommande — activer un mode à distance | Front + Back | Arnaud + Rares |
-| [#23](../../../issues/23) | feat(extensions): extensions installables à la demande (« modèle DLC », scindé de #11) | Front + Back | Arnaud + Rares |
+| Personne | Issues ouvertes |
+|---|---|
+| Rares | 24 |
+| Arnaud | 24 |
+| Max | 13 |
+| Enzo | 10 |
+| Raph | 7 |
+| ⚠️ personne | 14 |
 
-## Tickets GitHub — Phase 3 (Finalisation & jury)
+## Phase 0 — Fondations
 
-| # | Titre | Zone | Assigné |
-|---|---|---|---|
-| [#19](../../../issues/19) | feat(ai): démonstrateur Mode-as-Code (NL → LLM → DSL) | Back | Max |
-| [#20](../../../issues/20) | chore(hardening): gestion d'erreurs / dégradation adapters | Back | Max |
-| [#21](../../../issues/21) | chore(release): installeurs Windows/Linux signés | Database/CI-CD | Raph *(intérim — Enzo pas encore sur le repo)* |
+| # | Titre | Assigné |
+|---|---|---|
+| [#24](../../../issues/24) | business: interviews utilisateurs (15–20) + synthèse + décision pivot/consolidation | Enzo |
+| [#25](../../../issues/25) | business: étude de marché + BMC avec les vrais chiffres | Enzo |
+| [#26](../../../issues/26) | eip: choix de la track + groupe intra + objectifs figés (octobre 2026) | Enzo, Rares, Arnaud, Max |
+| [#27](../../../issues/27) | comms: choix du logo + mini charte graphique | Rares, Arnaud |
+| [#28](../../../issues/28) | comms: réserver les comptes réseaux sociaux (Instagram, LinkedIn, TikTok/X) | Rares, Arnaud |
+| [#46](../../../issues/46) | eip: process des suivis pédagogiques et des sessions de mentorat | Arnaud |
+| [#98](../../../issues/98) | chore(iot): acheter un kit Philips Hue + pont (budget EIP) | Rares, Max |
 
-*Max porte le gros du Back (6 tickets solo) puisqu'il en est le main dev ; Raph l'aide sur 2
-tickets Back en plus de couvrir tout le Database/CI-CD en intérim. Rares porte tout le Front (4
-tickets solo) en plus des 5 tickets mixtes Front+Back avec Arnaud. À rééquilibrer librement selon
-la charge réelle.*
+## Phase 1 — MVP + BTP
 
-## Tâches non-techniques (pas de ticket GitHub — voir `PLAN_EXECUTION_EQUIPE.md`)
+| # | Titre | Assigné |
+|---|---|---|
+| [#6](../../../issues/6) | feat: Unified inbox — aggregate messages & emails in one place | Rares |
+| [#7](../../../issues/7) | feat(ui): hub centralisé de gestion des modes | Rares |
+| [#8](../../../issues/8) | feat(ui): gestion granulaire par élément dans un mode | Rares |
+| [#9](../../../issues/9) | feat(ui): panneau de contrôle par app façon Task Manager | Rares |
+| [#10](../../../issues/10) | feat(core): notifications contextuelles selon le mode actif | Max |
+| [#11](../../../issues/11) | feat(setup): onboarding au premier lancement — détection des intégrations + appairage Hue | Rares, Arnaud |
+| [#13](../../../issues/13) | feat(ui): éditeur no-code pour créer un mode | Rares |
+| [#14](../../../issues/14) | feat(cloud): auth + sync cloud minimale (axum/PostgreSQL) | Enzo |
+| [#21](../../../issues/21) | chore(release): installeurs Windows/Linux signés | Raph |
+| [#23](../../../issues/23) | feat(extensions): système d'extensions installables à la demande (« modèle DLC ») | Max, Raph |
+| [#29](../../../issues/29) | business: KPIs + modèle financier avec données réelles | Enzo |
+| [#30](../../../issues/30) | eip: BTP v1 — rendu le 07/02/2027 | Arnaud |
+| [#31](../../../issues/31) | eip(rncp): documenter la stratégie de déploiement / CI-CD (bloc 6) et le plan QA (bloc 5) | Enzo |
+| [#32](../../../issues/32) | legal: vérifier la disponibilité de la marque « Nexum » (INPI) | Arnaud |
+| [#33](../../../issues/33) | feat(adapters): support macOS du volume et de la luminosité | Arnaud, Raph |
+| [#34](../../../issues/34) | feat(mobile): socle app native Tauri 2 (iOS + Android) | Max, Arnaud |
+| [#35](../../../issues/35) | feat(mobile): build iOS + installation en sideload | Arnaud |
+| [#36](../../../issues/36) | feat(mobile): build Android + APK installable | Max |
+| [#47](../../../issues/47) | feat(ui): rendre visibles les actions qui échouent ou sont indisponibles | Rares |
+| [#48](../../../issues/48) | chore(deploy): déployer nexum-cloud (hébergement, nom de domaine, HTTPS) | Enzo |
+| [#49](../../../issues/49) | ci: ajouter macOS à la CI | Enzo |
+| [#50](../../../issues/50) | feat(desktop): mises à jour automatiques de l'app (Tauri updater) | Raph |
+| [#52](../../../issues/52) | chore(iot): inventaire des objets connectés de l'équipe | ⚠️ personne |
+| [#58](../../../issues/58) | question: garder ou abandonner la simulation dry_run ? | Max, Arnaud |
+| [#61](../../../issues/61) | feat(desktop): lancer Nexum au démarrage de l'ordinateur | Max |
+| [#66](../../../issues/66) | ci(security): mises à jour de sécurité des dépendances (Dependabot, cargo audit, npm audit) | Enzo |
+| [#69](../../../issues/69) | feat(desktop): raccourcis clavier globaux par mode, réglables | Max |
+| [#95](../../../issues/95) | feat(inbox): intégration Gmail dans la messagerie centralisée | Rares |
+| [#96](../../../issues/96) | feat(inbox): intégration Outlook dans la messagerie centralisée | Rares |
+| [#97](../../../issues/97) | feat(inbox): intégration Teams dans la messagerie centralisée | Rares |
 
-Ces tâches n'ont pas encore de ticket GitHub (elles ne sont pas du code) mais font partie de la
-« définition of done » du jury EIP. Rôles du CR : « un membre pour les designs, un pour les
-textes » (réseaux sociaux), et un rôle Marché/business globalement non nommé.
+## Phase 2 — Itérations + Greenlight blanc
 
-| Tâche | Rôle (PLAN_EXECUTION_EQUIPE) | Assigné proposé | Échéance |
-|---|---|---|---|
-| 15–20 interviews utilisateurs + synthèse | Marché/business | ⚠️ non nommé | Avant verrouillage (oct. 2026) |
-| BMC + étude de marché (remplacer les hypothèses) | Marché/business | ⚠️ non nommé | Phase 0/1 |
-| KPIs & modèle financier (chiffres réels) | Marché/business | ⚠️ non nommé | Phase 1 |
-| Décision logo : Gemini vs. contact école d'art | Comms/image | Arnaud (a le contact) | Avant lancement des posts |
-| Lancer comptes Instagram + LinkedIn, calendrier éditorial | Comms/image — designs | ⚠️ non nommé | Phase 2 |
-| Rédaction des textes (posts, annonces) | Comms/image — textes | ⚠️ non nommé | Phase 2 |
-| Pitch deck : compléter noms d'équipe + chiffres réels | Lead produit/PM | Arnaud | Phase 2 |
-| BTP : faire valider par le référent EIP | Lead produit/PM | Arnaud | Avant janvier 2027 |
+| # | Titre | Assigné |
+|---|---|---|
+| [#15](../../../issues/15) | feat(core): moteur d'automatisation SI/ALORS (event-driven) | Raph |
+| [#16](../../../issues/16) | feat(marketplace): partage + import de modes (v1) | Rares, Arnaud |
+| [#17](../../../issues/17) | feat(marketplace): validation par allowlist + score de risque IA + modération | Rares, Arnaud |
+| [#18](../../../issues/18) | feat(mobile): télécommande — activer un mode à distance + contexte géoloc | Rares, Arnaud |
+| [#37](../../../issues/37) | business: recruter ≥ 20 bêta-testeurs + circuit de feedback | Enzo |
+| [#38](../../../issues/38) | business: cycles d'itération 1 et 2 documentés | Rares, Arnaud |
+| [#39](../../../issues/39) | comms: lancer les réseaux + calendrier éditorial | Rares, Arnaud |
+| [#40](../../../issues/40) | comms: compléter le pitch deck (noms de l'équipe + chiffres réels) | Rares, Arnaud |
+| [#45](../../../issues/45) | eip: BTP version finale — rendu le 04/04/2027 | Arnaud |
+| [#51](../../../issues/51) | feat(security): stocker les secrets dans le trousseau de l'OS | Max |
+| [#53](../../../issues/53) | feat(adapters): intégration Govee / Tuya (lumières et prises) | ⚠️ personne |
+| [#54](../../../issues/54) | feat(adapters): intégration Elgato Key Light | ⚠️ personne |
+| [#55](../../../issues/55) | feat(adapters): intégration Spotify | ⚠️ personne |
+| [#56](../../../issues/56) | feat(adapters): intégration OBS (obs-websocket) | ⚠️ personne |
+| [#57](../../../issues/57) | feat(adapters): intégration Discord | ⚠️ personne |
+| [#62](../../../issues/62) | feat(beta): bouton « Envoyer un retour » dans l'app, logs joints | Rares, Raph |
+| [#63](../../../issues/63) | feat(i18n): application en français et en anglais | ⚠️ personne |
+| [#64](../../../issues/64) | feat(a11y): accessibilité — navigation au clavier et contrastes | ⚠️ personne |
+| [#65](../../../issues/65) | feat(mobile): notifications sur le téléphone quand un mode se lance sur le PC | Max, Arnaud |
+| [#67](../../../issues/67) | comms: landing page + inscription à la bêta | Rares, Arnaud |
+| [#68](../../../issues/68) | feat(desktop): désinstallation propre | ⚠️ personne |
+| [#70](../../../issues/70) | docs: tutoriel de démarrage pour les bêta-testeurs | ⚠️ personne |
+| [#71](../../../issues/71) | perf: mesurer le temps de démarrage et la mémoire dans la CI | ⚠️ personne |
+| [#94](../../../issues/94) | feat(voice): commande vocale pour lancer un mode | Rares, Arnaud, Raph |
+| [#100](../../../issues/100) | feat(ui): thèmes de couleur au choix (sombre, clair, variantes) | ⚠️ personne |
 
-## Prochaine étape
+## Phase 3 — Finalisation + Greenlight
 
-1. ✅ Roster confirmé et assignation réelle faite sur GitHub pour les 21 tickets (Database/CI-CD
-   couvert en intérim par Raph, à transférer à Enzo une fois qu'il rejoint le repo).
-2. ✅ Tableau « Rôles » de `PLAN_EXECUTION_EQUIPE.md` mis à jour avec les mêmes noms.
-3. Restant à faire :
-   - Inviter Enzo sur `TeamNexum/Nexum` (GitHub → Settings → Collaborators), puis décider avec
-     Raph comment se répartir #2, #5, #14, #21 à ce moment-là.
-   - Nommer qui prend Marché/business et Comms/image (designs vs. textes) — toujours ⚠️ dans le
-     tableau des tâches non-techniques plus haut.
+| # | Titre | Assigné |
+|---|---|---|
+| [#19](../../../issues/19) | feat(ai): démonstrateur Mode-as-Code (NL → LLM → JSON DSL → validate() → activation) | Max |
+| [#20](../../../issues/20) | chore(hardening): gestion d'erreurs et dégradation propre des adapters | Max |
+| [#41](../../../issues/41) | legal: faire valider CGU, politique de confidentialité et mentions légales | ⚠️ personne |
+| [#42](../../../issues/42) | legal: décider de la structure juridique (si commercialisation) | Rares, Arnaud |
+| [#43](../../../issues/43) | eip: démo live — plan B, matériel, répétitions chronométrées | Arnaud |
+| [#44](../../../issues/44) | eip: finaliser les dossiers Greenlight et RNCP | Arnaud |
+| [#59](../../../issues/59) | feat(ai): assistant vocal « Jarvis » + orbe 3D animée | ⚠️ personne |
+
+## À trancher en équipe
+
+- Les issues sans responsable (⚠️ personne) : surtout les intégrations bonus (Govee/Tuya,
+  Elgato, Spotify, OBS, Discord), les docs légales, l'i18n, l'accessibilité et le « Jarvis »
+  complet (#59). À répartir en réunion selon la charge.
+- Arnaud et Rares portent beaucoup de tickets (dont la comms) : à rééquilibrer si le Back
+  avance plus vite.

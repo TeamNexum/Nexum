@@ -1,6 +1,8 @@
 use serde::Serialize;
 use tokio::sync::broadcast;
 
+use crate::engine::StepStatus;
+
 /// Real-time events emitted while a mode runs. Subscribers (UI, logs, the
 /// cloud sync queue) react without the engine knowing they exist.
 #[derive(Debug, Clone, Serialize)]
@@ -23,6 +25,7 @@ pub enum EngineEvent {
         action_type: String,
         order: u32,
         success: bool,
+        status: StepStatus,
         message: String,
     },
     ModeFinished {

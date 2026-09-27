@@ -17,7 +17,7 @@ use nexum_core::Adapter;
 use nexum_core::automation::{evaluate, EvalContext};
 use nexum_core::marketplace::{assess, RiskReport};
 use nexum_core::share::{self, ImportPreview};
-use nexum_core::{ActionRegistry, Engine, EventBus, ExecutionReport};
+use nexum_core::{ActionAvailability, ActionRegistry, Engine, EventBus, ExecutionReport};
 use nexum_schema::action_types::ids;
 use nexum_schema::automation::{AutomationRule, SystemEvent, Trigger};
 use nexum_schema::{ActionStep, Category, Mode, OnError};
@@ -122,6 +122,15 @@ async fn delete_mode(id: String, state: State<'_, Arc<AppState>>) -> Result<(), 
 #[tauri::command]
 fn action_catalog(state: State<'_, Arc<AppState>>) -> Vec<String> {
     state.engine.action_types()
+}
+
+/// Which actions can run on this machine right now, and why not, so the UI can
+/// flag steps that would be skipped.
+#[tauri::command]
+async fn get_action_availability(
+    state: State<'_, Arc<AppState>>,
+) -> Result<Vec<ActionAvailability>, String> {
+    Ok(state.engine.availability().await)
 }
 
 /// A fresh UUID for a newly created mode/step.
@@ -415,6 +424,7 @@ pub fn run() {
             save_mode,
             delete_mode,
             action_catalog,
+            get_action_availability,
             new_id,
             get_automations,
             simulate_time,

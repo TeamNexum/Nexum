@@ -8,18 +8,24 @@ import {
   type CatalogMode,
 } from "../modeMeta";
 import {
+  IconAlert,
   IconCheck,
   IconPlus,
   IconPlay,
 } from "./Icons";
+import { runHeadline, summarize, type RunSummary } from "../stepStatus";
 import ProfileArtwork from "./ProfileArtwork";
 import ProfileDetails from "./ProfileDetails";
 
 interface Toast {
   name: string;
-  ok: boolean;
-  done: number;
-  total: number;
+  summary: RunSummary;
+}
+
+/** ok = all good, warn = some steps skipped, fail = at least one step failed. */
+function toastLevel(s: RunSummary): "ok" | "warn" | "fail" {
+  if (s.failed > 0) return "fail";
+  return s.unavailable > 0 ? "warn" : "ok";
 }
 
 export default function Dashboard({
@@ -49,7 +55,9 @@ export default function Dashboard({
 
   useEffect(() => {
     if (!toast) return;
-    const t = setTimeout(() => setToast(null), 3200);
+    // Leave problems on screen long enough to read the reason.
+    const clean = toast.summary.failed + toast.summary.unavailable === 0;
+    const t = setTimeout(() => setToast(null), clean ? 3200 : 7000);
     return () => clearTimeout(t);
   }, [toast]);
 
@@ -61,10 +69,10 @@ export default function Dashboard({
     setPendingId(mode.id);
     try {
       const report: ExecutionReport = await api.activateMode(mode.id);
-      const done = report.steps.filter((s) => s.success).length;
-      setToast({ name: mode.name, ok: report.success, done, total: report.steps.length });
+      setToast({ name: mode.name, summary: summarize(report) });
     } catch (e) {
-      setToast({ name: mode.name, ok: false, done: 0, total: mode.steps.length });
+      const total = mode.steps.length;
+      setToast({ name: mode.name, summary: { total, ok: 0, failed: total, unavailable: 0, firstProblem: null } });
       setError(String(e instanceof Error ? e.message : e));
     } finally {
       setPendingId(null);
@@ -231,7 +239,7 @@ export default function Dashboard({
 
       {selectedMode && selected && <ProfileDetails mode={selectedMode} onClose={() => { setSelected(null); setExportStatus(null); }}
         busy={pendingId !== null || addingName !== null} error={error}
-        status={toast ? (toast.ok ? 'Profil activé' : 'Certaines actions ont échoué') + ' · ' + toast.done + '/' + toast.total + ' actions réussies' : exportStatus}
+        status={toast ? `${runHeadline(toast.summary)} · ${toast.summary.ok}/${toast.summary.total} actions réussies` : exportStatus}
         actionLabel={"template" in selected ? "Ajouter à ma bibliothèque" : "Activer ce profil"}
         onAction={() => { if ("template" in selected) void addTemplate(selected.template); else void activate(selectedMode); }}
         onExport={"id" in selected ? () => void exportMode(selectedMode) : undefined}
@@ -243,14 +251,14 @@ export default function Dashboard({
       />}
       {/* ACTIVATION TOAST NOTIFICATION */}
       {toast && (
-        <div role="status" className={`dock-toast ${toast.ok ? "ok" : "warn"}`}>
+        <div role={toastLevel(toast.summary) === "ok" ? "status" : "alert"} className={`dock-toast ${toastLevel(toast.summary)}`}>
           <div className="toast-icon">
-            <IconCheck size={16} color={toast.ok ? "var(--nx-green)" : "var(--nx-orange)"} />
+            {toastLevel(toast.summary) === "ok" ? <IconCheck size={16} /> : <IconAlert size={16} />}
           </div>
           <div className="toast-content">
-            <span className="toast-title">{toast.name}</span>
-            <span className="toast-sub" style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)' }}>
-              {toast.ok ? "Profil activé" : "Erreurs pendant l'activation"}
+            <span className="toast-title">{toast.name} · {runHeadline(toast.summary)}</span>
+            <span className="toast-sub">
+              {toast.summary.firstProblem ?? `${toast.summary.ok}/${toast.summary.total} actions réussies`}
             </span>
           </div>
         </div>

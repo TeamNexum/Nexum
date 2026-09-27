@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import type { Mode } from "../types";
 import { actionMeta, categoryMeta, describeStep } from "../modeMeta";
 import ProfileArtwork from "./ProfileArtwork";
+import { useUnavailableActions } from "../stepStatus";
 
 export default function ProfileDetails({ mode, onClose, onAction, actionLabel, busy, onEdit, onExport, favorite, onFavorite, onMove, canMoveLeft, canMoveRight, error, status, actionDisabled }: {
   mode: Mode; onClose: () => void; onAction: () => void; actionLabel: string; busy: boolean;
@@ -18,6 +19,7 @@ export default function ProfileDetails({ mode, onClose, onAction, actionLabel, b
     return () => { dialog.close(); if (previous?.isConnected) previous.focus(); };
   }, []);
   const steps = [...mode.steps].sort((a, b) => a.order - b.order);
+  const unavailable = useUnavailableActions();
   return <dialog ref={ref} className="profile-drawer" aria-labelledby="profile-detail-title"
     onCancel={e => { e.preventDefault(); onClose(); }}
     onClick={e => { if (e.target === e.currentTarget) { const b = e.currentTarget.getBoundingClientRect(); if (e.clientX < b.left || e.clientX > b.right || e.clientY < b.top || e.clientY > b.bottom) onClose(); } }}>
@@ -31,7 +33,7 @@ export default function ProfileDetails({ mode, onClose, onAction, actionLabel, b
       <div className="drawer-section-heading"><h3>À l’activation</h3><span>{steps.filter(s => s.enabled).length} actions actives</span></div>
       <ol className="profile-action-preview">{steps.map((step, index) => {
         const meta = actionMeta(step.type); const Icon = meta.Icon;
-        return <li key={`${step.order}-${index}`} className={step.enabled ? "" : "disabled"}><span className="preview-step-icon"><Icon size={18} /></span><div><strong>{meta.label}</strong><p>{describeStep(step)}</p><small>{step.enabled ? (step.on_error === "continue" ? "En cas d’échec : continuer" : "En cas d’échec : arrêter") : "Désactivée — ne sera pas exécutée"}</small></div></li>;
+        return <li key={`${step.order}-${index}`} className={step.enabled ? "" : "disabled"}><span className="preview-step-icon"><Icon size={18} /></span><div><strong>{meta.label}</strong>{step.enabled && unavailable[step.type] && <span className="step-unavailable" title={unavailable[step.type]}>Indisponible ici · {unavailable[step.type]}</span>}<p>{describeStep(step)}</p><small>{step.enabled ? (step.on_error === "continue" ? "En cas d’échec : continuer" : "En cas d’échec : arrêter") : "Désactivée — ne sera pas exécutée"}</small></div></li>;
       })}</ol>
       {steps.length === 0 && <p className="muted">Ce profil ne contient aucune action.</p>}
       {onMove && <div className="drawer-order"><span>Position {favorite ? "dans les favoris" : "dans la bibliothèque"}</span><div><button className="btn-secondary" disabled={!canMoveLeft} onClick={() => onMove(-1)} aria-label="Déplacer le profil avant">←</button><button className="btn-secondary" disabled={!canMoveRight} onClick={() => onMove(1)} aria-label="Déplacer le profil après">→</button></div></div>}

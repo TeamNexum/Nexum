@@ -6,19 +6,24 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use nexum_core::{
-    ActionOutcome, ActionRegistry, Adapter, AdapterError, Capability, Engine, EventBus,
+    ActionOutcome, ActionRegistry, Adapter, AdapterError, Capability, Engine, EventBus, StepStatus,
 };
 use nexum_schema::{ActionStep, Category, Mode, OnError};
 use uuid::Uuid;
 
 /// Test adapter: `test.ok` succeeds, `test.fail` reports a soft failure,
-/// `test.boom` returns a hard error.
+/// `test.boom` returns a hard error, `test.gone` finds its device missing.
 struct TestAdapter;
 
 #[async_trait]
 impl Adapter for TestAdapter {
     fn supported_actions(&self) -> Vec<String> {
-        vec!["test.ok".into(), "test.fail".into(), "test.boom".into()]
+        vec![
+            "test.ok".into(),
+            "test.fail".into(),
+            "test.boom".into(),
+            "test.gone".into(),
+        ]
     }
     async fn is_available(&self) -> Capability {
         Capability::Available
@@ -29,6 +34,7 @@ impl Adapter for TestAdapter {
     async fn execute(&self, step: &ActionStep) -> Result<ActionOutcome, AdapterError> {
         match step.action_type.as_str() {
             "test.boom" => Err(AdapterError::Execution("boom".into())),
+            "test.gone" => Err(AdapterError::Unavailable("no device".into())),
             other => Ok(ActionOutcome {
                 action_type: other.to_string(),
                 success: other != "test.fail",
@@ -38,9 +44,31 @@ impl Adapter for TestAdapter {
     }
 }
 
+/// An integration that is switched off on this machine.
+struct OffAdapter;
+
+#[async_trait]
+impl Adapter for OffAdapter {
+    fn supported_actions(&self) -> Vec<String> {
+        vec!["off.lights".into()]
+    }
+    async fn is_available(&self) -> Capability {
+        Capability::Unavailable {
+            reason: "disabled by the user".into(),
+        }
+    }
+    fn validate(&self, _step: &ActionStep) -> Result<(), AdapterError> {
+        Ok(())
+    }
+    async fn execute(&self, _step: &ActionStep) -> Result<ActionOutcome, AdapterError> {
+        unreachable!("the engine never runs an unavailable adapter")
+    }
+}
+
 fn engine() -> Engine {
     let mut registry = ActionRegistry::new();
     registry.register(Arc::new(TestAdapter));
+    registry.register(Arc::new(OffAdapter));
     Engine::new(registry, EventBus::new())
 }
 
@@ -166,4 +194,52 @@ async fn unavailable_adapter_reports_failed_step_without_executing() {
         report.steps[0].message,
         "adapter unavailable: device disconnected"
     );
+}
+
+#[tokio::test]
+async fn tells_failed_steps_from_unavailable_ones() {
+    let report = engine()
+        .activate(&mode(vec![
+            step(1, "test.ok", OnError::Continue),
+            step(2, "test.fail", OnError::Continue),
+            step(3, "test.boom", OnError::Continue),
+            step(4, "test.gone", OnError::Continue),
+            step(5, "off.lights", OnError::Continue),
+            step(6, "nobody.handles_this", OnError::Continue),
+        ]))
+        .await;
+
+    let statuses: Vec<StepStatus> = report.steps.iter().map(|s| s.status).collect();
+    assert_eq!(
+        statuses,
+        vec![
+            StepStatus::Ok,
+            StepStatus::Failed,
+            StepStatus::Failed,
+            StepStatus::Unavailable,
+            StepStatus::Unavailable,
+            StepStatus::Unavailable,
+        ]
+    );
+    assert!(report
+        .steps
+        .iter()
+        .all(|s| s.success == (s.status == StepStatus::Ok)));
+    assert!(!report.success);
+}
+
+#[tokio::test]
+async fn reports_which_actions_are_available() {
+    let availability = engine().availability().await;
+    let off = availability
+        .iter()
+        .find(|a| a.action_type == "off.lights")
+        .unwrap();
+    assert!(!off.available);
+    assert_eq!(off.reason.as_deref(), Some("disabled by the user"));
+    let ok = availability
+        .iter()
+        .find(|a| a.action_type == "test.ok")
+        .unwrap();
+    assert!(ok.available && ok.reason.is_none());
 }

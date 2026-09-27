@@ -1,13 +1,73 @@
-# Nexum — official monorepo
+<p align="center">
+  <img src="docs/brand/logo.svg" alt="Nexum logo" width="160">
+</p>
 
-Universal, no-code, brand-agnostic control center for your digital setup.
-One click activates a **Mode** that orchestrates system actions, apps,
-peripherals and IoT.
+<h1 align="center">Nexum</h1>
 
-> This is the **official rebuild** scaffold. The earlier proof-of-concept lives
-> in `../G-EIP-.../Nexum_app` and is kept only for reference.
+<p align="center">
+  <strong>Your whole digital setup, one click away.</strong><br>
+  A universal, no-code, brand-agnostic control center for your PC, apps, games, peripherals and smart home.
+</p>
 
-## Features in this scaffold
+<p align="center">
+  <a href="https://github.com/TeamNexum/Nexum/actions/workflows/ci.yml"><img src="https://github.com/TeamNexum/Nexum/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/TeamNexum/Nexum" alt="License: MIT"></a>
+  <img src="https://img.shields.io/badge/Rust-Tauri%202-orange?logo=rust" alt="Rust + Tauri 2">
+  <img src="https://img.shields.io/badge/React-TypeScript-61DAFB?logo=react&logoColor=white" alt="React + TypeScript">
+  <img src="https://img.shields.io/badge/Epitech-EIP%202027-7C5CFF" alt="Epitech EIP 2027">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/dashboard.png" alt="Nexum home screen: one card per mode, each activated with a single click" width="900">
+</p>
+
+## About
+
+Switching from work to gaming, to a stream or to a quiet evening means juggling a
+dozen things by hand: volume, screen brightness, lights, apps, launchers. Each
+brand ships its own app, and none of them talk to each other.
+
+**Nexum** replaces that with **Modes**. A mode is a list of actions (set the volume
+to 70%, dim the screen, switch the Hue lights to "Purple Night", launch Steam) that
+runs in one click, from a rule ("at 18:00, switch to Chill"), or
+remotely from your phone. Modes are built without writing code, can be shared on a
+marketplace that checks them for risky actions, and can even be generated from a
+sentence ("competitive stream on Twitch").
+
+### Context
+
+Nexum is an **Epitech Innovative Project (EIP)**, built by a team of Epitech students
+from July 2026 to July 2027. The project is evaluated on both its technical and its
+entrepreneurial side, and ends with a live demo in front of the Greenlight jury.
+
+| Phase | Period | Goal |
+|---|---|---|
+| **0 — Foundations** | Jul → Oct 2026 | Monorepo, Mode DSL, engine, first adapters, user interviews |
+| **1 — MVP + BTP** | Oct 2026 → Jan 2027 | No-code editor, Philips Hue and Steam integrations, cloud sync, first feedback cycle |
+| **2 — Iterations** | Jan → Apr 2027 | Automations, marketplace, mobile remote control, mock Greenlight |
+| **3 — Finalisation** | Apr → Jul 2027 | AI Mode-as-Code demo, hardening, signed installers, Greenlight + RNCP jury |
+
+Progress is tracked in the [milestones](https://github.com/TeamNexum/Nexum/milestones)
+and [issues](https://github.com/TeamNexum/Nexum/issues); the full roadmap is in
+[`docs/eip/ROADMAP_PRODUIT.md`](docs/eip/ROADMAP_PRODUIT.md).
+
+**Team:** [@Arjouan](https://github.com/Arjouan) (project lead) ·
+[@RaresFZ](https://github.com/RaresFZ) (front-end) ·
+[@Max-Epinat](https://github.com/Max-Epinat) (back-end) ·
+[@Raphie10](https://github.com/Raphie10) (back-end, database, CI/CD) ·
+[@MAD-TEK](https://github.com/MAD-TEK)
+
+## Screenshots
+
+| Studio: no-code mode editor | Rules: automations |
+|---|---|
+| ![Studio: editing the Gaming mode's actions with typed controls](docs/screenshots/studio.png) | ![Rules: an automation that switches to Chill at 18:00](docs/screenshots/rules.png) |
+
+| Discover: mode library with risk scoring |
+|---|
+| ![Discover: shared modes, each with its actions and a risk level](docs/screenshots/marketplace.png) |
+
+## Features
 
 - **Declarative Mode/Action DSL** shared across the whole app (`nexum-schema`).
 - **Orchestration engine** with adapter registry, event bus, per-step `on_error`, real-time events (`nexum-core`).
@@ -29,12 +89,12 @@ orchestrated by an event-driven **Engine**, from a declarative **Mode/Action
 JSON DSL** that is shared by every component. A mode is *data, never code* — which
 is what makes no-code editing, a safe Marketplace, and AI "Mode-as-Code" possible.
 
-See the full design in **`../NEXUM_PLAN_TECHNIQUE_ET_ROADMAP.md`**.
+See the full design in **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.
 
 ## Layout
 
 ```
-nexum/
+Nexum/
 ├── crates/
 │   ├── nexum-schema     # The Mode/Action DSL — single source of truth
 │   ├── nexum-core       # Engine, Registry, Adapter trait, Event Bus (OS-agnostic, tested)
@@ -72,7 +132,6 @@ build machinery never affects the core build/CI.
 ## Build & test the core (no Node needed)
 
 ```bash
-cd nexum
 cargo build            # builds all crates + the cloud service
 cargo test             # runs the engine + schema + store + cloud unit tests
 cargo clippy           # lint (zero warnings)
@@ -87,8 +146,8 @@ cargo run -p nexum-cloud     # serves http://127.0.0.1:8787/health
 ## Run the desktop app
 
 ```bash
-cd nexum/apps/desktop
-npm install
+npm install             # from the repo root (npm workspaces)
+cd apps/desktop
 npm run tauri dev
 ```
 
@@ -101,8 +160,8 @@ monitor shows each step's result in real time.
 ## Run the mobile companion (PWA)
 
 ```bash
-cd nexum/apps/mobile
-npm install
+npm install             # from the repo root, if not done yet
+cd apps/mobile
 npm run dev
 ```
 

@@ -25,7 +25,7 @@ pub mod share;
 pub use adapter::{ActionOutcome, Adapter, Capability};
 pub use automation::{evaluate, EvalContext};
 pub use bus::{EngineEvent, EventBus};
-pub use engine::{Engine, ExecutionReport, StepReport};
+pub use engine::{ActionAvailability, Engine, ExecutionReport, StepReport, StepStatus};
 pub use error::AdapterError;
 pub use marketplace::{assess, RiskLevel, RiskReport};
 pub use registry::ActionRegistry;

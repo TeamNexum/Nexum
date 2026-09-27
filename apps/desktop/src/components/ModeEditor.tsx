@@ -3,6 +3,7 @@ import { api } from "../api";
 import { CATEGORIES, type ActionStep, type Mode } from "../types";
 import { CATEGORY_META, actionMeta, categoryMeta, catStyle, STARTER_TEMPLATES, toMode, type CatalogMode } from "../modeMeta";
 import ProfileArtwork from "./ProfileArtwork";
+import { useUnavailableActions } from "../stepStatus";
 import { IconSparkles, IconPlus, IconTrash, IconCheck, IconSliders } from "./Icons";
 
 // Param form specs per action_type (the "no-code" bit). Unknown types fall
@@ -30,6 +31,7 @@ export default function ModeEditor({
   initialModeId?: string | null;
 }) {
   const [catalog, setCatalog] = useState<string[]>([]);
+  const unavailable = useUnavailableActions();
   const [draft, setDraft] = useState<Mode | null>(() => {
     const mode = modes.find(m => m.id === initialModeId);
     return mode ? JSON.parse(JSON.stringify(mode)) : null;
@@ -322,10 +324,16 @@ export default function ModeEditor({
                             return (
                               <option key={a} value={a}>
                                 {meta.domain} — {meta.label}
+                                {unavailable[a] ? " (indisponible ici)" : ""}
                               </option>
                             );
                           })}
                         </select>
+                        {step.enabled && unavailable[step.type] && (
+                          <span className="step-unavailable" title={unavailable[step.type]}>
+                            Indisponible ici · {unavailable[step.type]}
+                          </span>
+                        )}
 
                         <div className="step-actions-group">
                           <button
