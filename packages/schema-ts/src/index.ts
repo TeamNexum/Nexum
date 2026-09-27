@@ -20,5 +20,7 @@ export type {
   RiskLevel,
   RiskReport,
   ImportPreview,
+  StepStatus,
+  ActionAvailability,
   EngineEvent,
 } from "./generated";
