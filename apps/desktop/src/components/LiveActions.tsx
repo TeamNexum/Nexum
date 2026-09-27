@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { onEngineEvent } from "../api";
 import type { EngineEvent } from "../types";
 import { actionMeta } from "../modeMeta";
+import { friendlyReason, statusOf } from "../stepStatus";
 import { IconActivity, IconCheck, IconAlert } from "./Icons";
 
 interface LogItem {
@@ -18,7 +19,7 @@ interface LogItem {
   title: string;
   detail?: string;
   domain?: string;
-  status: "ok" | "fail" | "running" | "info";
+  status: "ok" | "fail" | "skipped" | "running" | "info";
 }
 
 function formatNow(): string {
@@ -48,14 +49,15 @@ function parseEvent(e: EngineEvent): Omit<LogItem, "id" | "time" | "run" | "star
     }
     case "step_finished": {
       const am = actionMeta(e.action_type);
+      const status = statusOf(e);
       return {
         kind: e.kind,
         actionType: e.action_type,
         order: e.order,
         title: am.label,
-        detail: e.message,
+        detail: status === "ok" ? e.message : friendlyReason(e.message),
         domain: am.domain,
-        status: e.success ? "ok" : "fail",
+        status: status === "ok" ? "ok" : status === "failed" ? "fail" : "skipped",
       };
     }
     case "mode_finished":
@@ -141,15 +143,15 @@ export default function LiveActions({ activity }: { activity: ReturnType<typeof 
           const entries = items.filter(item => item.run === run);
           const session = entries.find(item => item.kind.startsWith("mode_"));
           const duration = session?.finishedAt ? ((session.finishedAt - session.startedAt) / 1000).toFixed(1) : null;
-          return <details className="activity-session" key={run} open><summary><div><strong>{session?.runName ?? entries[0].runName}</strong><span>{session?.status === "ok" ? "Profil appliqué" : session?.status === "fail" ? "Certaines actions ont échoué" : "En cours"}</span></div><small>{session?.time ?? entries[0].time}{duration !== null ? ' · ' + duration + ' s' : ''}</small></summary>
+          return <details className="activity-session" key={run} open><summary><div><strong>{session?.runName ?? entries[0].runName}</strong><span>{session?.status === "ok" ? "Profil appliqué" : session?.status === "fail" ? (entries.some(e => e.status === "skipped") && !entries.some(e => e.status === "fail") ? "Actions indisponibles sur cette machine" : "Certaines actions ont échoué") : "En cours"}</span></div><small>{session?.time ?? entries[0].time}{duration !== null ? ' · ' + duration + ' s' : ''}</small></summary>
           <ul aria-label="Historique des actions">
           {entries.filter(item => !item.kind.startsWith("mode_")).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((item) => (
             <li key={item.id} className="activity-row" data-status={item.status}>
               <div className="activity-status-col">
-                <span className="status-glyph" aria-label={{ ok: "Réussi", fail: "Échec", running: "En cours", info: "Information" }[item.status]}>
+                <span className="status-glyph" aria-label={{ ok: "Réussi", fail: "Échec", skipped: "Indisponible", running: "En cours", info: "Information" }[item.status]}>
                   {item.status === "ok" ? (
                     <IconCheck size={11} />
-                  ) : item.status === "fail" ? (
+                  ) : item.status === "fail" || item.status === "skipped" ? (
                     <IconAlert size={11} />
                   ) : item.status === "running" ? (
                     <span className="running-dot" />
@@ -166,7 +168,7 @@ export default function LiveActions({ activity }: { activity: ReturnType<typeof 
                 </div>
                 <div className="activity-meta">
                   {item.domain && <span className="activity-domain">{item.domain}</span>}
-                  <span className="activity-outcome">{{ ok: "Terminé", fail: "Échec", running: "En cours", info: "Information" }[item.status]}</span>
+                  <span className="activity-outcome">{{ ok: "Terminé", fail: "Échec", skipped: "Indisponible ici", running: "En cours", info: "Information" }[item.status]}</span>
                   {item.detail && <details className="activity-details"><summary>Détails</summary><p className="activity-detail">{item.detail}</p></details>}
                 </div>
               </div>

@@ -18,6 +18,8 @@ export type {
   RiskLevel,
   RiskReport,
   ImportPreview,
+  StepStatus,
+  ActionAvailability,
   EngineEvent,
 } from "../../../packages/schema-ts/src";
 

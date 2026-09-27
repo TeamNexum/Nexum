@@ -24,6 +24,11 @@
   --nx-orange: #dddddd;
   --nx-green: #eeeeee;
 
+  /* Functional status colours, only for problems in the UI (issue #47).
+     The brand itself stays monochrome; set both to grey to switch them off. */
+  --nx-danger: #f0436e;
+  --nx-warning: #f5b84b;
+
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
@@ -812,3 +817,28 @@ input[type="checkbox"], input[type="range"] { width: auto; }
 [data-density="compact"] .studio-template .profile-art { height: 110px; }
 [data-density="compact"] input, [data-density="compact"] select { padding-block: 8px; }
 @media (max-width: 760px) { .search-trigger kbd { display: none; } .console-status > .status-text { display: none; } .connection-heading { flex-wrap: wrap; } .command-results > button { padding: 14px 10px; } }
+
+/* Step problems (issue #47): failed = danger, unavailable here = warning. */
+.dock-toast.fail { border-color: var(--nx-danger); }
+.dock-toast.fail .toast-icon { color: var(--nx-danger); }
+.dock-toast.warn { border-color: var(--nx-warning); }
+.dock-toast.warn .toast-icon { color: var(--nx-warning); }
+.toast-sub { font-size: 12px; color: var(--nx-text-muted); overflow-wrap: anywhere; }
+.step-unavailable {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  padding: 2px 8px;
+  border: 1px solid var(--nx-warning);
+  border-radius: 999px;
+  color: var(--nx-warning);
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.profile-action-preview .step-unavailable { display: flex; margin: 4px 0; }
+.activity-row[data-status="fail"] .status-glyph { color: var(--nx-danger); }
+.activity-row[data-status="skipped"] .status-glyph { color: var(--nx-warning); }

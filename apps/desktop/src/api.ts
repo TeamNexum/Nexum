@@ -3,6 +3,7 @@
 import { invoke as tauriInvoke } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import type {
+  ActionAvailability,
   AutomationRule,
   EngineEvent,
   ExecutionReport,
@@ -33,6 +34,7 @@ export const api = {
   saveMode: (mode: Mode) => invoke<void>("save_mode", { mode }),
   deleteMode: (id: string) => invoke<void>("delete_mode", { id }),
   actionCatalog: () => invoke<string[]>("action_catalog"),
+  actionAvailability: () => invoke<ActionAvailability[] | null>("get_action_availability"),
   newId: () => invoke<string>("new_id"),
   getAutomations: () => invoke<AutomationRule[]>("get_automations"),
   simulateTime: (hour: number, minute: number, weekday: number) =>
