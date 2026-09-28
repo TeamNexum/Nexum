@@ -116,6 +116,7 @@ Le **mot-marque** est « NEXUM » en capitales, **Inter 500**, interlettrage **+
 | `exports/lockup-black.png` | N + NEXUM noirs, transparent | Documents, fonds clairs |
 | `exports/avatar-1080.png` / `avatar-400.png` | N centré sur noir, marge pour le recadrage rond | Photo de profil Instagram, TikTok, LinkedIn, Discord |
 | `exports/linkedin-cover-1128x191.png` | Lockup + signature, calé à droite | Bannière de la page LinkedIn |
+| `exports/github-banner-dark.png` / `github-banner-light.png` | Bannière 2560×720 : titre + galaxie de pixels autour du N (sombre = charte monochrome, clair = Galaxie) | En-tête du profil GitHub TeamNexum (source : dépôt `TeamNexum/.github`, `assets/src/banner.html`) |
 
 `logo-mark.svg` et `logo-wordmark.svg` (anneau néon) sont l'**ancien logo** : ne plus les
 utiliser. Les visuels de `social/` sont aussi à l'ancienne charte et doivent être refaits.
