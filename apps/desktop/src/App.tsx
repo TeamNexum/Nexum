@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { api, IS_DESKTOP, onEngineEvent } from "./api";
-import { startRemoteControl } from "./remote";
+import { startRemoteControl, syncDirectModes } from "./remote";
 import type { Mode } from "./types";
 import Dashboard from "./components/Dashboard";
 import LiveActions, { useActivity } from "./components/LiveActions";
@@ -64,7 +64,10 @@ export default function App() {
     if (!IS_DESKTOP) return;
     api
       .getModes()
-      .then(setModes)
+      .then((m) => {
+        setModes(m);
+        syncDirectModes(m);
+      })
       .catch((e) => setError(String(e)));
   }, []);
 

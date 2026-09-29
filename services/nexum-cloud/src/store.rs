@@ -32,6 +32,8 @@ pub struct CloudStore {
     users: RwLock<HashMap<String, User>>,      // key: email
     modes: RwLock<HashMap<String, Vec<Mode>>>, // key: user id
     commands: RwLock<HashMap<String, VecDeque<RemoteCommand>>>, // key: user id
+    direct_commands: RwLock<VecDeque<RemoteCommand>>,
+    direct_modes: RwLock<Vec<Mode>>,
 }
 
 impl CloudStore {
@@ -98,6 +100,32 @@ impl CloudStore {
             .unwrap()
             .get_mut(user_id)
             .and_then(|q| q.pop_front())
+    }
+
+    /// Enqueue a direct / unauthenticated command (e.g. from local mobile app).
+    pub fn enqueue_direct_command(&self, cmd: RemoteCommand) {
+        self.direct_commands
+            .write()
+            .unwrap()
+            .push_back(cmd);
+    }
+
+    /// Pop the next direct command.
+    pub fn take_direct_command(&self) -> Option<RemoteCommand> {
+        self.direct_commands
+            .write()
+            .unwrap()
+            .pop_front()
+    }
+
+    /// Return direct modes or empty if none stored yet.
+    pub fn get_direct_modes(&self) -> Vec<Mode> {
+        self.direct_modes.read().unwrap().clone()
+    }
+
+    /// Update direct modes.
+    pub fn set_direct_modes(&self, modes: Vec<Mode>) {
+        *self.direct_modes.write().unwrap() = modes;
     }
 }
 
