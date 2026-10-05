@@ -1,8 +1,5 @@
 # Nexum — Plan de communication & stratégie business
 
-*Projet EIP Epitech · Document de travail · Octobre 2026*
-*Base : le site teamnexum.github.io/NexumWebsite (prototype fonctionnel, bêta fermée prévue en 2027, prix non fixés).*
-
 > **Lecture rapide.** Nexum est un produit pas encore sorti, porté par 5 étudiants, avec un budget quasi nul. La stratégie recommandée tient en trois idées : (1) **valider avant de vendre** (entretiens + liste d'attente), (2) **communiquer avec honnêteté et en public** (c'est déjà le ton du site, c'est un avantage), (3) **se concentrer sur une seule cible de départ** pour ne pas diluer l'effort.
 
 ---
