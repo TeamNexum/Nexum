@@ -17,3 +17,8 @@ cpal = { version = "0.18", optional = true }
 
 [dev-dependencies]
 uuid = { workspace = true }
+hound = "3"
+
+[[example]]
+name = "voice_check"
+required-features = ["whisper"]
