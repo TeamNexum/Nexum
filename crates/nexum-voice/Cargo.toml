@@ -5,8 +5,15 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 
+[features]
+# Microphone capture + local Whisper transcription. Off by default: building
+# whisper.cpp needs cmake and a C++ toolchain, and takes a while.
+whisper = ["dep:whisper-rs", "dep:cpal"]
+
 [dependencies]
 nexum-schema.workspace = true
+whisper-rs = { version = "0.16", optional = true }
+cpal = { version = "0.18", optional = true }
 
 [dev-dependencies]
 uuid = { workspace = true }

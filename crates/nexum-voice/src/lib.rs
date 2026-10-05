@@ -7,6 +7,11 @@
 
 use nexum_schema::Mode;
 
+#[cfg(feature = "whisper")]
+pub mod recorder;
+#[cfg(feature = "whisper")]
+pub mod transcriber;
+
 /// Words that frame a command but never name a mode (French and English).
 const FILLER: &[&str] = &[
     "a", "active", "activer", "activez", "activate", "au", "demarre", "demarrer", "demarrez", "en",
