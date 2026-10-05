@@ -8,6 +8,7 @@ members = [
     "crates/nexum-core",
     "crates/nexum-adapters",
     "crates/nexum-store",
+    "crates/nexum-voice",
     "services/nexum-cloud",
 ]
 exclude = ["apps"]
@@ -31,3 +32,4 @@ nexum-schema = { path = "crates/nexum-schema" }
 nexum-core = { path = "crates/nexum-core" }
 nexum-adapters = { path = "crates/nexum-adapters" }
 nexum-store = { path = "crates/nexum-store" }
+nexum-voice = { path = "crates/nexum-voice" }

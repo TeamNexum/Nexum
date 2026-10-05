@@ -1,0 +1,12 @@
+[package]
+name = "nexum-voice"
+description = "Voice commands: turn a spoken sentence into a Nexum action"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+nexum-schema.workspace = true
+
+[dev-dependencies]
+uuid = { workspace = true }
