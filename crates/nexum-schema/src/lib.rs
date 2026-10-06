@@ -37,6 +37,10 @@ pub struct Mode {
     pub description: Option<String>,
     pub category: Category,
     pub steps: Vec<ActionStep>,
+    /// Extra words or phrases that launch this mode by voice ("jeu",
+    /// "partie classée"), on top of its name.
+    #[serde(default)]
+    pub voice_keywords: Vec<String>,
 }
 
 impl Mode {
@@ -122,6 +126,7 @@ mod tests {
             name: "t".into(),
             description: None,
             category: Category::Custom,
+            voice_keywords: vec![],
             steps: vec![
                 ActionStep {
                     order: 3,

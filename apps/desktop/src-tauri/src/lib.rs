@@ -481,6 +481,7 @@ fn demo_modes() -> Vec<Mode> {
             name: "Gaming".into(),
             description: Some("High-performance setup and game launch".into()),
             category: Category::Gaming,
+            voice_keywords: vec![],
             steps: vec![
                 step(
                     1,
@@ -513,6 +514,7 @@ fn demo_modes() -> Vec<Mode> {
             name: "Work".into(),
             description: Some("Focus setup, minimal distractions".into()),
             category: Category::Work,
+            voice_keywords: vec![],
             steps: vec![
                 step(
                     1,
@@ -545,6 +547,7 @@ fn demo_modes() -> Vec<Mode> {
             name: "Chill".into(),
             description: Some("Ambient lighting and music".into()),
             category: Category::Chill,
+            voice_keywords: vec![],
             steps: vec![
                 step(
                     1,

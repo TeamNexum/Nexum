@@ -49,7 +49,7 @@ export default function ModeEditor({
     setError(null);
     try {
       const id = await api.newId();
-      setDraft({ id, name: "Nouveau profil", description: "", category: "custom", steps: [] });
+      setDraft({ id, name: "Nouveau profil", description: "", category: "custom", steps: [], voice_keywords: [] });
     } catch (e) {
       setError(String(e instanceof Error ? e.message : e));
     }

@@ -99,6 +99,7 @@ mod tests {
             name: "shared".into(),
             description: None,
             category: Category::Custom,
+            voice_keywords: vec![],
             steps: actions
                 .iter()
                 .enumerate()

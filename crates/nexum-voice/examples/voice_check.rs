@@ -24,6 +24,7 @@ fn main() -> Result<(), String> {
             name: name.clone(),
             description: None,
             category: Category::Custom,
+            voice_keywords: vec![],
             steps: vec![],
         })
         .collect();

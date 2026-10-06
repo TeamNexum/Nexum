@@ -5,4 +5,9 @@ import type { Category } from "./Category";
 /**
  * A Mode reshapes the user's whole setup when activated.
  */
-export type Mode = { id: string, name: string, description: string | null, category: Category, steps: Array<ActionStep>, };
+export type Mode = { id: string, name: string, description: string | null, category: Category, steps: Array<ActionStep>, 
+/**
+ * Extra words or phrases that launch this mode by voice ("jeu",
+ * "partie classée"), on top of its name.
+ */
+voice_keywords: Array<string>, };

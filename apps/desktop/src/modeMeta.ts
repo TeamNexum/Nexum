@@ -151,7 +151,7 @@ function step(order: number, type: string, params: Params): ActionStep {
 
 /** Turn a catalog entry into a persistable Mode (drops UI-only fields). */
 export function toMode(c: CatalogMode, id: string): Mode {
-  return { id, name: c.name, description: c.description, category: c.category, steps: c.steps };
+  return { id, name: c.name, description: c.description, category: c.category, steps: c.steps, voice_keywords: [] };
 }
 
 export const STARTER_TEMPLATES: CatalogMode[] = [
