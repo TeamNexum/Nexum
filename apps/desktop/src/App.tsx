@@ -10,6 +10,7 @@ import Automations from "./components/Automations";
 import Marketplace from "./components/Marketplace";
 import Settings from "./components/Settings";
 import WindowBar from "./components/WindowBar";
+import VoiceOverlay from "./components/VoiceOverlay";
 import { categoryMeta } from "./modeMeta";
 import { useLibraryPreferences } from "./libraryPreferences";
 import {
@@ -171,6 +172,7 @@ export default function App() {
         {tab === "marketplace" && <Marketplace modes={modes} reload={reload} />}
         {tab === "settings" && <Settings modes={modes} reload={reload} density={density} onDensity={changeDensity} />}
       </main>
+      <VoiceOverlay />
       {searchOpen && <CommandPalette modes={library.modes} pages={TABS} onClose={() => setSearchOpen(false)} onNavigate={id => setTab(id as Tab)} onEdit={id => { setEditingModeId(id); setTab("editor"); }} onDensity={() => changeDensity(density === "compact" ? "comfort" : "compact")} />}
     </div>
   );

@@ -842,3 +842,35 @@ input[type="checkbox"], input[type="range"] { width: auto; }
 .profile-action-preview .step-unavailable { display: flex; margin: 4px 0; }
 .activity-row[data-status="fail"] .status-glyph { color: var(--nx-danger); }
 .activity-row[data-status="skipped"] .status-glyph { color: var(--nx-warning); }
+
+/* Voice command overlay (push-to-talk) */
+.voice-overlay {
+  position: fixed;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: min(520px, calc(100vw - 32px));
+  padding: 10px 20px;
+  border-radius: 100px;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--nx-border-strong);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  z-index: 110;
+}
+.voice-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--nx-text); flex: none; }
+.voice-overlay.live .voice-dot { animation: voice-pulse 1s ease-in-out infinite; }
+.voice-overlay.warn { border-color: var(--nx-warning); }
+.voice-overlay.warn .voice-dot { background: var(--nx-warning); }
+.voice-overlay.fail { border-color: var(--nx-danger); }
+.voice-overlay.fail .voice-dot { background: var(--nx-danger); }
+@keyframes voice-pulse { 50% { opacity: 0.25; transform: scale(1.6); } }
+@media (prefers-reduced-motion: reduce) { .voice-overlay.live .voice-dot { animation: none; } }
+.voice-keywords { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.voice-keywords input { flex: 1; min-width: 160px; }
+.voice-keyword { display: inline-flex; align-items: center; gap: 4px; padding: 4px 6px 4px 10px; border-radius: 100px; border: 1px solid var(--nx-border-strong); background: var(--nx-surface-2); font-size: 13px; }
+.voice-keyword button { padding: 0 4px; border: 0; background: none; color: var(--nx-text-muted); cursor: pointer; line-height: 1; }
+.voice-keyword button:hover { color: var(--nx-text); }

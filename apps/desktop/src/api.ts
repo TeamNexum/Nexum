@@ -45,7 +45,32 @@ export const api = {
   previewImport: (contents: string) => invoke<ImportPreview>("preview_import", { contents }),
   importMode: (contents: string) => invoke<Mode>("import_mode", { contents }),
   aiGenerate: (prompt: string) => invoke<Mode>("ai_generate", { prompt }),
+  voiceStatus: () => invoke<VoiceStatus>("voice_status"),
+  voiceDownloadModel: () => invoke<void>("voice_download_model"),
+  voiceStart: () => invoke<void>("voice_start"),
+  voiceStop: () => invoke<void>("voice_stop"),
 };
+
+// Voice types live in the desktop crate (src-tauri/src/voice.rs), which has no
+// ts-rs bindings, so they are mirrored here by hand.
+export interface VoiceStatus {
+  supported: boolean;
+  model_ready: boolean;
+  shortcut: string;
+}
+
+export type VoiceEvent =
+  | { state: "listening" }
+  | { state: "transcribing" }
+  | { state: "done"; transcript: string; mode: string | null; candidates: string[] }
+  | { state: "error"; message: string }
+  | { state: "download"; downloaded: number; total: number | null };
+
+/** Subscribe to voice command progress. Returns an unlisten function. */
+export function onVoiceEvent(handler: (event: VoiceEvent) => void): Promise<UnlistenFn> {
+  if (!IS_DESKTOP) return Promise.resolve(() => {});
+  return listen<VoiceEvent>("voice-event", (e) => handler(e.payload));
+}
 
 /** Subscribe to real-time engine events. Returns an unlisten function. */
 export function onEngineEvent(

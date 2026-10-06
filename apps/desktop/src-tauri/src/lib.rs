@@ -5,6 +5,7 @@
 //! exposes the command surface the frontend calls.
 
 mod integrations;
+mod voice;
 
 use std::sync::Arc;
 
@@ -26,7 +27,7 @@ use tauri::menu::{Menu, MenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::{Emitter, Manager, State};
 use tauri_plugin_dialog::DialogExt;
-use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
+use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut, ShortcutState};
 use uuid::Uuid;
 
 /// Shared application state handed to every command.
@@ -348,6 +349,8 @@ pub fn run() {
             });
 
             app.manage(state);
+            #[cfg(feature = "voice")]
+            app.manage(voice::Voice::new(&data_dir));
 
             // Right-click opens the native menu; left-click toggles the window.
             let show_i = MenuItem::with_id(app, "show", "Ouvrir Nexum", true, None::<&str>)?;
@@ -395,22 +398,34 @@ pub fn run() {
                 })
                 .build(app)?;
 
-            // Global hotkey (best-effort): Ctrl/Cmd+Shift+G activates Gaming, even
-            // when the window is closed. Non-fatal — the app runs if it fails.
+            // Global hotkeys (best-effort), even when the window is closed:
+            // Ctrl/Cmd+Shift+G activates Gaming, and with the `voice` feature,
+            // holding Ctrl/Cmd+Shift+Space is push-to-talk. Non-fatal — the app
+            // runs if they fail.
+            let gaming: Shortcut = "CmdOrCtrl+Shift+G".parse().expect("valid shortcut");
+            let talk: Shortcut = voice::SHORTCUT.parse().expect("valid shortcut");
             if app
                 .handle()
                 .plugin(
                     tauri_plugin_global_shortcut::Builder::new()
-                        .with_handler(|app, _shortcut, event| {
-                            if event.state() == ShortcutState::Pressed {
-                                fire_mode(app, GAMING_ID);
+                        .with_handler(move |app, shortcut, event| match event.state() {
+                            ShortcutState::Pressed if *shortcut == gaming => {
+                                fire_mode(app, GAMING_ID)
                             }
+                            #[cfg(feature = "voice")]
+                            ShortcutState::Pressed if *shortcut == talk => voice::begin(app),
+                            #[cfg(feature = "voice")]
+                            ShortcutState::Released if *shortcut == talk => voice::end(app),
+                            _ => {}
                         })
                         .build(),
                 )
                 .is_ok()
             {
-                let _ = app.global_shortcut().register("CmdOrCtrl+Shift+G");
+                let _ = app.global_shortcut().register(gaming);
+                if cfg!(feature = "voice") {
+                    let _ = app.global_shortcut().register(talk);
+                }
             }
 
             Ok(())
@@ -432,7 +447,11 @@ pub fn run() {
             export_mode,
             preview_import,
             import_mode,
-            ai_generate
+            ai_generate,
+            voice::voice_status,
+            voice::voice_start,
+            voice::voice_stop,
+            voice::voice_download_model
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
