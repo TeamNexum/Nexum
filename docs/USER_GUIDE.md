@@ -316,6 +316,15 @@ L'onglet **Système** rassemble la gestion de votre compte, la synchronisation e
 - **Statistiques de la bibliothèque locale** :
   - Nombre de profils enregistrés en SQLite, nombre d'actions actives, et état de l'environnement (Application de bureau vs Aperçu navigateur).
 
+### Contrôler son PC depuis son smartphone (Nexum Android)
+
+L'écosystème comprend une application mobile native Android dédiée (`NexumAndroid`) :
+1. Démarrez l'API Cloud sur votre PC (`cargo run -p nexum-cloud`).
+2. Ouvrez **Nexum** sur votre smartphone et allez dans l'onglet **Système**.
+3. Renseignez l'IP locale ou l'URL de votre PC (ex: `http://192.168.1.50:8787`).
+4. Vos modes PC s'affichent automatiquement sur votre téléphone et peuvent être déclenchés à distance d'un simple toucher (sur le même Wi-Fi ou via 4G/5G avec tunnel Cloud).
+5. Vous pouvez également automatiser le matériel de votre téléphone (sonnerie, luminosité, flash, haptique) et exécuter des plugins d'applications mobiles (Spotify, YouTube Music, etc.).
+
 > 💡 **Astuce (Philips Hue)** — Pour piloter vos lumières Hue, configurez les variables d'environnement `NEXUM_HUE_BRIDGE` (adresse IP de votre pont) et `NEXUM_HUE_USER` (nom d'utilisateur généré sur le pont). L'outil de diagnostic confirmera immédiatement l'accès.
 
 ---

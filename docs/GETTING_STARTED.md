@@ -89,8 +89,19 @@ The app opens on **Accueil** with demo modes. Explore the 5 workspaces:
   ```
 - **Claude AI (optional)**: Run `cargo run -p nexum-cloud --features claude` with `ANTHROPIC_API_KEY` set. Without it, the built-in heuristic generator is used.
 
-## 5. Run the mobile companion (PWA)
+## 5. Run the mobile companions
 
+### Option A: Native Android App (NexumAndroid — Recommended)
+For physical hardware control (volume, brightness, flash LED, ringer profiles) and modular app plugins (Spotify, YouTube Music, VLC), use the dedicated native app:
+- See the complete build, run & deployment guide in [`NexumAndroid/README.md`](../../NexumAndroid/README.md).
+- To launch on a connected USB phone:
+  ```powershell
+  cd ../NexumAndroid
+  .\scripts\install-on-phone.ps1
+  ```
+
+### Option B: Mobile companion PWA (`apps/mobile`)
+For a lightweight browser-based remote control:
 ```bash
 # Terminal 1: run cloud bound to LAN
 cd nexum
