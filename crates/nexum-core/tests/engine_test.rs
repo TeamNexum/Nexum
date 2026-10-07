@@ -88,6 +88,7 @@ fn mode(steps: Vec<ActionStep>) -> Mode {
         name: "test".into(),
         description: None,
         category: Category::Custom,
+        voice_keywords: vec![],
         steps,
     }
 }

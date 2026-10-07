@@ -174,6 +174,7 @@ mod tests {
             name: "m".into(),
             description: None,
             category: Category::Custom,
+            voice_keywords: vec![],
             steps: vec![],
         }
     }

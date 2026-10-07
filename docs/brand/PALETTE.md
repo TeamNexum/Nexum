@@ -1,67 +1,47 @@
 # Nexum — Palette & design tokens
 
-Source of truth for colors. The desktop app (`apps/desktop/src/styles.css`) and
-any brand asset must use these exact values. Inspired by the logo swirl and the
-neon-setup identity: **cyan → purple → magenta on deep space**.
+Source of truth for colors. Nexum's identity is **strictly monochrome** (black, greys,
+white), matching the halftone "N" logo and the desktop app (`apps/desktop/src/styles.css`
+and `materials.css`). Colour never carries meaning: state is shown with labels and icons.
 
-## Core palette (dark theme — primary)
+## Dark theme (primary)
 
-| Token | Hex | Usage |
+| Token | Value | Usage |
 |---|---|---|
-| `--nx-bg` | `#0B0E14` | App background (deep space) |
-| `--nx-surface` | `#151A22` | Cards, panels |
-| `--nx-surface-2` | `#1E2530` | Nested surfaces, inputs |
-| `--nx-border` | `#2A323F` | Borders, dividers |
-| `--nx-text` | `#E7EAF0` | Primary text |
-| `--nx-muted` | `#8A93A3` | Secondary text |
-| **`--nx-cyan`** | `#22D3EE` | **Primary** — actions, active, "ON" |
-| **`--nx-purple`** | `#7C5CFF` | **Secondary** — badges, accents |
-| **`--nx-magenta`** | `#F038A0` | Tertiary — highlights, streaming |
-| `--nx-green` | `#22C55E` | Success |
-| `--nx-amber` | `#F5B84B` | Warning |
-| `--nx-red` | `#F0436E` | Error / danger |
+| `--nx-app-bg` | `#080808` (`#090909` in `materials.css`) | App and visual background |
+| topbar | `#0B0B0B` | Title bar, headers |
+| `--panel-primary` | `#131313` | Cards, main panels |
+| `--panel-secondary` | `#101010` | Nested panels |
+| `--nx-text` | `#F2F2F2` | Primary text, logo |
+| `--nx-text-muted` | `#ACACAC` | Secondary text |
+| `--nx-text-dim` | `#8C8C8C` | Metadata (never critical info) |
+| `--nx-border` | `#FFFFFF0C` (white 5 %) | Dividers |
+| `--nx-border-strong` | `#FFFFFF23` (white 14 %) | Focus, active elements |
 
-## Signature gradient
+## Light theme (documents, print)
 
-```
-linear-gradient(135deg, #22D3EE 0%, #7C5CFF 50%, #F038A0 100%)
-```
-Use for the logo lockup, hero elements, and the "activate" glow. Never for body text.
-
-## Light theme (secondary — for docs/marketing)
-
-| Token | Hex |
+| Role | Hex |
 |---|---|
-| bg | `#F7F8FB` |
-| surface | `#FFFFFF` |
-| border | `#E3E7EE` |
-| text | `#0B0E14` |
-| muted | `#5A6472` |
-| cyan (on light) | `#0EA5C4` |
-| purple (on light) | `#6D4AFF` |
-| magenta (on light) | `#D81B84` |
+| bg | `#FFFFFF` |
+| surface | `#F4F4F4` |
+| border | `#E2E2E2` |
+| text | `#0A0A0A` |
+| muted | `#5C5C5C` |
 
 ## Typography
 
-- **UI & headings:** Inter (system-ui fallback). Weights 400/600/800.
-- **Code / DSL / logs:** ui-monospace, "JetBrains Mono", monospace.
-- Scale: 12 / 13 / 14 (base) / 18 / 24 / 32 px. Letter-spacing +1px on uppercase labels.
+- **Wordmark:** Inter 500, uppercase, letter-spacing +0.24em.
+- **Headings:** Inter 300–400, letter-spacing −0.035em.
+- **UI & body:** Inter 400/500 (system-ui fallback), 14 px minimum.
+- **Code / modes / logs:** JetBrains Mono 400/500.
+- Scale: 12 / 13 / 14 (base) / 18 / 24 / 32 / 48 px.
 
 ## Accessibility
 
-- Body text on `--nx-bg`/`--nx-surface` meets WCAG AA (≥ 4.5:1).
-- Cyan/purple/magenta are used as accents on dark surfaces; when placing text on
-  a cyan fill, use `#04211A`-dark text, not white.
-- Never encode meaning by color alone — pair with icon/label (✓/✗, "Active").
+- `#F2F2F2` on `#080808` ≈ 18:1, `#ACACAC` ≈ 8.8:1, `#8C8C8C` ≈ 6:1 (all ≥ WCAG AA).
+- Never encode meaning by colour — pair with an icon or label (✓/✗, "Active").
 
-## CSS token block (copy into `:root`)
+## Legacy
 
-```css
-:root {
-  --nx-bg:#0B0E14; --nx-surface:#151A22; --nx-surface-2:#1E2530; --nx-border:#2A323F;
-  --nx-text:#E7EAF0; --nx-muted:#8A93A3;
-  --nx-cyan:#22D3EE; --nx-purple:#7C5CFF; --nx-magenta:#F038A0;
-  --nx-green:#22C55E; --nx-amber:#F5B84B; --nx-red:#F0436E;
-  --nx-gradient:linear-gradient(135deg,#22D3EE 0%,#7C5CFF 50%,#F038A0 100%);
-}
-```
+The previous neon identity (cyan `#22D3EE` → purple `#7C5CFF` → magenta `#F038A0`, ring
+logo in `logo-mark.svg` / `logo-wordmark.svg`) is retired. Do not use it in new material.

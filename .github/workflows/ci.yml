@@ -55,6 +55,12 @@ jobs:
         run: cargo clippy --manifest-path apps/desktop/src-tauri/Cargo.toml --all-targets -- -D warnings
       - name: Check src-tauri
         run: cargo check --manifest-path apps/desktop/src-tauri/Cargo.toml
+      # Voice commands are off by default (whisper.cpp needs cmake + a C++
+      # toolchain), so build them explicitly. Linux is skipped: it would also
+      # need the ALSA headers (libasound2-dev).
+      - name: Clippy src-tauri with voice
+        if: runner.os != 'Linux'
+        run: cargo clippy --manifest-path apps/desktop/src-tauri/Cargo.toml --all-targets --features voice -- -D warnings
 
   bindings:
     name: TS bindings are up to date

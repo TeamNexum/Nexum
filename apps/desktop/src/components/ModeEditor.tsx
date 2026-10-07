@@ -3,6 +3,7 @@ import { api } from "../api";
 import { CATEGORIES, type ActionStep, type Mode } from "../types";
 import { CATEGORY_META, actionMeta, categoryMeta, catStyle, STARTER_TEMPLATES, toMode, type CatalogMode } from "../modeMeta";
 import ProfileArtwork from "./ProfileArtwork";
+import VoiceKeywords from "./VoiceKeywords";
 import { useUnavailableActions } from "../stepStatus";
 import { IconSparkles, IconPlus, IconTrash, IconCheck, IconSliders } from "./Icons";
 
@@ -49,7 +50,7 @@ export default function ModeEditor({
     setError(null);
     try {
       const id = await api.newId();
-      setDraft({ id, name: "Nouveau profil", description: "", category: "custom", steps: [] });
+      setDraft({ id, name: "Nouveau profil", description: "", category: "custom", steps: [], voice_keywords: [] });
     } catch (e) {
       setError(String(e instanceof Error ? e.message : e));
     }
@@ -286,6 +287,11 @@ export default function ModeEditor({
                     onChange={(e) => patch({ description: e.target.value })}
                   />
                 </div>
+
+                <VoiceKeywords
+                  value={draft.voice_keywords ?? []}
+                  onChange={(voice_keywords) => patch({ voice_keywords })}
+                />
               </div>
             </div>
 
