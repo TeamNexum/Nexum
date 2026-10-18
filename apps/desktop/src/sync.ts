@@ -9,7 +9,8 @@ import type { Mode } from "./types";
 const URL_KEY = "nexum.cloud.url";
 const TOKEN_KEY = "nexum.cloud.token";
 
-export const DEFAULT_CLOUD_URL = "http://localhost:8787";
+export const DEFAULT_CLOUD_URL =
+  import.meta.env.VITE_NEXUM_CLOUD_URL || "http://localhost:8787";
 
 export function cloudUrl(): string {
   return localStorage.getItem(URL_KEY) || DEFAULT_CLOUD_URL;
