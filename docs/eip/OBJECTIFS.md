@@ -2,8 +2,9 @@
 
 Source : fiche officielle **G-EIP-600 « Entrepreneurship Track — From idea to venture »** (v1).
 Règle : **2 objectifs obligatoires + 2 objectifs complémentaires**, choisis par le groupe avec le
-mentor. Track **Entrepreneuriat confirmée** au suivi du 25/09/2026 ; choix des objectifs sur
-l'intra la **semaine du 19/10/2026**.
+mentor. Track **Entrepreneuriat confirmée** au suivi du 25/09/2026 ; objectifs complémentaires **B (Stratégie
+et vision) + C (Image et message) choisis le 19/10/2026** avec le mentor. D'après le PDF officiel « action plan »
+(G-EIP-600), la track et les objectifs choisis s'écrivent dans le **plan d'action déposé sur la plateforme EIP** (#113).
 
 Légende statut : ✅ fait · 📝 rédigé, à compléter avec des données réelles · 🎯 à faire.
 Chaque objectif liste aussi ce que la fiche juge **insuffisant** : c'est ce que le jury vérifiera.
@@ -106,7 +107,7 @@ sans outil de suivi · une roadmap seulement textuelle.
 - **B** apporte moins au dossier car ses livrables recoupent l'objectif obligatoire 2.
 - **D** et **E** sont plus risqués : ils dépendent d'un média ou d'une traction mesurée.
 
-### C — Image et message *(proposé)*
+### C — Image et message *(choisi le 19/10/2026)*
 
 **Exigences.** Proposition de valeur en une phrase (« Nous aidons [cible] à [problème] grâce à
 [solution] ») déclinée par canal (site, pitch, réseaux, maquettes) · charte cohérente (logo,
@@ -133,7 +134,7 @@ sans personnalisation.
 | Landing page + inscription bêta | #67 | Arnaud, Rares |
 | Tests du message et des visuels | #105 | Arnaud, Rares |
 
-### A — Partenariats *(proposé)*
+### A — Partenariats *(non retenu le 19/10/2026)*
 
 **Exigences.** Carte des partenaires pertinents (entreprises, associations, experts, acteurs de
 l'écosystème) avec justification · 1 à 2 partenariats concrets, même modestes · actions
