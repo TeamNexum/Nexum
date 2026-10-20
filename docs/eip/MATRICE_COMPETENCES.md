@@ -53,7 +53,7 @@ Ajoute **❤** à côté d'une note si tu veux progresser sur ce sujet cette ann
 
 | Compétence | Arnaud | Enzo | Rares | Max |
 |---|---|---|---|---|
-| Rust | 2 | | | |
+| Rust | 1 | | | |
 | React + TypeScript | 2 | | | |
 | Mobile iOS (Swift, Xcode) | 1 ❤ | | | |
 | Mobile Android (Kotlin) | 0 | | | |
@@ -66,8 +66,8 @@ Ajoute **❤** à côté d'une note si tu veux progresser sur ce sujet cette ann
 | Sécurité | 1 | | | |
 | Design UI / UX | 1 | | | |
 | Gestion de projet | 3 | | | |
-| Étude de marché et interviews | 1 | | | |
-| Modèle économique et finances | 1 | | | |
+| Étude de marché et interviews | 2 | | | |
+| Modèle économique et finances | 2 | | | |
 | Communication et réseaux sociaux | 2 | | | |
 | Pitch et présentation orale | 2 | | | |
 | RGPD, CGU, licences | 0 ❤ | | | |
@@ -76,7 +76,7 @@ Ajoute **❤** à côté d'une note si tu veux progresser sur ce sujet cette ann
 | Autonomie | 2 | | | |
 | Travail en équipe et gestion des désaccords | 2 | | | |
 | Écoute des utilisateurs | 1 ❤ | | | |
-| Anglais | 2 | | | |
+| Anglais | 3 | | | |
 
 > Colonne d'Arnaud : proposition à relire et ajuster par Arnaud (même règle que pour tout le monde :
 > ce qu'il sait faire seul aujourd'hui).
@@ -88,18 +88,20 @@ fait pour progresser. Ces analyses alimentent l'analyse d'équipe ci-dessous.
 
 ### Arnaud
 
-**Forces (2 ou plus).** Gestion de projet (3) ; Rust, React + TypeScript, CI/CD, tests,
-intégrations système ; communication et réseaux sociaux, pitch ; compétences humaines
-(communication, organisation, autonomie, travail en équipe, anglais).
+**Forces (2 ou plus).** Gestion de projet (3) ; anglais (3, bilingue) ; React + TypeScript,
+CI/CD, tests, intégrations système ; étude de marché et interviews, modèle économique et
+finances ; communication et réseaux sociaux, pitch ; compétences humaines (communication,
+organisation, autonomie, travail en équipe).
 
 **Manques utiles au projet (0 ou 1).**
 
 | Compétence | Note | Pourquoi c'est important pour Nexum |
 |---|---|---|
 | RGPD, CGU, licences | 0 | Comptes connectés (Gmail, Outlook, Teams), marketplace : obligatoire avant la bêta |
+| Rust | 1 | Langage du cœur, des intégrations et du cloud : le PO doit pouvoir relire et corriger seul |
 | Infra et déploiement | 1 | Mise en ligne de l'API chez OVH, nécessaire au jalon J1 (décembre) |
 | Mobile iOS (Swift, Xcode) | 1 | Arnaud porte l'app iPhone : il doit pouvoir la faire évoluer seul |
-| Écoute des utilisateurs, étude de marché | 1 | Le PO doit entendre lui-même les utilisateurs pour arbitrer le produit |
+| Écoute des utilisateurs | 1 | Le PO doit entendre lui-même les utilisateurs pour arbitrer le produit |
 | IA (voix, langage naturel) | 1 | Commande vocale et génération de modes (jalons J3 et J4) |
 | API et bases de données, sécurité | 1 | Comptes et synchronisation (J2) ; rapport de conformité du workshop (OWASP) |
 | Mobile Android | 0 | Pas de manque à combler : Max porte l'app Android |
@@ -110,6 +112,7 @@ intégrations système ; communication et réseaux sociaux, pitch ; compétences
 |---|---|---|---|
 | RGPD et sécurité | Formation | Suivre le MOOC « L'atelier RGPD » de la CNIL et lire l'OWASP Top 10, puis rédiger l'inventaire des données personnelles de Nexum (partie conformité du workshop) | 30/11/2026 |
 | Écoute des utilisateurs | Binôme avec Enzo | Mener 3 des interviews de #24 avec Enzo | 06/11/2026 |
+| Rust | Formation + binôme avec Max | Faire les exercices Rustlings, puis relire chaque semaine une pull request Rust de Max | J2, 07/02/2027 |
 | Infra et déploiement | Binôme avec Max | Faire avec Max la mise en ligne de l'API chez OVH (#48) | J1, début décembre 2026 |
 | Mobile iOS | Formation + pratique | Ajouter seul une action au plugin Swift de l'app iPhone, avec relecture | J2, 07/02/2027 |
 | IA | Pratique | Prendre part au démonstrateur de génération de modes (#19) | J3, 04/04/2027 |
