@@ -51,32 +51,32 @@ Ajoute **❤** à côté d'une note si tu veux progresser sur ce sujet cette ann
 
 ## Matrice
 
-| Compétence | Arnaud | Enzo | Rares | Max |
-|---|---|---|---|---|
-| Rust | 1 | | | |
-| React + TypeScript | 2 | | | |
-| Mobile iOS (Swift, Xcode) | 1 ❤ | | | |
-| Mobile Android (Kotlin) | 0 | | | |
-| API et bases de données | 1 | | | |
-| Infra et déploiement | 1 ❤ | | | |
-| CI/CD | 2 | | | |
-| Tests et qualité | 2 | | | |
-| Intégrations système et objets connectés | 2 | | | |
-| IA (voix, langage naturel) | 1 ❤ | | | |
-| Sécurité | 1 | | | |
-| Design UI / UX | 1 | | | |
-| Gestion de projet | 3 | | | |
-| Étude de marché et interviews | 2 | | | |
-| Modèle économique et finances | 2 | | | |
-| Communication et réseaux sociaux | 2 | | | |
-| Pitch et présentation orale | 2 | | | |
-| RGPD, CGU, licences | 0 ❤ | | | |
-| Communication dans l'équipe | 2 | | | |
-| Organisation et respect des délais | 2 | | | |
-| Autonomie | 2 | | | |
-| Travail en équipe et gestion des désaccords | 2 | | | |
-| Écoute des utilisateurs | 1 ❤ | | | |
-| Anglais | 3 | | | |
+| Compétence | Arnaud | Enzo | Rares | Max | Raph |
+|---|---|---|---|---|---|
+| Rust | 1 | | | | |
+| React + TypeScript | 2 | | | | |
+| Mobile iOS (Swift, Xcode) | 1 ❤ | | | | |
+| Mobile Android (Kotlin) | 0 | | | | |
+| API et bases de données | 1 | | | | |
+| Infra et déploiement | 1 ❤ | | | | |
+| CI/CD | 2 | | | | |
+| Tests et qualité | 2 | | | | |
+| Intégrations système et objets connectés | 2 | | | | |
+| IA (voix, langage naturel) | 1 ❤ | | | | |
+| Sécurité | 1 | | | | |
+| Design UI / UX | 1 | | | | |
+| Gestion de projet | 3 | | | | |
+| Étude de marché et interviews | 2 | | | | |
+| Modèle économique et finances | 2 | | | | |
+| Communication et réseaux sociaux | 2 | | | | |
+| Pitch et présentation orale | 2 | | | | |
+| RGPD, CGU, licences | 0 ❤ | | | | |
+| Communication dans l'équipe | 2 | | | | |
+| Organisation et respect des délais | 2 | | | | |
+| Autonomie | 2 | | | | |
+| Travail en équipe et gestion des désaccords | 2 | | | | |
+| Écoute des utilisateurs | 1 ❤ | | | | |
+| Anglais | 3 | | | | |
 
 > Colonne d'Arnaud : proposition à relire et ajuster par Arnaud (même règle que pour tout le monde :
 > ce qu'il sait faire seul aujourd'hui).
@@ -119,7 +119,7 @@ organisation, autonomie, travail en équipe).
 
 ## Points forts de l'équipe
 
-À compléter une fois les 4 colonnes remplies : les compétences où **au moins deux personnes ont
+À compléter une fois les 5 colonnes remplies : les compétences où **au moins deux personnes ont
 2 ou plus** (l'équipe peut livrer et se relire).
 
 | Compétence | Qui |
@@ -128,7 +128,7 @@ organisation, autonomie, travail en équipe).
 
 ## Analyse des manques
 
-À compléter une fois les 4 colonnes remplies. Pour chaque compétence, on regarde la meilleure note
+À compléter une fois les 5 colonnes remplies. Pour chaque compétence, on regarde la meilleure note
 de l'équipe :
 
 - **Manque** : personne n'a 2 ou plus → personne ne peut livrer seul.
