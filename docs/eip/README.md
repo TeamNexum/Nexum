@@ -24,6 +24,7 @@ jour en premier si un chiffre/persona change).
 | [`SOCIAL_EDITORIAL_CALENDAR.md`](./SOCIAL_EDITORIAL_CALENDAR.md) | Plan de contenu & calendrier éditorial (IG/LinkedIn), 10 semaines. | Image & message |
 | [`BETA_RECRUITMENT_AND_PARTNERSHIPS.md`](./BETA_RECRUITMENT_AND_PARTNERSHIPS.md) | Recrutement 20+ bêta-testeurs + partenaires + templates d'email. | Traction |
 | [`ONE_PAGER.md`](./ONE_PAGER.md) | Fiche projet une page (résumé exécutif). | Pitch / mentors |
+| [`plan-action/2-specs-techniques.md`](./plan-action/2-specs-techniques.md) | Partie 2 du plan d'action « Highway to Tech4 » : stack, 46 user stories avec critère et état, 4 jalons datés. | **Plan d'action à déposer sur la plateforme EIP (#113)** |
 | [`OBJECTIFS.md`](./OBJECTIFS.md) | Fiches des 4 objectifs de track (déf. → preuves → statut → à faire) + comptes/liens à créer. | Suivi objectifs |
 | [`SOCIAL_POSTS_DRAFTS.md`](./SOCIAL_POSTS_DRAFTS.md) | Brouillons de posts (IG + LinkedIn) prêts à publier, avec visuels dans `../brand/social/`. | Image & message |
 
