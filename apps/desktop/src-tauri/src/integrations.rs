@@ -49,7 +49,7 @@ impl IntegrationSettings {
     fn load(path: &Path) -> Self {
         match std::fs::read_to_string(path) {
             Ok(text) => serde_json::from_str(&text).unwrap_or_else(|e| {
-                eprintln!("ignoring invalid {}: {e}", path.display());
+                log::warn!("ignoring invalid {}: {e}", path.display());
                 Self::default()
             }),
             Err(_) => Self::default(),
@@ -114,6 +114,15 @@ impl Integrations {
             switch.store(settings.is_enabled(id), Ordering::Relaxed);
         }
         *self.hue.write().unwrap() = settings.hue.clone();
+        // The Hue username is a credential: keep it out of logs and reports,
+        // including the developer fallback from the environment.
+        crate::redact::set_known_secrets(
+            settings
+                .hue
+                .iter()
+                .map(|hue| hue.user.clone())
+                .chain(std::env::var("NEXUM_HUE_USER").ok()),
+        );
     }
 }
 

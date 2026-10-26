@@ -173,7 +173,7 @@ mod enabled {
         // Dev builds only: what Whisper heard, to tell a mishearing from a
         // matching problem. Release builds never log what the user said.
         if cfg!(debug_assertions) {
-            eprintln!(
+            log::debug!(
                 "[voice] heard {transcript:?} -> {:?} {candidates:?}",
                 mode.as_ref().map(|m| &m.name)
             );

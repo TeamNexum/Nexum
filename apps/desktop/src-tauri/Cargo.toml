@@ -15,7 +15,7 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 [features]
 # Voice commands (local Whisper). Off by default: building whisper.cpp needs
 # cmake and a C++ toolchain. Run the app with `npm run tauri:voice`.
-voice = ["dep:nexum-voice", "dep:reqwest"]
+voice = ["dep:nexum-voice"]
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
@@ -36,4 +36,8 @@ nexum-schema = { path = "../../../crates/nexum-schema" }
 nexum-adapters = { path = "../../../crates/nexum-adapters", features = ["hue"] }
 nexum-store = { path = "../../../crates/nexum-store", features = ["sqlite"] }
 nexum-voice = { path = "../../../crates/nexum-voice", features = ["whisper"], optional = true }
-reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"], optional = true }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "multipart"] }
+tauri-plugin-log = "2.10"
+log = "0.4"
+regex = "1"
+base64 = "0.22"
