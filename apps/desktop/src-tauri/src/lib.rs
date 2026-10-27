@@ -6,7 +6,6 @@
 
 mod feedback;
 mod integrations;
-mod redact;
 mod voice;
 
 use std::sync::Arc;
@@ -264,7 +263,7 @@ fn ai_generate(prompt: String) -> Mode {
 // ---- setup -----------------------------------------------------------------
 
 /// Rotating log files in the OS log dir (`nexum.log`, 5 × 1 MB kept), shared by
-/// the Rust side and the webview. Every line goes through [`redact::redact`]
+/// the Rust side and the webview. Every line goes through [`nexum_core::redact`]
 /// before it is written, so secrets never reach the disk.
 fn log_plugin() -> tauri::plugin::TauriPlugin<tauri::Wry> {
     tauri_plugin_log::Builder::new()
@@ -288,7 +287,7 @@ fn log_plugin() -> tauri::plugin::TauriPlugin<tauri::Wry> {
                 chrono::Local::now().format("%Y-%m-%d %H:%M:%S%.3f"),
                 record.level(),
                 record.target(),
-                redact::redact(&message.to_string())
+                nexum_core::redact::redact(&message.to_string())
             ))
         })
         .build()
@@ -520,8 +519,7 @@ pub fn run() {
             voice::voice_start,
             voice::voice_stop,
             voice::voice_download_model,
-            feedback::feedback_logs,
-            feedback::send_feedback
+            feedback::feedback_context
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

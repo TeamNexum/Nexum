@@ -116,7 +116,7 @@ impl Integrations {
         *self.hue.write().unwrap() = settings.hue.clone();
         // The Hue username is a credential: keep it out of logs and reports,
         // including the developer fallback from the environment.
-        crate::redact::set_known_secrets(
+        nexum_core::redact::set_known_secrets(
             settings
                 .hue
                 .iter()

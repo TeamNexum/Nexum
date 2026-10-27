@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { api } from "../api";
+import { cloud } from "../sync";
 
-// Limits mirror src-tauri/src/feedback.rs.
+// Limits mirror services/nexum-cloud/src/feedback.rs.
 const MAX_MESSAGE = 4000;
 const MAX_SCREENSHOT = 8 * 1024 * 1024;
 const IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
@@ -23,7 +24,7 @@ function readImage(file: Blob): Promise<Screenshot> {
 /**
  * Beta feedback: a message, an optional screenshot (picked or pasted) and,
  * only if the tester ticks the box, the redacted app logs, which they can read
- * before sending.
+ * before sending. Reports go through Nexum Cloud, which must be running.
  */
 export default function FeedbackDialog({ onClose }: { onClose: () => void }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -53,18 +54,21 @@ export default function FeedbackDialog({ onClose }: { onClose: () => void }) {
 
   function loadLogs() {
     if (logs !== null) return;
-    api.feedbackLogs().then(setLogs, (e) => setLogs(`Journal indisponible : ${String(e instanceof Error ? e.message : e)}`));
+    api.feedbackContext(true).then(ctx => setLogs(ctx.logs ?? ""), (e) => setLogs(`Journal indisponible : ${String(e instanceof Error ? e.message : e)}`));
   }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true); setErr(null);
     try {
-      await api.sendFeedback({
+      const { version, os, logs } = await api.feedbackContext(includeLogs);
+      await cloud.sendFeedback({
         message: message.trim(),
         contact: contact.trim() || null,
+        version,
+        os,
         screenshot: screenshot && { mime: screenshot.mime, data_base64: screenshot.data_base64 },
-        include_logs: includeLogs,
+        logs,
       });
       setSent(true);
     } catch (error) {

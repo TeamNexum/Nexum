@@ -4,11 +4,16 @@ import { afterEach, beforeAll, expect, test, vi } from "vitest";
 import FeedbackDialog from "./FeedbackDialog";
 
 const api = vi.hoisted(() => ({
-  feedbackLogs: vi.fn(async () => "INFO mode 'Gaming' started"),
-  sendFeedback: vi.fn(async () => {}),
+  feedbackContext: vi.fn(async (includeLogs: boolean) => ({
+    version: "0.1.0",
+    os: "linux (x86_64)",
+    logs: includeLogs ? "INFO mode 'Gaming' started" : null,
+  })),
 }));
+const cloud = vi.hoisted(() => ({ sendFeedback: vi.fn(async () => {}) }));
 
 vi.mock("../api", () => ({ api }));
+vi.mock("../sync", () => ({ cloud }));
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
 const host = document.createElement("div");
 document.body.append(host);
@@ -48,18 +53,20 @@ test("sends only the message unless the tester opts in", async () => {
   await type("textarea", "  Steam ne se lance pas  ");
   await act(async () => submitButton().click());
 
-  expect(api.sendFeedback).toHaveBeenCalledWith({
+  expect(cloud.sendFeedback).toHaveBeenCalledWith({
     message: "Steam ne se lance pas",
     contact: null,
+    version: "0.1.0",
+    os: "linux (x86_64)",
     screenshot: null,
-    include_logs: false,
+    logs: null,
   });
-  expect(api.feedbackLogs).not.toHaveBeenCalled();
+  expect(api.feedbackContext).not.toHaveBeenCalledWith(true);
   expect(host.textContent).toContain("Merci");
 });
 
 test("attaches logs after consent and keeps the form when sending fails", async () => {
-  api.sendFeedback.mockRejectedValueOnce(new Error("Envoi impossible"));
+  cloud.sendFeedback.mockRejectedValueOnce(new Error("Impossible de joindre le cloud"));
   await render();
   await type("textarea", "Bug");
   await type('input:not([type])', "sam#1234");
@@ -73,7 +80,9 @@ test("attaches logs after consent and keeps the form when sending fails", async 
   expect(host.querySelector(".feedback-logs")!.textContent).toContain("mode 'Gaming' started");
 
   await act(async () => submitButton().click());
-  expect(api.sendFeedback).toHaveBeenCalledWith(expect.objectContaining({ contact: "sam#1234", include_logs: true }));
-  expect(host.querySelector('[role="alert"]')!.textContent).toBe("Envoi impossible");
+  expect(cloud.sendFeedback).toHaveBeenCalledWith(
+    expect.objectContaining({ contact: "sam#1234", logs: "INFO mode 'Gaming' started" }),
+  );
+  expect(host.querySelector('[role="alert"]')!.textContent).toBe("Impossible de joindre le cloud");
   expect(host.querySelector("textarea")!.value).toBe("Bug");
 });
