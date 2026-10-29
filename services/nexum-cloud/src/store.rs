@@ -104,18 +104,12 @@ impl CloudStore {
 
     /// Enqueue a direct / unauthenticated command (e.g. from local mobile app).
     pub fn enqueue_direct_command(&self, cmd: RemoteCommand) {
-        self.direct_commands
-            .write()
-            .unwrap()
-            .push_back(cmd);
+        self.direct_commands.write().unwrap().push_back(cmd);
     }
 
     /// Pop the next direct command.
     pub fn take_direct_command(&self) -> Option<RemoteCommand> {
-        self.direct_commands
-            .write()
-            .unwrap()
-            .pop_front()
+        self.direct_commands.write().unwrap().pop_front()
     }
 
     /// Return direct modes or empty if none stored yet.

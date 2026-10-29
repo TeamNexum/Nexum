@@ -37,3 +37,5 @@ nexum-adapters = { path = "../../../crates/nexum-adapters", features = ["hue"] }
 nexum-store = { path = "../../../crates/nexum-store", features = ["sqlite"] }
 nexum-voice = { path = "../../../crates/nexum-voice", features = ["whisper"], optional = true }
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"], optional = true }
+tauri-plugin-log = "2.10"
+log = "0.4"

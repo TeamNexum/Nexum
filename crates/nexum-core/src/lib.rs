@@ -11,6 +11,7 @@
 //!   - [`share`]: export/import of modes as `.nexum.json` files.
 //!   - [`EventBus`]: broadcasts real-time execution events to any subscriber
 //!     (the desktop UI, logs, the cloud sync queue...).
+//!   - [`redact`]: scrubs secrets from logs and feedback reports.
 
 pub mod adapter;
 pub mod ai;
@@ -19,6 +20,7 @@ pub mod bus;
 pub mod engine;
 pub mod error;
 pub mod marketplace;
+pub mod redact;
 pub mod registry;
 pub mod share;
 

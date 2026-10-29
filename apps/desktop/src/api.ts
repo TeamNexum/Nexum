@@ -49,7 +49,14 @@ export const api = {
   voiceDownloadModel: () => invoke<void>("voice_download_model"),
   voiceStart: () => invoke<void>("voice_start"),
   voiceStop: () => invoke<void>("voice_stop"),
+  feedbackContext: (includeLogs: boolean) => invoke<FeedbackContext>("feedback_context", { includeLogs }),
 };
+
+export interface FeedbackContext {
+  version: string;
+  os: string;
+  logs: string | null;
+}
 
 // Voice types live in the desktop crate (src-tauri/src/voice.rs), which has no
 // ts-rs bindings, so they are mirrored here by hand.
