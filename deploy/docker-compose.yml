@@ -1,0 +1,59 @@
+# Nexum Cloud stack: API + PostgreSQL + Caddy (HTTPS). See deploy/README.md.
+#
+#   cp .env.example .env   # then fill it in
+#   docker compose up -d --build
+
+services:
+  cloud:
+    build:
+      context: ..
+      dockerfile: services/nexum-cloud/Dockerfile
+    image: ghcr.io/teamnexum/nexum-cloud:${NEXUM_CLOUD_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      NEXUM_JWT_SECRET: ${NEXUM_JWT_SECRET:?set NEXUM_JWT_SECRET in deploy/.env}
+      NEXUM_FEEDBACK_WEBHOOK: ${NEXUM_FEEDBACK_WEBHOOK:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      DATABASE_URL: postgres://nexum:${POSTGRES_PASSWORD}@postgres:5432/nexum
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - "8787"
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: nexum
+      POSTGRES_DB: nexum
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in deploy/.env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nexum -d nexum"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  #
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      NEXUM_DOMAIN: ${NEXUM_DOMAIN:?set NEXUM_DOMAIN in deploy/.env}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - cloud
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

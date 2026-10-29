@@ -1,0 +1,15 @@
+
+target
+**/target
+node_modules
+**/node_modules
+apps
+packages
+docs
+deploy
+.git
+.github
+.vscode
+.env
+.env.*
+rust-toolchain.toml
