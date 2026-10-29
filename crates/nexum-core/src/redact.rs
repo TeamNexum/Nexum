@@ -115,7 +115,10 @@ mod tests {
                 assert!(!out.contains(secret), "{secret} leaked in {out}");
             }
         }
-        assert_eq!(redact(r#"{"bridge":"10.0.0.2"}"#), r#"{"bridge":"10.0.0.2"}"#);
+        assert_eq!(
+            redact(r#"{"bridge":"10.0.0.2"}"#),
+            r#"{"bridge":"10.0.0.2"}"#
+        );
     }
 
     #[test]

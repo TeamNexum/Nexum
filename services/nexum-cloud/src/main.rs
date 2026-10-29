@@ -56,7 +56,10 @@ async fn main() {
         .route("/api/commands/next", get(next_command))
         .route("/api/direct/command", post(post_direct_command))
         .route("/api/direct/commands/next", get(next_direct_command))
-        .route("/api/direct/modes", get(get_direct_modes).put(put_direct_modes))
+        .route(
+            "/api/direct/modes",
+            get(get_direct_modes).put(put_direct_modes),
+        )
         .with_state(store)
         .merge(feedback::router())
         // Permissive CORS so the desktop webview (tauri://) and the web mobile
@@ -77,9 +80,12 @@ async fn main() {
         .expect("failed to bind");
     println!("Nexum Cloud API listening on http://{addr}");
     // Connect info gives the feedback route the client IP for its rate limit.
-    axum::serve(listener, app.into_make_service_with_connect_info::<SocketAddr>())
-        .await
-        .expect("server error");
+    axum::serve(
+        listener,
+        app.into_make_service_with_connect_info::<SocketAddr>(),
+    )
+    .await
+    .expect("server error");
 }
 
 async fn health() -> Json<serde_json::Value> {
@@ -191,15 +197,11 @@ async fn post_direct_command(
     StatusCode::ACCEPTED
 }
 
-async fn next_direct_command(
-    State(store): State<Arc<CloudStore>>,
-) -> Json<serde_json::Value> {
+async fn next_direct_command(State(store): State<Arc<CloudStore>>) -> Json<serde_json::Value> {
     Json(json!({ "command": store.take_direct_command() }))
 }
 
-async fn get_direct_modes(
-    State(store): State<Arc<CloudStore>>,
-) -> Json<Vec<Mode>> {
+async fn get_direct_modes(State(store): State<Arc<CloudStore>>) -> Json<Vec<Mode>> {
     let modes = store.get_direct_modes();
     if modes.is_empty() {
         Json(vec![

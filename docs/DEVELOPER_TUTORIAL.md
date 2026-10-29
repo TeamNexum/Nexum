@@ -261,6 +261,7 @@ in `src-tauri/icons/`. For signing/auto-update see [`rncp/DEPLOYMENT_CICD.md`](r
 | `sqlite` | `nexum-store` | Persistent SQLite `ModeStore` | Active by default in `apps/desktop/src-tauri` (`nexum.db`) |
 | `hue` | `nexum-adapters` | Real Philips Hue adapter | Active by default in desktop; Env: `NEXUM_HUE_BRIDGE`, `NEXUM_HUE_USER` |
 | `claude` | `nexum-cloud` | Real Claude Mode-as-Code | Env: `ANTHROPIC_API_KEY` |
+| — | `nexum-cloud` | Beta feedback (`POST /api/feedback`), forwarded to Discord | Env: `NEXUM_FEEDBACK_WEBHOOK` (Discord webhook URL). Unset → the route answers 503 |
 
 Enable a feature: `cargo build -p <crate> --features <feature>`.
 In the desktop app, `SqliteStore` and `HueAdapter` are already compiled in and configured.
