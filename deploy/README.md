@@ -8,7 +8,22 @@ L'API cloud tourne en **Docker Compose**:
 | `postgres` | `postgres:17-alpine`              | Base de données (volume `pgdata`)                                                                                            |
 | `caddy`    | `caddy:2-alpine`                  | HTTPS automatique (Let's Encrypt) sur ports 80/443, relaie vers `cloud` (Fonctionne comme un reverse proxy un peu comme nginx) |
 
-## Tester en local
+## Mode dev
+
+Pour développer avec les apps, sans Caddy ni certificat :
+
+```bash
+cd deploy
+cp .env.example .env
+# Dans .env : renseigner NEXUM_JWT_SECRET et POSTGRES_PASSWORD
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d cloud
+curl http://localhost:8787/health
+```
+
+L'API est alors disponible sur `http://localhost:8787`, l'URL par défaut des apps. Elle n'est
+accessible que depuis votre machine. Ne pas utiliser `docker-compose.dev.yml` sur le serveur.
+
+## Tester en local avec HTTPS
 
 ```bash
 cd deploy

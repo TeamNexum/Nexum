@@ -29,6 +29,7 @@ serde_json = "1"
 uuid = { version = "1", features = ["v4", "serde"] }
 tokio = { version = "1", features = ["full"] }
 chrono = "0.4"
+keyring = { version = "3", features = ["apple-native", "windows-native", "sync-secret-service", "crypto-rust"] }
 
 # Nexum core (path deps into the sibling crates/ tree).
 nexum-core = { path = "../../../crates/nexum-core" }

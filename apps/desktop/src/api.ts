@@ -36,6 +36,9 @@ export const api = {
   actionCatalog: () => invoke<string[]>("action_catalog"),
   actionAvailability: () => invoke<ActionAvailability[] | null>("get_action_availability"),
   newId: () => invoke<string>("new_id"),
+  loadCloudToken: () => invoke<string | null>("load_cloud_token"),
+  saveCloudToken: (token: string) => invoke<void>("save_cloud_token", { token }),
+  clearCloudToken: () => invoke<void>("clear_cloud_token"),
   getAutomations: () => invoke<AutomationRule[]>("get_automations"),
   simulateTime: (hour: number, minute: number, weekday: number) =>
     invoke<string[]>("simulate_time", { hour, minute, weekday }),

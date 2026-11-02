@@ -1,19 +1,17 @@
 // Remote control: when signed in, the desktop polls the cloud command queue so
 // the mobile companion can activate a mode on this machine. Auth stays in the
-// frontend (the JWT lives in localStorage via sync.ts) and delivery reuses the
-// local `activate_mode` Tauri command — so no Rust changes are needed here.
+// frontend (see sync.ts) and delivery reuses the local 'activate_mode' Tauri
+// command
 
-import { cloudUrl, token } from "./sync";
+import { authedFetch, isSignedIn, loadSession } from "./sync";
 
 export type RemoteCommand = { kind: "activate_mode"; mode_id: string };
 
 async function fetchNext(): Promise<RemoteCommand | null> {
-  const t = token();
-  if (!t) return null; // signed out — nothing to poll
+  await loadSession();
+  if (!isSignedIn()) return null; // signed out — nothing to poll
   try {
-    const res = await fetch(`${cloudUrl()}/api/commands/next`, {
-      headers: { authorization: `Bearer ${t}` },
-    });
+    const res = await authedFetch("/api/commands/next");
     if (!res.ok) return null;
     const data = (await res.json()) as { command: RemoteCommand | null };
     return data.command ?? null;

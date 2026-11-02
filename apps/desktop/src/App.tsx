@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { api, IS_DESKTOP, onEngineEvent } from "./api";
 import { startRemoteControl } from "./remote";
+import { requestSync, startAutoSync } from "./autosync";
 import type { Mode } from "./types";
 import Dashboard from "./components/Dashboard";
 import LiveActions, { useActivity } from "./components/LiveActions";
@@ -95,6 +96,13 @@ export default function App() {
     });
   }, [reload]);
 
+  useEffect(() => {
+    if (!IS_DESKTOP) return;
+    return startAutoSync(reload);
+  }, [reload]);
+
+  useEffect(() => requestSync(), [modes]);
+
   return (
     <div className="app" data-density={density}>
       <WindowBar />
@@ -170,7 +178,7 @@ export default function App() {
         {tab === "editor" && <ModeEditor key={editingModeId ?? "studio"} modes={library.modes} reload={reload} initialModeId={editingModeId} />}
         {tab === "automations" && <Automations modes={modes} />}
         {tab === "marketplace" && <Marketplace modes={modes} reload={reload} />}
-        {tab === "settings" && <Settings modes={modes} reload={reload} density={density} onDensity={changeDensity} />}
+        {tab === "settings" && <Settings modes={modes} density={density} onDensity={changeDensity} />}
       </main>
       <VoiceOverlay />
       {searchOpen && <CommandPalette modes={library.modes} pages={TABS} onClose={() => setSearchOpen(false)} onNavigate={id => setTab(id as Tab)} onEdit={id => { setEditingModeId(id); setTab("editor"); }} onDensity={() => changeDensity(density === "compact" ? "comfort" : "compact")} />}

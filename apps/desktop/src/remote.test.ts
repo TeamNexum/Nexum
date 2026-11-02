@@ -1,13 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { startRemoteControl, type RemoteCommand } from "./remote";
+import { clearSession } from "./sync";
 
 function res(body: unknown) {
   return { ok: true, status: 200, json: async () => body } as unknown as Response;
 }
 
+const session = { token: "access", refresh_token: "next", user_id: "u" };
+
 const fetchMock = vi.fn();
 
-beforeEach(() => {
+beforeEach(async () => {
+  await clearSession();
   localStorage.clear();
   vi.stubGlobal("fetch", fetchMock);
   fetchMock.mockReset();
@@ -23,8 +27,10 @@ describe("startRemoteControl", () => {
   });
 
   it("delivers a queued command, then drains until the queue is empty", async () => {
-    localStorage.setItem("nexum.cloud.token", "t");
+    localStorage.setItem("nexum.cloud.refresh", "r");
+    localStorage.setItem("nexum.cloud.user", "u");
     fetchMock
+      .mockResolvedValueOnce(res(session))
       .mockResolvedValueOnce(res({ command: { kind: "activate_mode", mode_id: "gaming" } }))
       .mockResolvedValue(res({ command: null }));
 
@@ -37,10 +43,13 @@ describe("startRemoteControl", () => {
   });
 
   it("stops polling after stop() is called", async () => {
-    localStorage.setItem("nexum.cloud.token", "t");
-    fetchMock.mockResolvedValue(res({ command: null }));
+    localStorage.setItem("nexum.cloud.refresh", "r");
+    localStorage.setItem("nexum.cloud.user", "u");
+    fetchMock
+      .mockResolvedValueOnce(res(session))
+      .mockResolvedValue(res({ command: null }));
     const stop = startRemoteControl(() => {}, 10_000);
-    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    await vi.waitFor(() => expect(fetchMock.mock.calls.length).toBeGreaterThan(1));
     const callsAfterStop = fetchMock.mock.calls.length;
     stop();
     await new Promise((r) => setTimeout(r, 50));

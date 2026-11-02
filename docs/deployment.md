@@ -80,7 +80,7 @@ Build de l'app desktop sans installeur : `npm run tauri build --workspace=nexum-
 | Livrable | Aujourd'hui | Prévu |
 |---|---|---|
 | App desktop | Construite par la CI (smoke test) ; pas encore distribuée | Installeurs Windows / Linux signés (#21), mises à jour automatiques (#50), désinstallation propre (#68) |
-| API cloud | Lancée en local, stockage en mémoire | Base PostgreSQL (#14), hébergement + nom de domaine + HTTPS (#48) |
+| API cloud | PostgreSQL via Docker Compose (`deploy/`), en local | Hébergement + nom de domaine + HTTPS (#48) |
 | App mobile | Télécommande web servie en local | App native Tauri 2 iOS / Android (#34, #35, #36) |
 
 L'app fonctionne **hors ligne** (modes stockés en SQLite sur la machine) : une panne du cloud ou du

@@ -2,6 +2,7 @@
 //! startup by [`PgStore::connect`].
 
 use std::str::FromStr;
+use std::time::Duration;
 
 use async_trait::async_trait;
 use deadpool_postgres::{Manager, ManagerConfig, Pool, RecyclingMethod};
@@ -12,7 +13,7 @@ use uuid::Uuid;
 
 use nexum_schema::Mode;
 
-use super::{RemoteCommand, Store, StoreError, UserRecord};
+use super::{ModeChange, RemoteCommand, RevisedMode, Store, StoreError, SyncOutcome, UserRecord};
 
 /// Applied in order, each once, recorded in `schema_migrations`. Never edit a
 /// migration that has shipped: add a new one.
@@ -135,37 +136,85 @@ impl Store for PgStore {
         let client = self.pool.get().await?;
         let rows = client
             .query(
-                "SELECT data FROM modes WHERE user_id = $1 ORDER BY position",
+                "SELECT data FROM modes WHERE user_id = $1 ORDER BY position, mode_id",
                 &[&user_id],
             )
             .await?;
-        Ok(rows
-            .iter()
-            .map(|row| row.get::<_, Json<Mode>>(0).0)
-            .collect())
+        rows.iter()
+            .map(|row| Ok(row.try_get::<_, Json<Mode>>(0)?.0))
+            .collect()
     }
 
-    async fn put_modes(&self, user_id: Uuid, modes: Vec<Mode>) -> Result<(), StoreError> {
+    async fn sync_modes(
+        &self,
+        user_id: Uuid,
+        changes: Vec<ModeChange>,
+    ) -> Result<SyncOutcome, StoreError> {
         let mut client = self.pool.get().await?;
         let tx = client.transaction().await?;
-        tx.execute("DELETE FROM modes WHERE user_id = $1", &[&user_id])
-            .await?;
-        let insert = tx
-            .prepare(
-                "INSERT INTO modes (user_id, mode_id, position, data)
-                 VALUES ($1, $2, $3, $4)
-                 ON CONFLICT (user_id, mode_id)
-                 DO UPDATE SET position = EXCLUDED.position, data = EXCLUDED.data",
+        let mut conflicts = Vec::new();
+        for change in changes {
+            let applied = match &change.mode {
+                Some(mode) if change.base_revision == 0 => {
+                    tx.execute(
+                        "INSERT INTO modes (user_id, mode_id, position, data)
+                         VALUES ($1, $2,
+                            (SELECT COALESCE(MAX(position), -1) + 1 FROM modes WHERE user_id = $1),
+                            $3)
+                         ON CONFLICT (user_id, mode_id) DO NOTHING",
+                        &[&user_id, &change.id, &Json(mode)],
+                    )
+                    .await?
+                }
+                Some(mode) => {
+                    tx.execute(
+                        "UPDATE modes
+                         SET data = $4, revision = nextval('mode_revisions'), updated_at = now()
+                         WHERE user_id = $1 AND mode_id = $2 AND revision = $3",
+                        &[&user_id, &change.id, &change.base_revision, &Json(mode)],
+                    )
+                    .await?
+                }
+                None => {
+                    let deleted = tx
+                        .execute(
+                            "DELETE FROM modes
+                             WHERE user_id = $1 AND mode_id = $2 AND revision = $3",
+                            &[&user_id, &change.id, &change.base_revision],
+                        )
+                        .await?;
+                    // Nothing deleted is only a conflict if the mode still exists.
+                    let exists = tx
+                        .query_opt(
+                            "SELECT 1 FROM modes WHERE user_id = $1 AND mode_id = $2",
+                            &[&user_id, &change.id],
+                        )
+                        .await?
+                        .is_some();
+                    deleted + u64::from(!exists)
+                }
+            };
+            if applied == 0 {
+                conflicts.push(change.id);
+            }
+        }
+        let rows = tx
+            .query(
+                "SELECT revision, data FROM modes WHERE user_id = $1 ORDER BY position, mode_id",
+                &[&user_id],
             )
             .await?;
-        // A mode id sent twice keeps its last copy, as with the in-memory store.
-        for (position, mode) in modes.iter().enumerate() {
-            let position = position as i32;
-            tx.execute(&insert, &[&user_id, &mode.id, &position, &Json(mode)])
-                .await?;
-        }
+        let modes = rows
+            .iter()
+            .map(|row| {
+                Ok(RevisedMode {
+                    revision: row.try_get(0)?,
+                    mode: row.try_get::<_, Json<Mode>>(1)?.0,
+                })
+            })
+            .collect::<Result<_, StoreError>>()?;
         tx.commit().await?;
-        Ok(())
+        Ok(SyncOutcome { modes, conflicts })
     }
 
     async fn enqueue_command(&self, user_id: Uuid, cmd: RemoteCommand) -> Result<(), StoreError> {
@@ -192,7 +241,95 @@ impl Store for PgStore {
                 &[&user_id],
             )
             .await?;
-        Ok(row.map(|row| row.get::<_, Json<RemoteCommand>>(0).0))
+        Ok(row
+            .map(|row| row.try_get::<_, Json<RemoteCommand>>(0))
+            .transpose()?
+            .map(|payload| payload.0))
+    }
+
+    async fn create_refresh_token(
+        &self,
+        user_id: Uuid,
+        token_hash: &str,
+        ttl: Duration,
+    ) -> Result<(), StoreError> {
+        let client = self.pool.get().await?;
+        // Each sign-in is a chance to clear this user's dead tokens.
+        client
+            .execute(
+                "DELETE FROM refresh_tokens WHERE user_id = $1 AND expires_at <= now()",
+                &[&user_id],
+            )
+            .await?;
+        client
+            .execute(
+                "INSERT INTO refresh_tokens (token_hash, family_id, user_id, expires_at)
+                 VALUES ($1, $2, $3, now() + make_interval(secs => $4))",
+                &[&token_hash, &Uuid::new_v4(), &user_id, &ttl.as_secs_f64()],
+            )
+            .await?;
+        Ok(())
+    }
+
+    async fn rotate_refresh_token(
+        &self,
+        token_hash: &str,
+        new_token_hash: &str,
+        ttl: Duration,
+    ) -> Result<Option<Uuid>, StoreError> {
+        let mut client = self.pool.get().await?;
+        let tx = client.transaction().await?;
+        // FOR UPDATE: of two simultaneous uses, the second sees the first's mark.
+        let Some(row) = tx
+            .query_opt(
+                "SELECT family_id, user_id, used_at IS NOT NULL, expires_at <= now()
+                 FROM refresh_tokens WHERE token_hash = $1 FOR UPDATE",
+                &[&token_hash],
+            )
+            .await?
+        else {
+            return Ok(None);
+        };
+        let (family, user): (Uuid, Uuid) = (row.try_get(0)?, row.try_get(1)?);
+        let (used, expired): (bool, bool) = (row.try_get(2)?, row.try_get(3)?);
+        if used {
+            tx.execute(
+                "DELETE FROM refresh_tokens WHERE family_id = $1",
+                &[&family],
+            )
+            .await?;
+            tx.commit().await?;
+            return Ok(None);
+        }
+        if expired {
+            return Ok(None);
+        }
+        tx.execute(
+            "UPDATE refresh_tokens SET used_at = now() WHERE token_hash = $1",
+            &[&token_hash],
+        )
+        .await?;
+        tx.execute(
+            "INSERT INTO refresh_tokens (token_hash, family_id, user_id, expires_at)
+             VALUES ($1, $2, $3, now() + make_interval(secs => $4))",
+            &[&new_token_hash, &family, &user, &ttl.as_secs_f64()],
+        )
+        .await?;
+        tx.commit().await?;
+        Ok(Some(user))
+    }
+
+    async fn revoke_refresh_token(&self, token_hash: &str) -> Result<(), StoreError> {
+        let client = self.pool.get().await?;
+        client
+            .execute(
+                "DELETE FROM refresh_tokens WHERE family_id = (
+                    SELECT family_id FROM refresh_tokens WHERE token_hash = $1
+                 )",
+                &[&token_hash],
+            )
+            .await?;
+        Ok(())
     }
 }
 

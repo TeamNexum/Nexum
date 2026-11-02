@@ -43,7 +43,7 @@ npm run build      # → dist/ (static; host anywhere with HTTPS for full PWA in
 ```
 
 ## How it works
-- `src/cloud.ts` — REST client: `register`/`login` (JWT in `localStorage`),
+- `src/cloud.ts` — REST client: `register`/`login` (refresh token in `localStorage`, access token in memory),
   `modes()` (GET `/api/modes`), `activate()` (POST `/api/commands`).
 - `src/App.tsx` — sign-in screen, then a grid of the account's modes; a tap
   enqueues an `activate_mode` command.

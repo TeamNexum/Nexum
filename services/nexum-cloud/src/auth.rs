@@ -1,10 +1,21 @@
-//! JWT issue/verify for the cloud API. Secret from `NEXUM_JWT_SECRET`, read
-//! once at startup by [`init_secret`]. Tokens are valid for 30 days.
+//! Sessions for the cloud API: a short-lived JWT access token, renewed with a
+//! long-lived opaque refresh token. Secret from `NEXUM_JWT_SECRET`, read once at
+//! startup by [`init_secret`].
+//!
+//! A JWT can't be revoked, so it only lives for minutes; the refresh token is
+//! checked against the database, rotated on each use, and revoked on sign-out.
 
 use std::sync::OnceLock;
+use std::time::Duration;
 
+use argon2::password_hash::rand_core::{OsRng, RngCore};
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
+
+const ACCESS_TOKEN_SECS: usize = 15 * 60;
+/// Sliding: each refresh starts a new period, so only an unused device expires.
+pub const REFRESH_TOKEN_TTL: Duration = Duration::from_secs(60 * 60 * 24 * 60);
 
 #[derive(Serialize, Deserialize)]
 struct Claims {
@@ -47,11 +58,11 @@ fn now_secs() -> usize {
         .unwrap_or(0)
 }
 
-/// Issue a signed token for a user id (30-day expiry).
+/// Issue a signed access token for a user id.
 pub fn issue_token(user_id: &str) -> String {
     let claims = Claims {
         sub: user_id.to_string(),
-        exp: now_secs() + 60 * 60 * 24 * 30,
+        exp: now_secs() + ACCESS_TOKEN_SECS,
     };
     encode(
         &Header::default(),
@@ -68,6 +79,21 @@ pub fn verify_token(token: &str) -> Option<String> {
     decode::<Claims>(token, &DecodingKey::from_secret(secret()), &validation)
         .ok()
         .map(|data| data.claims.sub)
+}
+
+/// A new refresh token for the client, with the hash the server stores.
+pub fn new_refresh_token() -> (String, String) {
+    let mut bytes = [0u8; 32];
+    OsRng.fill_bytes(&mut bytes);
+    let token: String = bytes.iter().map(|b| format!("{b:02x}")).collect();
+    let hash = hash_refresh_token(&token);
+    (token, hash)
+}
+
+/// Plain SHA-256 is enough here, unlike for passwords: the input is 256 random
+/// bits, so there is nothing to guess.
+pub fn hash_refresh_token(token: &str) -> String {
+    format!("{:x}", Sha256::digest(token.as_bytes()))
 }
 
 #[cfg(test)]

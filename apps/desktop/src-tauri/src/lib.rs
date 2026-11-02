@@ -5,6 +5,7 @@
 //! exposes the command surface the frontend calls.
 
 mod integrations;
+mod secrets;
 mod voice;
 
 use std::sync::Arc;
@@ -451,7 +452,10 @@ pub fn run() {
             voice::voice_status,
             voice::voice_start,
             voice::voice_stop,
-            voice::voice_download_model
+            voice::voice_download_model,
+            secrets::load_cloud_token,
+            secrets::save_cloud_token,
+            secrets::clear_cloud_token
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
