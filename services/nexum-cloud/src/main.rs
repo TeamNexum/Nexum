@@ -8,6 +8,7 @@
 //! - `PUT  /api/modes`   (auth)      — replace this user's modes (sync push)
 //! - `POST /api/commands`      (auth) — mobile enqueues a RemoteCommand
 //! - `GET  /api/commands/next` (auth) — desktop polls the next command (or null)
+//! - `POST /api/feedback`            — beta feedback, forwarded to Discord (see `feedback.rs`)
 //!
 //! Auth is a Bearer JWT (see `auth.rs`). Storage is in-memory (`store.rs`) —
 //! swap for PostgreSQL in production. This backend unblocks multi-device sync,
@@ -16,8 +17,10 @@
 mod auth;
 #[cfg(feature = "claude")]
 mod claude;
+mod feedback;
 mod store;
 
+use std::net::SocketAddr;
 use std::sync::Arc;
 
 use axum::{
@@ -57,6 +60,8 @@ async fn main() {
             "/api/direct/modes",
             get(get_direct_modes).put(put_direct_modes),
         )
+        .with_state(store)
+        .merge(feedback::router())
         // Permissive CORS so the desktop webview (tauri://) and the web mobile
         // companion can call the API cross-origin. Headers are listed explicitly
         // because the `*` wildcard does NOT authorize `Authorization` (Fetch spec
@@ -66,8 +71,7 @@ async fn main() {
                 .allow_origin(Any)
                 .allow_methods(Any)
                 .allow_headers([AUTHORIZATION, CONTENT_TYPE]),
-        )
-        .with_state(store);
+        );
 
     // Default to 0.0.0.0:8787 so the mobile companion on LAN or via tunnel can reach it.
     let addr = std::env::var("NEXUM_CLOUD_ADDR").unwrap_or_else(|_| "0.0.0.0:8787".to_string());
@@ -75,7 +79,13 @@ async fn main() {
         .await
         .expect("failed to bind");
     println!("Nexum Cloud API listening on http://{addr}");
-    axum::serve(listener, app).await.expect("server error");
+    // Connect info gives the feedback route the client IP for its rate limit.
+    axum::serve(
+        listener,
+        app.into_make_service_with_connect_info::<SocketAddr>(),
+    )
+    .await
+    .expect("server error");
 }
 
 async fn health() -> Json<serde_json::Value> {

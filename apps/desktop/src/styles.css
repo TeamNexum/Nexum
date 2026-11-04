@@ -874,3 +874,16 @@ input[type="checkbox"], input[type="range"] { width: auto; }
 .voice-keyword { display: inline-flex; align-items: center; gap: 4px; padding: 4px 6px 4px 10px; border-radius: 100px; border: 1px solid var(--nx-border-strong); background: var(--nx-surface-2); font-size: 13px; }
 .voice-keyword button { padding: 0 4px; border: 0; background: none; color: var(--nx-text-muted); cursor: pointer; line-height: 1; }
 .voice-keyword button:hover { color: var(--nx-text); }
+
+.feedback-dialog { width: min(560px, calc(100vw - 32px)); max-height: 85dvh; margin: 8dvh auto auto; padding: 0; color: white; background: #151515; border: 1px solid #ffffff25; border-radius: 14px; box-shadow: 0 25px 100px #000a; overflow: auto; }
+.feedback-dialog::backdrop { background: #0009; backdrop-filter: blur(3px); }
+.feedback-dialog form { display: flex; flex-direction: column; gap: 16px; padding: 22px; }
+.feedback-dialog h2 { margin: 4px 0 6px; }
+.feedback-dialog .field { display: flex; flex-direction: column; gap: 8px; }
+.feedback-dialog textarea { resize: vertical; min-height: 120px; }
+.feedback-shot { display: flex; align-items: center; gap: 12px; }
+.feedback-shot img { max-width: 160px; max-height: 100px; border-radius: 8px; border: 1px solid var(--nx-border); }
+.feedback-consent { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; font-size: 13px; }
+.feedback-consent small { display: block; margin-top: 2px; color: var(--nx-text-muted); font-size: 12px; }
+.feedback-logs { max-height: 220px; margin-top: 8px; padding: 10px; overflow: auto; font-size: 11px; white-space: pre-wrap; overflow-wrap: anywhere; background: #0007; border-radius: 8px; }
+.feedback-dialog footer { display: flex; justify-content: flex-end; gap: 8px; }
