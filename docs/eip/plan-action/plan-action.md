@@ -1,6 +1,6 @@
 # Plan d'action « Highway to Tech4 » (G-EIP-600) — Nexum
 
-Plan d'action complet de l'EIP Nexum, à déposer sur la plateforme EIP (#113). Trois parties : 1. Contexte, 2. Spécifications techniques, 3. Spécifications non techniques. Version du 22/10/2026 ; l'état des fonctionnalités de la partie 2 date du 20/10/2026.
+Plan d'action complet de l'EIP Nexum, à déposer sur la plateforme EIP (#113). Trois parties : 1. Contexte, 2. Spécifications techniques, 3. Spécifications non techniques. Version du 04/11/2026 ; l'état des fonctionnalités de la partie 2 date du 20/10/2026, complété le 04/11/2026 (bilan de 2.2).
 
 Équipe : Arnaud, Rares, Raphaël, Max, Enzo (Epitech Marseille). Track : Entrepreneuriat. Site : https://teamnexum.github.io/NexumWebsite/ · Code : https://github.com/TeamNexum
 
@@ -32,7 +32,7 @@ Les utilisateurs de PC qui enchaînent plusieurs activités (jouer, streamer, tr
 - **Une marque, un logiciel.** Les outils des fabricants ne pilotent que leur propre matériel, alors qu'un poste mélange plusieurs marques.
 - **Les scripts sont réservés aux techniciens.** Automatiser avec AutoHotkey ou des raccourcis demande du code ; la plupart des gens y renoncent.
 
-Ces constats sont des hypothèses de départ. Les 15 à 20 entretiens de la track Entrepreneuriat (voir 3.1) servent à les valider, à les corriger et à hiérarchiser les douleurs.
+Ces constats sont des hypothèses de départ. Le premier questionnaire (13 réponses, voir 3.1) confirme surtout les douleurs liées au travail (messageries multiples, notifications) et beaucoup moins celles liées au jeu. Les 15 à 20 entretiens de la track Entrepreneuriat (voir 3.1) servent à les valider, à les corriger et à hiérarchiser les douleurs.
 
 ### 1.3 La solution
 
@@ -50,7 +50,10 @@ Comparaison avec l'existant :
 | Logiciels de fabricants (Razer Synapse, Corsair iCUE…) | Une seule | Sans code | Périphériques |
 | Scripts (AutoHotkey, raccourcis) | Toutes | Code requis | Ce que l'on programme |
 | Lanceurs (Steam, Playnite…) | — | Sans code | Jeux uniquement |
+| Automatisation en ligne (IFTTT, Zapier, n8n, Power Automate) | Services connectés | Sans code à technique (n8n) ; offres gratuites limitées (Zapier : 100 tâches par mois) | Services web ; ne règlent pas le PC lui-même (son, luminosité, applications) |
 | **Nexum** | **Toutes** | **Sans code** | **Applications, système, jeux, lumières** |
+
+Aucun de ces outils ne réunit les trois points qui font Nexum (benchmark présenté au suivi du 19/10/2026) : **déclencher selon le contexte** (lancement d'un jeu, début d'une réunion, heure, lieu : US-26 à US-29), **régler le poste local** (son, luminosité, applications, lumières) et rester **accessible sans code**, alors que les outils à base de code excluent la grande majorité des utilisateurs.
 
 Le détail fonctionnel (46 user stories, 5 familles) et la stack sont en partie 2.
 
@@ -97,34 +100,44 @@ Partie 2 du plan d'action « Highway to Tech4 » (G-EIP-600) à déposer sur la 
 
 ### 2.1 Stack technique
 
-Le prototype (une app web avec des actions simulées) a montré trois limites : des actions qui ne faisaient rien de réel, un front et un back désynchronisés, des modes écrits en dur. La stack ci-dessous répond à ces trois points.
+Le prototype (une app web avec des actions simulées) a montré trois limites : des actions qui ne
+faisaient rien de réel, un front et un back désynchronisés, des modes écrits en dur. La stack
+ci-dessous répond à ces trois points.
 
 | Brique | Technologie | Rôle | Pourquoi ce choix |
 |---|---|---|---|
-| Application desktop | Tauri 2 (Windows, macOS, Linux) | Fenêtre native de l'app | Binaire bien plus léger qu'Electron, backend en Rust, même outil pour le mobile |
-| Interface | React 18 + TypeScript + Vite | Écrans desktop et mobile | Compétences de l'équipe, un seul code pour toutes les interfaces |
-| Cœur | Rust : nexum-schema, nexum-core | Format des modes, moteur qui exécute les actions, bus d'événements | Un mode est une donnée JSON, jamais du code : il se valide, se partage et se génère sans risque |
-| Intégrations | Rust : nexum-adapters, une implémentation par système | Volume, luminosité, applications, liens, Steam, Philips Hue | Accès direct aux API système (Core Audio, DisplayServices, PipeWire) : des actions réelles |
-| Stockage local | SQLite (nexum-store) | Modes et réglages sur la machine | Aucun serveur à installer, l'app marche hors ligne |
-| Commande vocale | whisper.cpp via whisper-rs (nexum-voice) | Reconnaissance vocale | Locale : aucune voix envoyée sur Internet |
-| API cloud | Rust, axum + Tokio (nexum-cloud) + PostgreSQL | Comptes, synchronisation, télécommande, marketplace | Même langage que le cœur, types partagés |
-| Hébergement | OVH (France) | API cloud et base de données | Choisi le 19/10/2026 : hébergeur français, données en Europe (RGPD) |
-| Apps mobiles | Tauri 2 mobile : iOS (plugin Swift) et Android | Télécommande du PC, modes sur le téléphone | Réutilise l'interface React et le moteur Rust du desktop |
-| IA | API Claude (option) + règles locales | Transformer une phrase en mode | L'IA ne produit qu'un mode JSON, validé avant toute exécution |
-| Types partagés | ts-rs | Types TypeScript générés depuis le Rust | Front et back ne peuvent plus diverger |
-| Qualité | cargo test, Vitest, Playwright, GitHub Actions | Tests et build à chaque push | Vérifie chaque système (Windows, macOS, Linux, iOS) automatiquement |
+| Application desktop | **Tauri 2** (Windows, macOS, Linux) | Fenêtre native de l'app | Binaire bien plus léger qu'Electron, backend en Rust, même outil pour le mobile |
+| Interface | **React 18 + TypeScript + Vite** | Écrans desktop et mobile | Compétences de l'équipe, un seul code pour toutes les interfaces |
+| Cœur | **Rust** : `nexum-schema`, `nexum-core` | Format des modes, moteur qui exécute les actions, bus d'événements | Un mode est une **donnée JSON, jamais du code** : il se valide, se partage et se génère sans risque |
+| Intégrations | **Rust** : `nexum-adapters`, une implémentation par système | Volume, luminosité, applications, liens, Steam, Philips Hue | Accès direct aux API système (Core Audio, DisplayServices, PipeWire) : des actions réelles |
+| Stockage local | **SQLite** (`nexum-store`) | Modes et réglages sur la machine | Aucun serveur à installer, l'app marche hors ligne |
+| Commande vocale | **whisper.cpp** via `whisper-rs` (`nexum-voice`) | Reconnaissance vocale | Locale : aucune voix envoyée sur Internet |
+| API cloud | **Rust, axum + Tokio** (`nexum-cloud`) + **PostgreSQL** | Comptes, synchronisation, télécommande, marketplace | Même langage que le cœur, types partagés |
+| Hébergement | **OVH** (France) | API cloud et base de données | Choisi le 19/10/2026 : hébergeur français, données en Europe (RGPD) |
+| Apps mobiles | **Tauri 2 mobile** : iOS (plugin **Swift**) et Android | Télécommande du PC, modes sur le téléphone | Réutilise l'interface React et le moteur Rust du desktop |
+| IA | API **Claude** (option) + règles locales | Transformer une phrase en mode | L'IA ne produit qu'un mode JSON, validé avant toute exécution |
+| Types partagés | **ts-rs** | Types TypeScript générés depuis le Rust | Front et back ne peuvent plus diverger |
+| Qualité | cargo test, **Vitest**, **Playwright**, **GitHub Actions** | Tests et build à chaque push | Vérifie chaque système (Windows, macOS, Linux, iOS) automatiquement |
 
-Architecture en une phrase. L'interface envoie un mode au moteur Rust, qui exécute ses actions une par une à travers l'intégration du système (une par OS ou appareil) et renvoie le résultat réel de chaque action ; le cloud ne sert qu'aux comptes, à la synchronisation et au pilotage à distance.
+**Architecture en une phrase.** L'interface envoie un mode au moteur Rust, qui exécute ses actions
+une par une à travers l'intégration du système (une par OS ou appareil) et renvoie le résultat
+réel de chaque action ; le cloud ne sert qu'aux comptes, à la synchronisation et au pilotage à
+distance.
 
 ### 2.2 Ce que fera Nexum : user stories
 
-Nexum s'organise en 5 familles de fonctionnalités (suivi du 19/10/2026) : Jeu (sessions de jeu), Réunions (réunions et concentration), Travail (espaces de travail), Messages (communications centralisées), Multi-app. (multi-appareils et maison connectée). Le Socle regroupe ce qui sert à toutes les familles.
+Nexum s'organise en **5 familles de fonctionnalités** (suivi du 19/10/2026) : **Jeu** (sessions
+de jeu), **Réunions** (réunions et concentration), **Travail** (espaces de travail),
+**Messages** (communications centralisées), **Multi-app.** (multi-appareils et maison connectée).
+Le **Socle** regroupe ce qui sert à toutes les familles.
 
-Rôles : Utilisateur (installe et utilise Nexum), Créateur (publie ses modes sur la marketplace), Modérateur (membre de l'équipe qui valide les modes publiés).
+Rôles : **Utilisateur** (installe et utilise Nexum), **Créateur** (publie ses modes sur la
+marketplace), **Modérateur** (membre de l'équipe qui valide les modes publiés).
 
-Terminé quand : le critère mesurable qui dit que la fonctionnalité est livrée (repris du Beta Test Plan, docs/eip/beta_test_plan.md, colonne BTP).
-
-État au 20/10/2026 : Fait (marche dans l'app) · En cours (code commencé, pas fini ou pas déployé) · À faire.
+- **Terminé quand** : le critère mesurable qui dit que la fonctionnalité est livrée (repris du
+  Beta Test Plan, `docs/eip/beta_test_plan.md`, colonne BTP).
+- **État au 20/10/2026** : **Fait** (marche dans l'app) · **En cours** (code commencé, pas fini
+  ou pas déployé) · **À faire**.
 
 #### Installer et configurer
 
@@ -188,7 +201,7 @@ Terminé quand : le critère mesurable qui dit que la fonctionnalité est livré
 
 | ID | Famille | User story | Terminé quand | État | BTP |
 |---|---|---|---|---|---|
-| US-34 | Socle | En tant qu'utilisateur, je veux exporter un mode dans un fichier .nexum.json, afin de l'envoyer à quelqu'un | 20 allers-retours export puis import, 0 différence | Fait | F33 |
+| US-34 | Socle | En tant qu'utilisateur, je veux exporter un mode dans un fichier `.nexum.json`, afin de l'envoyer à quelqu'un | 20 allers-retours export puis import, 0 différence | Fait | F33 |
 | US-35 | Socle | En tant qu'utilisateur, je veux importer un mode reçu après une analyse de risque, afin de ne rien exécuter de dangereux | 10 fichiers piégés refusés, 10 fichiers sains importés | Fait | F34 |
 | US-36 | Socle | En tant qu'utilisateur, je veux parcourir la marketplace, prévisualiser les actions d'un mode et l'installer, afin de profiter des modes de la communauté | 10 installations utilisables tout de suite, 0 échec | En cours | F35 |
 | US-37 | Socle | En tant que créateur, je veux publier un de mes modes sur la marketplace, afin de le partager avec tous | 10 publications, 10 reçues dans la file de modération | À faire | F36 |
@@ -202,23 +215,27 @@ Terminé quand : le critère mesurable qui dit que la fonctionnalité est livré
 | US-40 | Multi-app. | En tant qu'utilisateur, je veux synchroniser mes modes entre mes ordinateurs, afin de ne pas les recréer sur chaque machine | 20 synchronisations, modes identiques, aucune modification perdue | En cours | F39 |
 | US-41 | Multi-app. | En tant qu'utilisateur, je veux activer un mode du PC depuis mon téléphone (iOS ou Android), afin de piloter mon poste à distance | 20 essais via le serveur en ligne, 0 échec, moins de 3 s | En cours | F40 |
 | US-42 | Multi-app. | En tant qu'utilisateur, je veux lancer des modes sur mon téléphone lui-même (luminosité, lampe torche, vibration, notification, Spotify), et savoir clairement quand le système refuse une action (volume et sonnerie sur iPhone), afin d'adapter aussi mon téléphone | Chaque action autorisée s'applique sur un vrai iPhone et un vrai Android ; chaque action refusée affiche sa raison, jamais un faux succès | En cours | (#34) |
-| US-43 | Socle | En tant qu'utilisateur, je veux envoyer un retour depuis l'app, journaux joints, afin de signaler un problème facilement | 10 envois, 10 reçus par l'équipe avec les journaux | À faire | F41 |
+| US-43 | Socle | En tant qu'utilisateur, je veux envoyer un retour depuis l'app, journaux joints, afin de signaler un problème facilement | 10 envois, 10 reçus par l'équipe avec les journaux | En cours | F41 |
 | US-44 | Socle | En tant qu'utilisateur, je veux recevoir les mises à jour automatiquement, afin d'avoir toujours la dernière version | 3 mises à jour sans réinstallation, 0 échec | À faire | F42 |
 | US-45 | Socle | En tant qu'utilisateur, je veux utiliser gratuitement les modes de base (luminosité, lancement de jeux…) et pouvoir passer à l'offre payante (synchronisation cloud, app mobile, déclencheurs avancés), afin de payer seulement si j'en ai besoin | Les limites de l'offre gratuite sont affichées clairement ; le passage à l'offre payante débloque les fonctions annoncées | À faire | (19/10) |
 | US-46 | Socle | En tant qu'utilisateur en situation de handicap, je veux utiliser Nexum au clavier et avec un lecteur d'écran, avec des contrastes suffisants, afin d'accéder à toutes les fonctions | Écrans principaux conformes WCAG 2.2 niveau AA (navigation clavier, contrastes, libellés) | À faire | (#64) |
 
-Bilan au 20/10/2026 : 46 user stories, dont 11 faites, 14 en cours et 21 à faire. La priorisation MoSCoW du backlog est suivie dans #107.
+**Bilan au 04/11/2026** : 46 user stories, dont 11 faites, 15 en cours et 20 à faire. La priorisation
+MoSCoW du backlog est suivie dans #107. Depuis le 20/10 : le retour depuis l'app (US-43) est
+développé et en relecture (PR #133) ; le serveur cloud avec PostgreSQL et la synchronisation
+automatique (US-39, US-40) avancent (PR #134).
 
 ### 2.3 Jalons
 
 | Jalon | Date | Objectifs (à atteindre pour valider le jalon) | Comment on le vérifie |
 |---|---|---|---|
-| J1 — Bêta fermée sur une famille | début décembre 2026 (date exacte à fixer en équipe) | Livrer une famille complète et stable, choisie parmi Réunions, Travail et Messages (19/10) ; mettre l'API cloud en ligne chez OVH (US-39) ; recruter les premiers bêta-testeurs ; lancer le cycle d'itération n° 1 | Les bêta-testeurs installent l'app et utilisent la famille sans aide ; leurs retours arrivent dans l'app (US-43) |
-| J2 — MVP + Beta Test Plan v1 | 07/02/2027 | Livrer l'éditeur sans code (US-06, US-07), Philips Hue sur un vrai pont (US-03, US-17), Steam, compte et synchronisation (US-39, US-40), télécommande iOS et Android (US-41) ; clore le cycle n° 1 ; rendre le BTP | Ces user stories remplissent leur critère « Terminé quand » |
-| J3 — Greenlight blanc | 04/04/2027 | Livrer l'automatisation (US-26 à US-29), la marketplace avec modération (US-36 à US-38) et les raccourcis (US-23) ; mener le cycle n° 2 et décider de continuer ou pivoter | Démonstration en direct devant le jury blanc ; retours intégrés au plan jusqu'en juillet |
-| J4 — Greenlight + RNCP | 05/07/2027 | Livrer les installeurs signés et les mises à jour (US-01, US-44), les messages centralisés (US-30 à US-33), la génération de mode par IA (US-08) et l'offre payante (US-45) ; démontrer toutes les fonctionnalités du BTP sur l'app installée | Démo en direct sans vidéo ; tableau des critères de réussite du BTP rempli |
+| **J1 — Bêta fermée sur une famille** | **début décembre 2026** (date exacte à fixer en équipe) | Livrer **une famille complète et stable**, choisie parmi Réunions, Travail et Messages (19/10) ; mettre l'API cloud en ligne chez OVH (US-39) ; recruter les premiers bêta-testeurs ; lancer le cycle d'itération n° 1 | Les bêta-testeurs installent l'app et utilisent la famille sans aide ; leurs retours arrivent dans l'app (US-43) |
+| **J2 — MVP + Beta Test Plan v1** | **07/02/2027** | Livrer l'éditeur sans code (US-06, US-07), Philips Hue sur un vrai pont (US-03, US-17), Steam, compte et synchronisation (US-39, US-40), télécommande iOS et Android (US-41) ; clore le cycle n° 1 ; rendre le BTP | Ces user stories remplissent leur critère « Terminé quand » |
+| **J3 — Greenlight blanc** | **04/04/2027** | Livrer l'automatisation (US-26 à US-29), la marketplace avec modération (US-36 à US-38) et les raccourcis (US-23) ; mener le cycle n° 2 et décider de continuer ou pivoter | Démonstration en direct devant le jury blanc ; retours intégrés au plan jusqu'en juillet |
+| **J4 — Greenlight + RNCP** | **05/07/2027** | Livrer les installeurs signés et les mises à jour (US-01, US-44), les messages centralisés (US-30 à US-33), la génération de mode par IA (US-08) et l'offre payante (US-45) ; démontrer toutes les fonctionnalités du BTP sur l'app installée | Démo en direct sans vidéo ; tableau des critères de réussite du BTP rempli |
 
-Les dates J2 à J4 sont celles des jalons GitHub de l'équipe ; J1 suit l'objectif fixé avec le mentor le 19/10/2026 (une famille en bêta sous un mois et demi).
+Les dates J2 à J4 sont celles des jalons GitHub de l'équipe ; J1 suit l'objectif fixé avec le
+mentor le 19/10/2026 (une famille en bêta sous un mois et demi).
 
 ---
 
@@ -243,16 +260,41 @@ Vue d'ensemble :
 
 **Ce qui existe déjà.**
 
-- Un guide d'entretien et un formulaire prêts à publier (QUESTIONNAIRE_INTERVIEWS.md, GOOGLE_FORM.md), un gabarit de synthèse (INTERVIEW_SYNTHESIS_TEMPLATE.md) et une étude de marché rédigée (ETUDE_DE_MARCHE.md) dont les chiffres restent à renseigner.
+- Un guide d'entretien et un formulaire prêts à publier (QUESTIONNAIRE_INTERVIEWS.md, GOOGLE_FORM.md), les questionnaires en français et en anglais générés par script dans Google Forms (docs/eip/questionnaire/), un gabarit de synthèse (INTERVIEW_SYNTHESIS_TEMPLATE.md) et une étude de marché rédigée (ETUDE_DE_MARCHE.md) dont les chiffres restent à renseigner.
 - Un MVP testable : l'app desktop active de vrais modes (volume, luminosité, applications, liens, Steam) sur Windows, Linux et macOS.
-- Un site en ligne (français et anglais) avec formulaire d'inscription à la bêta, qui propose un entretien de 20 minutes.
+- Un site en ligne (français et anglais) avec formulaire d'inscription à la bêta, qui propose un entretien de 20 minutes. Le formulaire fonctionne depuis le 19/10/2026 : chaque inscription (profil, principal agacement, accord pour un entretien, segment, source de la visite) arrive dans un tableau partagé de l'équipe, ce qui fournit les données des KPIs du site (3.2). Au 04/11/2026, aucune inscription réelle n'y est encore arrivée.
 
-À ce jour (22/10/2026), les entretiens, la collecte de métriques et les itérations restent à faire.
+**Premiers résultats : questionnaire du 31/10 au 02/11/2026 (13 réponses, 11 en français et 2 en anglais).** Ce n'est pas encore l'étude demandée par la track : l'échantillon est petit et peu varié (10 personnes sur 13 ont de 18 à 24 ans, la plupart étudient, 12 ont un iPhone), et un questionnaire ne remplace pas les entretiens. Il donne cependant de premiers signaux :
+
+| Question | Résultat | Ce que cela change |
+|---|---|---|
+| Douleurs les plus fortes (note de 4 ou 5 sur 5) | Jongler entre plusieurs messageries : 8 sur 13 ; être dérangé par les notifications en réunion ou en concentration : 6 sur 13 ; rouvrir chaque jour les mêmes applications : 5 sur 13 | Les familles Messages, Réunions et Travail sont les bonnes candidates pour la bêta de J1 |
+| Préparer son PC avant de jouer | Note de 1 sur 5 pour 12 personnes sur 13, y compris les 3 joueurs (qui ouvrent pourtant Discord, règlent le son et ferment des applications avant de jouer) | Le jeu n'est pas la douleur d'entrée ; la famille Jeu passe après la bêta |
+| Modes préférés | Travail cité par 11 personnes sur 13, puis Concentration (8) et Réunion (6) ; Jeu : 3 | Idem |
+| Intégrations voulues en premier | Teams (10), Gmail (8), Discord (7), Outlook (6), Zoom ou Google Meet (5) | Ordre de priorité des intégrations de la bêta |
+| Façon de lancer un mode | Un clic dans l'application en premier choix pour 10 personnes sur 12 ; la voix n'est citée que par 3 personnes, jamais en premier | Le clic reste la base ; la voix est un plus, pas l'argument principal |
+| Freins | Données personnelles : 13 sur 13 ; fiabilité : 8 ; accès aux mails et messageries : 5 | Le « local d'abord » devient un argument central ; l'accès aux messageries doit rester en lecture seule et expliqué |
+| Où garder ses modes | Uniquement sur l'ordinateur : 9 sur 13 | La synchronisation cloud reste optionnelle |
+| Modes créés par d'autres | 9 sur 13 les installeraient s'ils sont vérifiés ; confiance : notes et avis (8), vérification par l'équipe (7) | Confirme la marketplace avec modération (US-36 à US-38) |
+| Payer | 7 sur 13 resteraient sur la version gratuite ; formule préférée : achat unique (6) contre abonnement (2) ; fonctions payantes les plus citées : l'application mobile et les déclencheurs automatiques (3 chacune) | Hypothèses de prix à revoir (3.2) |
+| Utilité perçue | 2,6 sur 5 en moyenne | Le message doit mieux montrer le gain ; à creuser en entretien |
+| Bêta et entretien | 6 sur 13 veulent tester la bêta ; 2 sur 13 acceptent un entretien | Le questionnaire ne suffit pas à recruter les 15 à 20 entretiens : il faut d'autres canaux |
+| Réseaux suivis | Instagram (10), YouTube (6), TikTok (5), LinkedIn (4) | Confirme Instagram comme canal principal (3.4) |
+
+Les entretiens qualifiés, la collecte de métriques d'usage et les itérations restent à faire.
 
 **Ce que nous allons faire.**
 
 - **Étude de marché structurée** : besoins, douleurs et comportements actuels (outils utilisés, temps passé à régler son poste, solutions de contournement), avec les vrais chiffres.
-- **15 à 20 entretiens qualifiés**, répartis sur les trois cibles de départ (joueurs, streamers, télétravailleurs), d'environ 20 minutes, en visioconférence ou à l'écrit. Recrutement via le site, Instagram et le réseau de l'équipe, en veillant à ne pas interroger que des proches. Les entretiens sont menés avant J1, car leurs résultats servent à choisir la famille livrée en bêta.
+- **15 à 20 entretiens qualifiés**, répartis sur les trois cibles de départ (joueurs, streamers, télétravailleurs), d'environ 20 minutes, en visioconférence ou à l'écrit. Recrutement via le site, Instagram et le réseau de l'équipe, en veillant à ne pas interroger que des proches. Comme seules 2 personnes sur 13 ont accepté un entretien via le questionnaire, l'équipe sollicite aussi directement des personnes qui correspondent à la cible (télétravailleurs, alternants, salariés qui utilisent Teams ou Outlook), hors de la promotion Epitech, pour corriger l'âge et le profil trop homogènes du questionnaire. Les entretiens sont menés avant J1, car leurs résultats servent à choisir la famille livrée en bêta. Il reste environ quatre semaines, d'où des points d'étape :
+
+| Date | Entretiens réalisés | Ce qui en sort |
+|---|---|---|
+| 15/11/2026 | 5 | Premiers retours ; guide d'entretien corrigé si des questions ne fonctionnent pas |
+| 25/11/2026 | 12 | Synthèse intermédiaire ; premier classement des douleurs par cible |
+| J1 (début décembre) | 15 à 20 | Synthèse consolidée ; choix de la famille et du segment d'entrée (3.3) |
+
+Si un point d'étape n'est pas atteint, l'équipe répartit les entretiens restants entre plusieurs membres plutôt que de repousser J1.
 - **Synthèse consolidée** : problèmes récurrents, comportements, critères de décision, objections.
 - **MVP testé selon un scénario d'usage** (installer, créer ou activer un mode, constater le résultat) qui mesure la compréhension, l'intérêt et l'engagement.
 - **Métriques quantitatives et qualitatives** : taux de clic et taux d'inscription sur le site, nombre d'activations de modes, score de satisfaction, verbatims. Un bouton « Envoyer un retour » dans l'app (US-43) collecte les retours des bêta-testeurs, avec un objectif d'au moins 20 bêta-testeurs.
@@ -272,14 +314,29 @@ Vue d'ensemble :
 **Ce qui existe déjà.**
 
 - Des documents rédigés dont les chiffres sont encore des hypothèses : BUSINESS_MODEL_CANVAS.md, FINANCIAL_MODEL.md, KPIS_ET_PROJECTIONS.md, ROADMAP_PRODUIT.md.
+- Trois personas avec leurs parcours (USER_JOURNEYS.md), une analyse concurrentielle (ANALYSE_CONCURRENTIELLE.md) et le plan du pitch (PITCH_PRESENTATION.md).
 - Une gestion de projet en place : board GitHub Projects, jalons avec les dates officielles, issues attribuées, backlog de 46 user stories (partie 2) priorisé en MoSCoW (#107) et Beta Test Plan.
 
 **Ce que nous allons faire.**
 
 - **Business Model Canvas** tenu à jour : il reflète l'état réel du projet et change quand les entretiens corrigent une hypothèse. Il est revu à chaque jalon.
 - **Proposition de valeur** en une phrase et **Value Proposition Canvas** (problème, pour qui, solution différenciante), liés aux résultats des entretiens.
-- **Persona principal** et scénarios d'usage réalistes, choisis d'après les entretiens (segment décrit en 3.3).
+- **Persona principal** et scénarios d'usage réalistes, confirmés par les entretiens (segment décrit en 3.3). Hypothèse de départ : **Sarah, 34 ans, développeuse en télétravail** (USER_JOURNEYS.md), qui utilise le même PC pour travailler et se détendre. Sa douleur : les notifications du travail continuent le soir et rien ne marque la fin de la journée. Son scénario : à 18 h, ou à la fin de sa dernière réunion, un mode ferme les outils de travail, coupe les notifications, baisse la luminosité et lance sa musique. Ce qui la convaincrait : un déclenchement fiable et des données qui restent sur sa machine ; son frein : un logiciel qui change des choses sans prévenir. Elle correspond aux familles pressenties pour la bêta (Réunions, Travail, Messages), et le questionnaire de fin octobre va dans son sens : 11 personnes sur 13 choisissent le mode Travail, et la donnée personnelle est le premier frein pour toutes. Les personas joueur (Léo) et streamer (Maxime) restent secondaires ; si les entretiens montrent une douleur plus forte chez eux, le persona principal change, et ce changement est noté dans le journal d'itérations.
 - **Modèle financier simplifié sur 6 à 12 mois**. Côté revenus : un modèle freemium (modes de base gratuits ; offre payante pour la synchronisation cloud, l'app mobile et les déclencheurs avancés, voir US-45), dont les prix ne sont pas fixés et sont testés avec les utilisateurs. Côté coûts : hébergement OVH, signature des installeurs, comptes développeur mobile, nom de domaine et outils. Chaque hypothèse est justifiée et le modèle est actualisé avec les données réelles.
+
+  Hypothèses de départ (FINANCIAL_MODEL.md, à reprendre pour la période J1 → J4) :
+
+  | Poste | Hypothèse | Origine |
+  |---|---|---|
+  | Prix de l'offre payante | 4,99 €/mois, ou 49 € en achat unique | FINANCIAL_MODEL.md ; à tester en entretien face aux repères cités au suivi du 19/10 (Signal RGB Pro : 45 $/an ; Stream Deck 15 touches : 149 $) |
+  | Conversion gratuit → payant | 3 % la première année | FINANCIAL_MODEL.md |
+  | Coûts de la première année | ~8 000 € : cloud ~2 000 €, IA ~500 €, marketing ~3 000 €, sécurité et conformité ~1 500 €, outils ~1 000 €, aucun salaire | FINANCIAL_MODEL.md |
+  | Comptes développeur mobile | Apple : 99 $/an ; Google Play : 25 $ une seule fois | Tarifs publics |
+  | Hébergement OVH | À chiffrer ; un budget Epitech est possible | #121 |
+
+  Le questionnaire de fin octobre (3.1) nuance ces hypothèses : sur 13 personnes, 7 resteraient sur la version gratuite, l'achat unique est préféré à l'abonnement (6 contre 2), et les fonctions payantes les plus citées sont l'application mobile et les déclencheurs automatiques (3 chacune), alors que 9 personnes veulent garder leurs modes uniquement sur leur ordinateur, ce qui fragilise la synchronisation cloud comme offre payante. Une seule personne a donné un prix : « bonne affaire » à 25 €, « trop cher » à 60 €. Les prix et le contenu de l'offre payante sont donc testés en priorité pendant les entretiens.
+
+  Ces chiffres datent de juillet 2026 et visent 5 000 utilisateurs actifs en fin de première année. Ils précèdent la décision de bêta fermée sur une famille (19/10/2026) et l'objectif d'au moins 20 bêta-testeurs : le prévisionnel 6–12 mois part donc de la bêta (peu d'utilisateurs, coûts surtout d'hébergement et de comptes développeur) et ne prévoit des revenus qu'avec l'offre payante (US-45, J4).
 - **KPIs** adaptés à la maturité du projet, suivis dans un tableau de bord simple :
 
 | KPI | Définition | Source |
@@ -295,9 +352,12 @@ Vue d'ensemble :
 | Conversion payante | Utilisateurs gratuits qui passent à l'offre payante / utilisateurs gratuits (dès l'offre US-45, J4) | Compte |
 | CAC | Dépenses d'acquisition / nouveaux utilisateurs ; proche de zéro tant que l'acquisition reste organique, calculé dès la première dépense | Finances |
 
+- **Analyse SWOT** (forces, faiblesses, opportunités, menaces), reliée au benchmark de 1.3 et révisée après les entretiens. Point de départ : forces = actions réelles sur le poste, sans code, toutes marques, voix locale ; faiblesses = équipe étudiante, aucune donnée terrain, nombreuses intégrations à maintenir ; opportunités = offres gratuites limitées des outils d'automatisation, demande de souveraineté des données (hébergement OVH), communauté de créateurs via la marketplace ; menaces = un éditeur établi (fabricant ou outil d'automatisation) qui ajoute le pilotage local, évolution des API tierces, restrictions d'iOS.
+- **Concurrence** : l'analyse concurrentielle (ANALYSE_CONCURRENTIELLE.md) et le tableau de 1.3 sont tenus à jour (nouveaux acteurs, prix, limites des offres gratuites) et complétés par ce que les personnes interrogées utilisent vraiment.
+- **Pitch deck** : le plan diapositive par diapositive, le script de démo et la FAQ du jury existent (PITCH_PRESENTATION.md) ; le support est réalisé, puis mis à jour à chaque jalon avec les chiffres réels et utilisé aux suivis et aux Greenlight. Sa version orale courte est décrite en 3.4.
 - **Outils de pilotage** : GitHub Projects, jalons, backlog MoSCoW, Beta Test Plan. **Roadmap visuelle** avec jalons J1 à J4, échéances et responsables (la roadmap actuelle est textuelle et sera rendue visuelle).
 
-**Livrables.** BMC à jour · Value Proposition Canvas · persona et scénarios · roadmap visuelle · prévisionnel 6–12 mois avec hypothèses · liste des KPIs avec définitions et méthode de suivi · captures du tableau de bord · accès au board et au backlog.
+**Livrables.** BMC à jour · Value Proposition Canvas · persona et scénarios · analyse SWOT · tableau de la concurrence · pitch deck · roadmap visuelle · prévisionnel 6–12 mois avec hypothèses · liste des KPIs avec définitions et méthode de suivi · captures du tableau de bord · accès au board et au backlog.
 
 **Terminé quand.** Le BMC, le persona et le prévisionnel s'appuient sur des données de terrain (entretiens, inscriptions, usages) et non plus seulement sur des hypothèses ; les KPIs ci-dessus sont définis et le tableau de bord affiche au moins les KPIs du site et de l'usage bêta ; la roadmap visuelle est publiée avec ses responsables.
 
@@ -305,7 +365,7 @@ Vue d'ensemble :
 
 **Intention.** Formaliser le cap de Nexum et surtout les choix qu'il implique : ce que l'équipe fait, ce qu'elle refuse de faire, dans quel ordre et pour qui. Cette note sert à décider à J3 avec des critères posés à l'avance, et non au feeling.
 
-**Ce qui existe déjà.** Une vision et une analyse concurrentielle rédigées (comparaison avec les logiciels de fabricants, les scripts et les lanceurs, voir 1.3). Les principes du produit sont déjà visibles dans le site et le dépôt : sans code, toutes marques, transparent, léger.
+**Ce qui existe déjà.** Une vision et une analyse concurrentielle rédigées (comparaison avec les logiciels de fabricants, les scripts, les lanceurs et les outils d'automatisation en ligne, voir 1.3). Les principes du produit sont déjà visibles dans le site et le dépôt : sans code, toutes marques, transparent, léger.
 
 **Ce que nous allons faire.**
 
@@ -325,11 +385,13 @@ Vue d'ensemble :
 
 | Horizon | Période | Contenu | Condition |
 |---|---|---|---|
-| 0 à 6 mois | octobre 2026 → avril 2027 | Bêta fermée sur une famille (J1), MVP et Beta Test Plan (J2), cycle d'itération n° 2, Greenlight blanc et décision (J3) | Résultats des entretiens |
+| 0 à 6 mois | octobre 2026 → avril 2027 | Bêta fermée sur une famille (J1), MVP et Beta Test Plan (J2), marketplace avec modération (J3), cycle d'itération n° 2, Greenlight blanc et décision (J3) | Résultats des entretiens |
 | 6 à 9 mois | → juillet 2027 | Installeurs signés, mises à jour automatiques, messages centralisés, génération de mode par IA, offre payante (J4) | Décision « continuer » à J3 |
-| 9 à 18 mois | → avril 2028 | Ouverture progressive de la bêta, marketplace communautaire, nouvelles extensions | Traction mesurée : rétention et conversion |
+| 9 à 18 mois | → avril 2028 | Ouverture progressive de la bêta, marketplace ouverte aux contributeurs extérieurs (modes gratuits et payants), nouvelles extensions | Traction mesurée : rétention et conversion |
 
-- **Segments prioritaires.** Trois cibles de départ : les joueurs PC, les streamers et les télétravailleurs. Le segment d'entrée n'est pas figé : il sera tranché d'après les entretiens (3.1) selon quatre critères : douleur exprimée, fréquence d'usage, adéquation avec ce qui existe déjà, et disposition à payer. La bêta de J1 porte sur une famille parmi Réunions, Travail et Messages, ce qui correspond d'abord au segment télétravail ; les joueurs et les streamers sont couverts par la famille Jeu (Steam, Hue, OBS, Spotify), livrée avec le MVP et dans la suite du backlog.
+La marketplace arrive tôt (J3) car elle est prioritaire (suivi du 19/10/2026) : des contributeurs extérieurs peuvent créer des modes et des extensions plus vite que l'équipe seule. Elle impose une modération (score de risque, file de validation : US-36 à US-38) contre les modes malveillants. En attendant la bêta, un espace communautaire (Discord ou forum) recueille les idées de fonctionnalités et prépare les premiers créateurs.
+
+- **Segments prioritaires.** Trois cibles de départ : les joueurs PC, les streamers et les télétravailleurs. Le segment d'entrée n'est pas figé : il sera tranché d'après les entretiens (3.1) selon quatre critères : douleur exprimée, fréquence d'usage, adéquation avec ce qui existe déjà, et disposition à payer. Premier signal (questionnaire de fin octobre, 13 réponses, voir 3.1) : les douleurs fortes portent sur le travail et les études (messageries, notifications, applications à rouvrir), presque pas sur le jeu. La bêta de J1 porte donc sur une famille parmi Réunions, Travail et Messages, ce qui correspond d'abord au segment des personnes qui travaillent ou étudient sur leur PC ; les joueurs et les streamers sont couverts par la famille Jeu (Steam, Hue, OBS, Spotify), livrée avec le MVP et dans la suite du backlog.
 - **Revue stratégique à J3** : relire le manifeste, les arbitrages et la stratégie à la lumière des deux cycles d'itération, et décider de continuer, pivoter ou redéfinir.
 
 **Livrables.** Manifeste · liste d'arbitrages · stratégie 6–18 mois · fiche des segments prioritaires avec les critères de choix · compte rendu de la revue de J3.
@@ -344,25 +406,26 @@ Vue d'ensemble :
 
 - Un site vitrine en ligne (français et anglais) avec thème sombre monochrome et thème clair « Galaxie », des pages par cible (joueurs, streamers, télétravail) et l'inscription à la bêta.
 - Une identité en cours de validation : logo « N » tramé, palette, charte (BRAND_GUIDELINES.md), exports pour les réseaux.
-- Un compte Instagram (@app.nexum) et un profil d'organisation GitHub avec bannière et démonstration animée. LinkedIn et TikTok restent à créer.
+- Un compte Instagram (@app.nexum) et un profil d'organisation GitHub avec bannière et démonstration animée, une page LinkedIn (Nexum Entertainment, pour toucher les professionnels) et une bande-annonce de 47 secondes. TikTok reste à créer.
 - Un ton éditorial décrit dans la charte : concret, direct, honnête sur l'état du produit (« sans survendre », comme sur le site).
 
-Le message n'a pas encore été testé auprès d'utilisateurs.
+Le message n'a pas encore été testé auprès d'utilisateurs. Le questionnaire de fin octobre (3.1) donne déjà deux indices : la voix est la façon de lancer un mode la moins demandée, ce qui affaiblit une accroche centrée sur la voix (« Dis-le. Ton setup suit. ») ; et les données personnelles sont le premier frein pour les 13 personnes, ce qui place « vos données restent sur votre machine » au cœur du message.
 
 **Ce que nous allons faire.**
 
-- **Proposition de valeur en une phrase**, version de travail : « Nous aidons les joueurs, les streamers et les télétravailleurs à préparer leur PC pour chaque activité en un clic, grâce à des modes sans code qui règlent le son, la luminosité, les lumières et les applications, quelle que soit la marque. » Elle est déclinée par canal :
+- **Proposition de valeur en une phrase**, version de travail : « Nous aidons les joueurs, les streamers et les télétravailleurs à préparer leur PC pour chaque activité en un clic, grâce à des modes sans code qui règlent le son, la luminosité, les lumières et les applications, quelle que soit la marque. » Elle cite trois cibles à dessein : c'est une version de travail, resserrée sur le segment d'entrée dès qu'il est choisi d'après les entretiens (3.3), pour éviter un message « pour tout le monde ». Elle est déclinée par canal :
 
 | Canal | Déclinaison |
 |---|---|
-| Site | Accroche « Un clic. Tout ton setup. » et pages par cible |
-| Réseaux sociaux | Démos courtes, calendrier éditorial |
+| Site | Accroche « Un clic. Tout votre setup. » et pages par cible |
+| Réseaux sociaux | Signature « Dis-le. Ton setup suit. » (bande-annonce, carrousel de présentation), démos courtes, calendrier éditorial |
 | Pitch | Version courte (30 secondes) pour la démo devant le jury |
 | Application | Maquettes et textes de l'interface cohérents avec la promesse |
 | E-mail | Message d'accueil de la bêta |
 
 - **Charte finalisée** (logo, couleurs, typographie, éléments réutilisables) et **kit de communication** : décider la déclinaison définitive, puis l'appliquer au site, aux réseaux et à l'application pour éviter des visuels incohérents d'un canal à l'autre.
-- **Différenciation** claire face aux logiciels de fabricants, aux scripts et aux lanceurs : Nexum est le seul à cumuler toutes les marques, aucun code et la maîtrise du système, des jeux et des lumières (tableau de 1.3).
+- **Une seule accroche** : le site (« Un clic. Tout votre setup. », vouvoiement) et les réseaux (« Dis-le. Ton setup suit. », tutoiement) utilisent aujourd'hui deux accroches et deux tons. Les deux sont testées auprès des personnes interrogées (voir ci-dessous) ; la gagnante, et le ton qui va avec, sont appliqués partout avant J1.
+- **Différenciation** claire face aux logiciels de fabricants, aux scripts, aux lanceurs et aux outils d'automatisation en ligne : Nexum est le seul à cumuler le déclenchement selon le contexte, le réglage du poste local, toutes les marques et aucun code (tableau de 1.3).
 - **Tests du message** auprès de vrais utilisateurs de la cible :
   - Protocole : on montre la phrase de valeur, le pitch court et 2 ou 3 visuels, sans explication, à au moins 15 personnes réparties sur les trois cibles. Le premier test est intégré aux entretiens de 3.1.
   - Mesures : compréhension (la personne reformule ce que fait Nexum ; l'objectif est qu'au moins 2 personnes sur 3 y parviennent), résonance (note sur 5 et « pour qui est-ce ? »), verbatims, et en ligne, taux de clic et d'inscription par variante de message.
@@ -377,7 +440,7 @@ Le message n'a pas encore été testé auprès d'utilisateurs.
 
 | Jalon | Date | Validation marché (3.1) | Outils (3.2) | Stratégie (3.3) | Image et message (3.4) |
 |---|---|---|---|---|---|
-| J1 | début décembre 2026 | Entretiens faits et synthétisés ; bêta-testeurs recrutés ; cycle n° 1 lancé | Définition des KPIs ; tableau de bord initial | Choix du segment d'entrée d'après les entretiens | Premier test du message (intégré aux entretiens) ; charte figée |
+| J1 | début décembre 2026 | Entretiens faits et synthétisés ; bêta-testeurs recrutés ; cycle n° 1 lancé | Définition des KPIs ; tableau de bord initial | Choix du segment d'entrée d'après les entretiens | Premier test du message (intégré aux entretiens) ; accroche unique choisie ; charte figée |
 | J2 | 07/02/2027 | Cycle n° 1 clos ; journal d'itérations v1 | BMC, persona, prévisionnel et roadmap visuelle à jour | Manifeste, arbitrages et stratégie validés | Ajustements du message documentés |
 | J3 | 04/04/2027 | Cycle n° 2 clos ; décision continuer ou pivoter | Chiffres actualisés avec les données réelles | Revue stratégique | Bilan des tests du message |
 | J4 | 05/07/2027 | Résultats du BTP en démonstration | Mesure de la conversion payante (offre US-45) | Stratégie mise à jour pour la suite | Message final cohérent sur tous les canaux |
