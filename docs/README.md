@@ -13,6 +13,7 @@ Central index. Master technical plan is at the repo-parent root:
 | [GITHUB_SETUP.md](GITHUB_SETUP.md) | Mise en place du dépôt GitHub + réglages recommandés. |
 | [DEMO_RUNBOOK.md](DEMO_RUNBOOK.md) | Runbook de la démo live Greenlight (checklist, plans B, déroulé minute par minute). |
 | [adr/](adr/) | Architecture Decision Records (DSL, Tauri/Rust, adapters, marketplace). |
+| [Mobile (Android)](../../NexumAndroid/README.md) | Guide complet de l'application mobile native (Tauri 2 Mobile, pont matériel Kotlin, architecture de plugins, build APK). |
 
 ## RNCP (blocs 5/6/7)
 | Doc | Bloc |

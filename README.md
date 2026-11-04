@@ -78,7 +78,7 @@ and [issues](https://github.com/TeamNexum/Nexum/issues); the full roadmap is in
 - **Persistence** — `ModeStore` trait; in-memory store and persistent **SQLite store** (active by default in the desktop app via `nexum.db`).
 - **Cloud** — axum REST API with JWT authentication (`register`, `login`), profile sync push/pull (`/api/modes`), remote control command queue (`/api/commands`), and Mode-as-Code generation.
 - **Desktop app** — Tauri 2 + React with 5 tabs: **Accueil** (activate modes, live event feed, favorites, drag-and-drop reorder), **Studio** (no-code Mode Editor, step ordering, typed parameter forms, AI generator), **Règles** (automations + clock simulation), **Découvrir** (marketplace with static risk analysis), and **Système** (cloud sync, live connection diagnostics, UI density).
-- **Mobile companion** — installable PWA (`apps/mobile`) for phone remote control over the cloud command queue.
+- **Mobile companion** — native Android companion app (**`NexumAndroid`**) powered by Tauri 2 Mobile, Kotlin hardware bridge & modular plugin architecture, plus a lightweight installable PWA (`apps/mobile`) for phone remote control over the cloud command queue.
 - **CI** — GitHub Actions: fmt + clippy + tests (core), ts-rs drift check, and typecheck/vitest/playwright (frontend).
 - **EIP documents** — full jury document set in [`docs/eip/`](docs/eip/README.md).
 
@@ -104,11 +104,13 @@ Nexum/
 │   └── nexum-cloud      # axum API (auth, sync, remote commands, AI generation)
 ├── apps/
 │   ├── desktop          # Tauri 2 + React desktop app (its OWN cargo workspace)
-│   └── mobile           # Mobile companion PWA (remote control via cloud queue)
+│   └── mobile           # Lightweight companion PWA (remote control via cloud queue)
 ├── packages/
 │   └── schema-ts        # TypeScript mirror of the DSL generated via ts-rs
 └── docs/
 ```
+
+> Note: The dedicated native Android app with direct hardware control and modular plugin system is located in the companion repository **`NexumAndroid`** (see [`../NexumAndroid/README.md`](../NexumAndroid/README.md)).
 
 The root `Cargo.toml` is a workspace over `crates/*` + `services/*`.
 `apps/desktop/src-tauri` is intentionally a **separate** workspace so Tauri's
