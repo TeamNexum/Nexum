@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "../api";
 import type { Mode } from "../types";
 
-export default function CommandPalette({ modes, pages, onNavigate, onEdit, onClose, onDensity }: {
+export default function CommandPalette({ modes, pages, onNavigate, onEdit, onClose, onDensity, onFeedback }: {
   modes: Mode[]; pages: { id: string; label: string }[]; onNavigate: (id: string) => void;
-  onEdit: (id: string) => void; onClose: () => void; onDensity: () => void;
+  onEdit: (id: string) => void; onClose: () => void; onDensity: () => void; onFeedback: () => void;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const [query, setQuery] = useState("");
@@ -28,6 +28,7 @@ export default function CommandPalette({ modes, pages, onNavigate, onEdit, onClo
       { id: `activate-${m.id}`, label: `Activer ${m.name}`, group: "Action immédiate", run: () => void activate(m) },
     ]),
     { id: "density", label: "Basculer la densité Compact / Confort", group: "Interface", run: onDensity },
+    { id: "feedback", label: "Envoyer un retour à l'équipe", group: "Aide", run: () => { onClose(); onFeedback(); } },
   ].filter(c => c.label.toLocaleLowerCase().includes(query.toLocaleLowerCase()));
   return <dialog ref={ref} className="command-palette" aria-label="Recherche globale" onCancel={e => { e.preventDefault(); onClose(); }} onKeyDown={e => {
     if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;

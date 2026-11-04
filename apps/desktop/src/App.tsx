@@ -11,6 +11,7 @@ import Marketplace from "./components/Marketplace";
 import Settings from "./components/Settings";
 import WindowBar from "./components/WindowBar";
 import VoiceOverlay from "./components/VoiceOverlay";
+import FeedbackDialog from "./components/FeedbackDialog";
 import { categoryMeta } from "./modeMeta";
 import { useLibraryPreferences } from "./libraryPreferences";
 import {
@@ -36,6 +37,7 @@ export default function App() {
   const [tab, setTab] = useState<Tab>("dashboard");
   const activity = useActivity();
   const [searchOpen, setSearchOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [density, setDensity] = useState<"compact" | "comfort">(() => {
     try { return localStorage.getItem("nexum.density") === "compact" ? "compact" : "comfort"; } catch { return "comfort"; }
   });
@@ -173,10 +175,11 @@ export default function App() {
         {tab === "editor" && <ModeEditor key={editingModeId ?? "studio"} modes={library.modes} reload={reload} initialModeId={editingModeId} />}
         {tab === "automations" && <Automations modes={modes} />}
         {tab === "marketplace" && <Marketplace modes={modes} reload={reload} />}
-        {tab === "settings" && <Settings modes={modes} reload={reload} density={density} onDensity={changeDensity} />}
+        {tab === "settings" && <Settings modes={modes} reload={reload} density={density} onDensity={changeDensity} onFeedback={() => setFeedbackOpen(true)} />}
       </main>
       <VoiceOverlay />
-      {searchOpen && <CommandPalette modes={library.modes} pages={TABS} onClose={() => setSearchOpen(false)} onNavigate={id => setTab(id as Tab)} onEdit={id => { setEditingModeId(id); setTab("editor"); }} onDensity={() => changeDensity(density === "compact" ? "comfort" : "compact")} />}
+      {searchOpen && <CommandPalette modes={library.modes} pages={TABS} onClose={() => setSearchOpen(false)} onNavigate={id => setTab(id as Tab)} onEdit={id => { setEditingModeId(id); setTab("editor"); }} onDensity={() => changeDensity(density === "compact" ? "comfort" : "compact")} onFeedback={() => setFeedbackOpen(true)} />}
+      {feedbackOpen && <FeedbackDialog onClose={() => setFeedbackOpen(false)} />}
     </div>
   );
 }

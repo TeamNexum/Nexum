@@ -181,12 +181,12 @@ impl Adapter for HueAdapter {
             .get(&list_url)
             .send()
             .await
-            .map_err(|e| AdapterError::Execution(e.to_string()))?
+            .map_err(|e| AdapterError::Execution(e.without_url().to_string()))?
             .error_for_status()
-            .map_err(|e| AdapterError::Execution(e.to_string()))?
+            .map_err(|e| AdapterError::Execution(e.without_url().to_string()))?
             .json::<serde_json::Value>()
             .await
-            .map_err(|e| AdapterError::Execution(e.to_string()))?;
+            .map_err(|e| AdapterError::Execution(e.without_url().to_string()))?;
         if list.is_array() {
             bridge_result(list)?;
             return Err(AdapterError::Execution(
@@ -203,14 +203,14 @@ impl Adapter for HueAdapter {
             .json(&body)
             .send()
             .await
-            .map_err(|e| AdapterError::Execution(e.to_string()))?;
+            .map_err(|e| AdapterError::Execution(e.without_url().to_string()))?;
 
         let value = resp
             .error_for_status()
-            .map_err(|e| AdapterError::Execution(e.to_string()))?
+            .map_err(|e| AdapterError::Execution(e.without_url().to_string()))?
             .json::<serde_json::Value>()
             .await
-            .map_err(|e| AdapterError::Execution(e.to_string()))?;
+            .map_err(|e| AdapterError::Execution(e.without_url().to_string()))?;
         bridge_result(value)?;
         Ok(ok(step, format!("Hue scene '{}' activated", params.scene)))
     }

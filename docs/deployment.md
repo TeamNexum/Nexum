@@ -85,3 +85,9 @@ Build de l'app desktop sans installeur : `npm run tauri build --workspace=nexum-
 
 L'app fonctionne **hors ligne** (modes stockés en SQLite sur la machine) : une panne du cloud ou du
 réseau ne bloque pas l'activation des modes, ce qui sécurise la démo live du Greenlight.
+
+**Retours bêta.** L'API cloud relaie les retours des testeurs (`POST /api/feedback`) vers le salon
+Discord de l'équipe : définir `NEXUM_FEEDBACK_WEBHOOK` comme variable d'environement (URL du webhook Discord) sur le serveur, sinon
+la route répond 503. L'URL reste côté serveur, l'app ne la connaît pas. La route est limitée à
+10 envois par IP toutes les 10 minutes : derrière un reverse proxy, toutes les requêtes partagent l'IP
+du proxy et la limite devient globale, tant que l'API ne lit pas l'adresse client dans ses en-têtes.

@@ -12,7 +12,7 @@ import VoiceSettings from "./VoiceSettings";
  * replaces the local modes with the account's set — the same account on another
  * machine (or the mobile companion) sees the same modes.
  */
-export default function Settings({ modes, reload, density, onDensity }: { modes: Mode[]; reload: () => void; density: "compact" | "comfort"; onDensity: (value: "compact" | "comfort") => void }) {
+export default function Settings({ modes, reload, density, onDensity, onFeedback }: { modes: Mode[]; reload: () => void; density: "compact" | "comfort"; onDensity: (value: "compact" | "comfort") => void; onFeedback: () => void }) {
   const [url, setUrl] = useState(cloudUrl());
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -145,6 +145,7 @@ export default function Settings({ modes, reload, density, onDensity }: { modes:
 
 
         </section>
+        <section className="context-panel"><span className="workspace-kicker">BÊTA</span><h2>Un bug, une idée ?</h2><p className="muted">Écrivez à l'équipe en quelques secondes, avec une capture si besoin.</p><button className="primary" onClick={onFeedback}>Envoyer un retour</button></section>
         <section className="context-panel"><span className="workspace-kicker">SUR CET APPAREIL</span><h2>Votre bibliothèque locale</h2>
           <div className="summary-strip"><div><strong>{modes.length}</strong><span>profils enregistrés</span></div><div><strong>{modes.reduce((n, m) => n + m.steps.length, 0)}</strong><span>actions</span></div></div>
           <dl className="system-facts"><div><dt>Environnement</dt><dd>{IS_DESKTOP ? "Application de bureau" : "Aperçu navigateur"}</dd></div><div><dt>Compte</dt><dd>{signedIn ? "Connecté" : "Non connecté"}</dd></div><div><dt>Synchronisation</dt><dd>Manuelle, à votre demande</dd></div></dl>

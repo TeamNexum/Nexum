@@ -4,7 +4,7 @@
   "description": "Capability for the main window",
   "windows": ["main"],
   "permissions": [
-    "core:default", "global-shortcut:default",
+    "core:default", "global-shortcut:default", "log:default",
     "core:window:allow-minimize",
     "core:window:allow-toggle-maximize",
     "core:window:allow-close",
