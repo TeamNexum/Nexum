@@ -9,17 +9,46 @@ export type RemoteCommand = { kind: "activate_mode"; mode_id: string };
 
 async function fetchNext(): Promise<RemoteCommand | null> {
   const t = token();
-  if (!t) return null; // signed out — nothing to poll
-  try {
-    const res = await fetch(`${cloudUrl()}/api/commands/next`, {
-      headers: { authorization: `Bearer ${t}` },
-    });
-    if (!res.ok) return null;
-    const data = (await res.json()) as { command: RemoteCommand | null };
-    return data.command ?? null;
-  } catch {
-    return null; // cloud unreachable — try again next tick
+  const url = cloudUrl();
+
+  // 1. If signed in, check user's private cloud queue
+  if (t) {
+    try {
+      const res = await fetch(`${url}/api/commands/next`, {
+        headers: { authorization: `Bearer ${t}` },
+      });
+      if (res.ok) {
+        const data = (await res.json()) as { command: RemoteCommand | null };
+        if (data.command) return data.command;
+      }
+    } catch {
+      // ignore and try direct queue
+    }
   }
+
+  // 2. Poll direct / local queue (supports phone remote on LAN or tunnel without auth required)
+  try {
+    const res = await fetch(`${url}/api/direct/commands/next`);
+    if (res.ok) {
+      const data = (await res.json()) as { command: RemoteCommand | null };
+      return data.command ?? null;
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
+/** Push desktop modes to direct cache so mobile sees them immediately */
+export async function syncDirectModes(modes: unknown[]): Promise<void> {
+  try {
+    await fetch(`${cloudUrl()}/api/direct/modes`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(modes),
+    });
+  } catch {}
 }
 
 /**

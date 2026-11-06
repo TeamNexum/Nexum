@@ -40,7 +40,7 @@ flowchart TB
         CAI["AI service (Claude API / heuristique)"]
         CQueue["Command Queue (FIFO)"]
     end
-    Mobile["Nexum Mobile (Companion PWA)<br/>Vite · React · Offline Shell"]
+    Mobile["Nexum Android App (Tauri 2 Mobile)<br/>Kotlin Hardware Bridge · Modular Plugins · PWA Fallback"]
 
     UI <--> Bridge <--> Engine
     Engine --> Reg --> Adapters

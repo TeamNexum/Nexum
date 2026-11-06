@@ -101,6 +101,9 @@ test.describe("Nexum desktop UI (browser preview)", () => {
           }, 50);
           return new Promise(resolve => setTimeout(() => resolve(() => clearTimeout(timer)), 100));
         }
+        export function onVoiceEvent() {
+          return Promise.resolve(() => {});
+        }
       `,
     }));
     await page.goto("/");

@@ -953,3 +953,73 @@ html[data-idle] *, html[data-idle] *::before, html[data-idle] *::after { animati
 .app[data-motion="smooth"] :is(.galaxy-library, .standard-view, .settings, .workspace-heading) > :nth-child(n+4) { animation-delay: .18s; }
 .settings-subheading { margin-top: 28px !important; }
 @media (max-width: 960px) { .nav-indicator { clip-path: none; box-shadow: none; } }
+
+/* Step problems (issue #47): failed = danger, unavailable here = warning. */
+.dock-toast.fail { border-color: var(--nx-danger); }
+.dock-toast.fail .toast-icon { color: var(--nx-danger); }
+.dock-toast.warn { border-color: var(--nx-warning); }
+.dock-toast.warn .toast-icon { color: var(--nx-warning); }
+.toast-sub { font-size: 12px; color: var(--nx-text-muted); overflow-wrap: anywhere; }
+.step-unavailable {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  padding: 2px 8px;
+  border: 1px solid var(--nx-warning);
+  border-radius: 999px;
+  color: var(--nx-warning);
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.profile-action-preview .step-unavailable { display: flex; margin: 4px 0; }
+.activity-row[data-status="fail"] .status-glyph { color: var(--nx-danger); }
+.activity-row[data-status="skipped"] .status-glyph { color: var(--nx-warning); }
+
+/* Voice command overlay (push-to-talk) */
+.voice-overlay {
+  position: fixed;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: min(520px, calc(100vw - 32px));
+  padding: 10px 20px;
+  border-radius: 100px;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--nx-border-strong);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  z-index: 110;
+}
+.voice-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--nx-text); flex: none; }
+.voice-overlay.live .voice-dot { animation: voice-pulse 1s ease-in-out infinite; }
+.voice-overlay.warn { border-color: var(--nx-warning); }
+.voice-overlay.warn .voice-dot { background: var(--nx-warning); }
+.voice-overlay.fail { border-color: var(--nx-danger); }
+.voice-overlay.fail .voice-dot { background: var(--nx-danger); }
+@keyframes voice-pulse { 50% { opacity: 0.25; transform: scale(1.6); } }
+@media (prefers-reduced-motion: reduce) { .voice-overlay.live .voice-dot { animation: none; } }
+.voice-keywords { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.voice-keywords input { flex: 1; min-width: 160px; }
+.voice-keyword { display: inline-flex; align-items: center; gap: 4px; padding: 4px 6px 4px 10px; border-radius: 100px; border: 1px solid var(--nx-border-strong); background: var(--nx-surface-2); font-size: 13px; }
+.voice-keyword button { padding: 0 4px; border: 0; background: none; color: var(--nx-text-muted); cursor: pointer; line-height: 1; }
+.voice-keyword button:hover { color: var(--nx-text); }
+
+.feedback-dialog { width: min(560px, calc(100vw - 32px)); max-height: 85dvh; margin: 8dvh auto auto; padding: 0; color: white; background: #151515; border: 1px solid #ffffff25; border-radius: 14px; box-shadow: 0 25px 100px #000a; overflow: auto; }
+.feedback-dialog::backdrop { background: #0009; backdrop-filter: blur(3px); }
+.feedback-dialog form { display: flex; flex-direction: column; gap: 16px; padding: 22px; }
+.feedback-dialog h2 { margin: 4px 0 6px; }
+.feedback-dialog .field { display: flex; flex-direction: column; gap: 8px; }
+.feedback-dialog textarea { resize: vertical; min-height: 120px; }
+.feedback-shot { display: flex; align-items: center; gap: 12px; }
+.feedback-shot img { max-width: 160px; max-height: 100px; border-radius: 8px; border: 1px solid var(--nx-border); }
+.feedback-consent { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; font-size: 13px; }
+.feedback-consent small { display: block; margin-top: 2px; color: var(--nx-text-muted); font-size: 12px; }
+.feedback-logs { max-height: 220px; margin-top: 8px; padding: 10px; overflow: auto; font-size: 11px; white-space: pre-wrap; overflow-wrap: anywhere; background: #0007; border-radius: 8px; }
+.feedback-dialog footer { display: flex; justify-content: flex-end; gap: 8px; }

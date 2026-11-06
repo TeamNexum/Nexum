@@ -161,6 +161,7 @@ mod tests {
             name: name.into(),
             description: Some("shared".into()),
             category: Category::Chill,
+            voice_keywords: vec![],
             steps: actions
                 .iter()
                 .enumerate()

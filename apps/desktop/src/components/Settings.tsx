@@ -3,6 +3,7 @@ import { api, IS_DESKTOP } from "../api";
 import { cloud, cloudUrl, setCloudUrl, isSignedIn } from "../sync";
 import type { Mode } from "../types";
 import ConnectionStatus from "./ConnectionStatus";
+import VoiceSettings from "./VoiceSettings";
 
 /**
  * Cloud account + multi-device sync.
@@ -11,7 +12,7 @@ import ConnectionStatus from "./ConnectionStatus";
  * replaces the local modes with the account's set — the same account on another
  * machine (or the mobile companion) sees the same modes.
  */
-export default function Settings({ modes, reload, density, onDensity, motion, onMotion }: { modes: Mode[]; reload: () => void; density: "compact" | "comfort"; onDensity: (value: "compact" | "comfort") => void; motion: "smooth" | "instant"; onMotion: (value: "smooth" | "instant") => void }) {
+export default function Settings({ modes, reload, density, onDensity, motion, onMotion, onFeedback }: { modes: Mode[]; reload: () => void; density: "compact" | "comfort"; onDensity: (value: "compact" | "comfort") => void; motion: "smooth" | "instant"; onMotion: (value: "smooth" | "instant") => void; onFeedback: () => void }) {
   const [url, setUrl] = useState(cloudUrl());
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -130,6 +131,7 @@ export default function Settings({ modes, reload, density, onDensity, motion, on
         {err && <div className="error">{err}</div>}
       </section>
       <ConnectionStatus />
+      <VoiceSettings />
       <section className="context-panel"><span className="workspace-kicker">INTERFACE</span><h2>Densité d’affichage</h2><p className="muted">Ajustez l’espace entre les cartes, les actions et les commandes sur toutes les pages.</p><div className="density-options"><button className="btn-secondary" aria-pressed={density === "compact"} onClick={() => onDensity("compact")}>Compact</button><button className="btn-secondary" aria-pressed={density === "comfort"} onClick={() => onDensity("comfort")}>Confort</button></div>
         <h2 className="settings-subheading">Changement de page</h2><p className="muted">Fluide : la galaxie voyage d’une page à l’autre. Instantané : la page change sans transition.</p><div className="density-options"><button className="btn-secondary" aria-pressed={motion === "smooth"} onClick={() => onMotion("smooth")}>Fluide</button><button className="btn-secondary" aria-pressed={motion === "instant"} onClick={() => onMotion("instant")}>Instantané</button></div></section></div>
       <aside className="settings-aside">
@@ -144,6 +146,7 @@ export default function Settings({ modes, reload, density, onDensity, motion, on
 
 
         </section>
+        <section className="context-panel"><span className="workspace-kicker">BÊTA</span><h2>Un bug, une idée ?</h2><p className="muted">Écrivez à l'équipe en quelques secondes, avec une capture si besoin.</p><button className="primary" onClick={onFeedback}>Envoyer un retour</button></section>
         <section className="context-panel"><span className="workspace-kicker">SUR CET APPAREIL</span><h2>Votre bibliothèque locale</h2>
           <div className="summary-strip"><div><strong>{modes.length}</strong><span>profils enregistrés</span></div><div><strong>{modes.reduce((n, m) => n + m.steps.length, 0)}</strong><span>actions</span></div></div>
           <dl className="system-facts"><div><dt>Environnement</dt><dd>{IS_DESKTOP ? "Application de bureau" : "Aperçu navigateur"}</dd></div><div><dt>Compte</dt><dd>{signedIn ? "Connecté" : "Non connecté"}</dd></div><div><dt>Synchronisation</dt><dd>Manuelle, à votre demande</dd></div></dl>

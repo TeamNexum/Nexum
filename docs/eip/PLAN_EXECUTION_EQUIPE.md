@@ -13,7 +13,7 @@
 
 | Échéance | Date | Enjeu |
 |---|---|---|
-| 🔒 Choix de la track + objectifs majeurs / mineurs sur l'intra | **Semaine du 19/10/2026** | Track **Entrepreneuriat** confirmée au suivi du 25/09 ; objectifs figés ensuite |
+| 🔒 Track + objectifs complémentaires inscrits dans le **plan d'action** (plateforme EIP, #113) | **23/10/2026** (échéance de l'équipe) | Track **Entrepreneuriat** + objectifs **B et C** choisis avec le mentor le 19/10 ; les PDF officiels ne donnent pas de date |
 | 📄 BTP v1 | **07/02/2027** | Tout ce qui est dans le BTP doit être démontré et fonctionner |
 | 📄 BTP version finale | **04/04/2027** | Document central du Greenlight |
 | 🎥 Greenlight blanc | **05/04 → 16/04/2027** | Répétition générale notée |
@@ -50,7 +50,7 @@
 *Objectif : preuve du besoin + scope figé + objectifs de track verrouillés.*
 
 **Administratif EIP**
-- [ ] Créer/valider le groupe projet sur l'**intra EIP** ⚠️
+- [ ] Créer/valider le groupe projet sur l'**intra EIP** ⚠️ *(à confirmer : les PDF officiels n'en parlent pas)*
 - [x] Créer le **dépôt GitHub** (voir [GITHUB_SETUP](../GITHUB_SETUP.md)) + board (Projects) + issues des jalons
 - [x] Premier **suivi pédagogique** (25/09/2026) — prochain à prendre entre le 26/09 et le 06/11
 - [x] Choisir la **track** : Entrepreneuriat (confirmée le 25/09/2026)
@@ -67,7 +67,7 @@
 - [x] Corriger le **bug volume Windows (Core Audio)** (#1)
 - [ ] Prioriser le **scope MVP** à partir des interviews
 
-**🔒 Jalon semaine du 19/10/2026 — choix des objectifs de track sur l'intra (irréversible)**
+**🔒 Jalon 23/10/2026 — track et objectifs B + C inscrits dans le plan d'action déposé sur la plateforme EIP (#113)**
 - [ ] Objectifs de track rédigés, relus par le référent, **figés**
 
 ---

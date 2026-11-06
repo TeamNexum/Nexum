@@ -144,6 +144,7 @@ pub fn generate_mode(prompt: &str, id: Uuid) -> Mode {
         name: suggest_name(category),
         description: Some(format!("Generated from: \"{}\"", prompt.trim())),
         category,
+        voice_keywords: vec![],
         steps,
     }
 }

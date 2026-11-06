@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { api, IS_DESKTOP, onEngineEvent } from "./api";
-import { startRemoteControl } from "./remote";
+import { startRemoteControl, syncDirectModes } from "./remote";
 import type { Mode } from "./types";
 import Dashboard from "./components/Dashboard";
 import LiveActions, { useActivity } from "./components/LiveActions";
@@ -13,6 +13,8 @@ import WindowBar from "./components/WindowBar";
 import SkyBackground from "./components/SkyBackground";
 import PixelGalaxy from "./components/PixelGalaxy";
 import GalaxyFlight, { measureGalaxy, type Flight } from "./components/GalaxyFlight";
+import VoiceOverlay from "./components/VoiceOverlay";
+import FeedbackDialog from "./components/FeedbackDialog";
 import { categoryMeta } from "./modeMeta";
 import { tintOf, tintStyle } from "./galaxyTints";
 import { useLibraryPreferences } from "./libraryPreferences";
@@ -53,6 +55,7 @@ export default function App() {
   const navRef = useRef<HTMLElement>(null);
   const activity = useActivity();
   const [searchOpen, setSearchOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [density, setDensity] = useState<"compact" | "comfort">(() => {
     try { return localStorage.getItem("nexum.density") === "compact" ? "compact" : "comfort"; } catch { return "comfort"; }
   });
@@ -123,7 +126,10 @@ export default function App() {
     if (!IS_DESKTOP) return;
     api
       .getModes()
-      .then(setModes)
+      .then((m) => {
+        setModes(m);
+        syncDirectModes(m);
+      })
       .catch((e) => setError(String(e)));
   }, []);
 
@@ -243,10 +249,12 @@ export default function App() {
         {tab === "editor" && <ModeEditor key={editingModeId ?? "studio"} modes={library.modes} reload={reload} initialModeId={editingModeId} />}
         {tab === "automations" && <Automations modes={modes} />}
         {tab === "marketplace" && <Marketplace modes={modes} reload={reload} />}
-        {tab === "settings" && <Settings modes={modes} reload={reload} density={density} onDensity={changeDensity} motion={motion} onMotion={changeMotion} />}
+        {tab === "settings" && <Settings modes={modes} reload={reload} density={density} onDensity={changeDensity} motion={motion} onMotion={changeMotion} onFeedback={() => setFeedbackOpen(true)} />}
       </main>
-      {searchOpen && <CommandPalette modes={library.modes} pages={TABS} onClose={() => setSearchOpen(false)} onNavigate={id => goTo(id as Tab)} onEdit={id => { setEditingModeId(id); goTo("editor"); }} onDensity={() => changeDensity(density === "compact" ? "comfort" : "compact")} />}
+      <VoiceOverlay />
+      {searchOpen && <CommandPalette modes={library.modes} pages={TABS} onClose={() => setSearchOpen(false)} onNavigate={id => goTo(id as Tab)} onEdit={id => { setEditingModeId(id); goTo("editor"); }} onDensity={() => changeDensity(density === "compact" ? "comfort" : "compact")} onFeedback={() => setFeedbackOpen(true)} />}
       {flight && <GalaxyFlight flight={flight} onDone={() => setFlight(null)} />}
+      {feedbackOpen && <FeedbackDialog onClose={() => setFeedbackOpen(false)} />}
     </div>
   </>);
 }

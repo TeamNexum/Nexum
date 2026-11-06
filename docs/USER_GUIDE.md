@@ -311,10 +311,20 @@ L'onglet **Système** rassemble la gestion de votre compte, la synchronisation e
     - **Cloud** : contrôle de l'accessibilité de l'API Nexum Cloud.
 - **Densité d'affichage de l'interface** :
   - Choisissez entre **Compact** (espacement réduit, idéal pour petits écrans ou fenêtres réduites) et **Confort** (espacement aéré). La préférence est conservée pour chaque lancement.
+- **Bêta — Envoyer un retour** : signalez un bug ou proposez une idée à l'équipe (voir [Signaler un bug ou proposer une idée](#signaler-un-bug-ou-proposer-une-idée-bêta)).
 - **Serveur de synchronisation** :
   - Indiquez l'URL du serveur Nexum Cloud (par défaut `http://localhost:8787` en local, ou l'adresse IP de votre PC pour le compagnon mobile).
 - **Statistiques de la bibliothèque locale** :
   - Nombre de profils enregistrés en SQLite, nombre d'actions actives, et état de l'environnement (Application de bureau vs Aperçu navigateur).
+
+### Contrôler son PC depuis son smartphone (Nexum Android)
+
+L'écosystème comprend une application mobile native Android dédiée (`NexumAndroid`) :
+1. Démarrez l'API Cloud sur votre PC (`cargo run -p nexum-cloud`).
+2. Ouvrez **Nexum** sur votre smartphone et allez dans l'onglet **Système**.
+3. Renseignez l'IP locale ou l'URL de votre PC (ex: `http://192.168.1.50:8787`).
+4. Vos modes PC s'affichent automatiquement sur votre téléphone et peuvent être déclenchés à distance d'un simple toucher (sur le même Wi-Fi ou via 4G/5G avec tunnel Cloud).
+5. Vous pouvez également automatiser le matériel de votre téléphone (sonnerie, luminosité, flash, haptique) et exécuter des plugins d'applications mobiles (Spotify, YouTube Music, etc.).
 
 > 💡 **Astuce (Philips Hue)** — Pour piloter vos lumières Hue, configurez les variables d'environnement `NEXUM_HUE_BRIDGE` (adresse IP de votre pont) et `NEXUM_HUE_USER` (nom d'utilisateur généré sur le pont). L'outil de diagnostic confirmera immédiatement l'accès.
 
@@ -385,8 +395,27 @@ appareils.
 - Fermez et relancez Nexum.
 - Vérifiez que le matériel concerné (lumières, périphériques) est allumé et
   connecté au même réseau.
-- ⚠️ Canal de support / contact : à préciser. — placeholder à compléter par
-  l'équipe.
+- Envoyez-nous un retour (voir ci-dessous).
+
+### Signaler un bug ou proposer une idée (bêta)
+
+Dans l'onglet **Système**, cliquez sur **Envoyer un retour** (ou tapez « retour »
+dans la recherche globale). Décrivez le problème, ajoutez si besoin une capture
+d'écran (fichier ou Ctrl V) et un moyen de vous recontacter, puis envoyez : le
+message part directement à l'équipe, sans compte.
+
+Si vous cochez la case correspondante, les journaux de l'application sont joints
+au message. Ils ne contiennent ni mots de passe ni clés : les secrets sont masqués
+avant même d'être écrits sur le disque. L'envoi passe par le serveur Nexum Cloud
+configuré dans **Système**, qui doit être joignable.
+
+### Où trouver les journaux de Nexum ?
+
+Nexum écrit un journal `nexum.log` dans le dossier de journaux de votre système
+(5 fichiers de 1 Mo au plus sont conservés) :
+
+- **Windows** : `%LOCALAPPDATA%\com.nexum.app\logs\`
+- **Linux** : `~/.local/share/com.nexum.app/logs/`
 
 ---
 

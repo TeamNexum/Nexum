@@ -6,6 +6,16 @@
 
 import type { Mode } from "./types";
 
+// Mirrors `FeedbackReport` in services/nexum-cloud/src/feedback.rs.
+export interface FeedbackReport {
+  message: string;
+  contact: string | null;
+  version: string;
+  os: string;
+  screenshot: { mime: string; data_base64: string } | null;
+  logs: string | null;
+}
+
 const URL_KEY = "nexum.cloud.url";
 const TOKEN_KEY = "nexum.cloud.token";
 
@@ -70,6 +80,23 @@ export const cloud = {
   async pull(): Promise<Mode[]> {
     const res = await fetch(`${cloudUrl()}/api/modes`, { headers: authHeader() });
     return (await jsonOrThrow(res)) as Mode[];
+  },
+
+  /** Send a beta report; the cloud forwards it to the team (no account needed). */
+  async sendFeedback(report: FeedbackReport): Promise<void> {
+    let res: Response;
+    try {
+      res = await fetch(`${cloudUrl()}/api/feedback`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(report),
+      });
+    } catch {
+      throw new Error(`Impossible de joindre le cloud (${cloudUrl()}). Est-il démarré ?`);
+    }
+    if (res.ok) return;
+    const body = (await res.json().catch(() => null)) as { error?: string } | null;
+    throw new Error(body?.error ?? `Erreur serveur (${res.status}).`);
   },
 
   /** Replace this account's modes with the given set (last-write-wins). */

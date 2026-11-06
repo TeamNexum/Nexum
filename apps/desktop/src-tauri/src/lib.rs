@@ -4,7 +4,9 @@
 //! automation rules, forwards engine events to the webview in real time, and
 //! exposes the command surface the frontend calls.
 
+mod feedback;
 mod integrations;
+mod voice;
 
 use std::sync::Arc;
 
@@ -26,7 +28,8 @@ use tauri::menu::{Menu, MenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::{Emitter, Manager, State};
 use tauri_plugin_dialog::DialogExt;
-use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
+use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut, ShortcutState};
+use tauri_plugin_log::{RotationStrategy, Target, TargetKind};
 use uuid::Uuid;
 
 /// Shared application state handed to every command.
@@ -71,6 +74,10 @@ async fn check_connections(state: State<'_, Arc<AppState>>) -> Result<Vec<Connec
         .and_then(|result| result.map(|count| format!("{count} écran(s) lisible(s)")).map_err(|e| e.to_string()));
     let hue = hue.map(|_| "Pont Hue joignable et authentifié".to_string()).map_err(|e| e.to_string());
     Ok([("audio", audio), ("display", display), ("hue", hue)].into_iter()
+        .inspect(|(id, result)| match result {
+            Ok(detail) => log::info!("connection check {id}: {detail}"),
+            Err(e) => log::warn!("connection check {id} failed: {e}"),
+        })
         .map(|(id, result)| ConnectionCheck { id, available: result.is_ok(), detail: result.unwrap_or_else(|e| e) }).collect())
 }
 
@@ -85,10 +92,10 @@ fn set_integrations(
     settings: IntegrationSettings,
     state: State<'_, Arc<AppState>>,
 ) -> Result<(), String> {
-    state
-        .integrations
-        .update(settings)
-        .map_err(|e| format!("could not save integration settings: {e}"))
+    state.integrations.update(settings).map_err(|e| {
+        log::error!("could not save integration settings: {e}");
+        format!("could not save integration settings: {e}")
+    })
 }
 
 #[tauri::command]
@@ -255,11 +262,71 @@ fn ai_generate(prompt: String) -> Mode {
 
 // ---- setup -----------------------------------------------------------------
 
+/// Rotating log files in the OS log dir (`nexum.log`, 5 × 1 MB kept), shared by
+/// the Rust side and the webview. Every line goes through [`nexum_core::redact`]
+/// before it is written, so secrets never reach the disk.
+fn log_plugin() -> tauri::plugin::TauriPlugin<tauri::Wry> {
+    tauri_plugin_log::Builder::new()
+        .clear_targets()
+        .targets([
+            Target::new(TargetKind::Stdout),
+            Target::new(TargetKind::LogDir {
+                file_name: Some("nexum".into()),
+            }),
+        ])
+        .max_file_size(1_000_000)
+        .rotation_strategy(RotationStrategy::KeepSome(5))
+        .level(log::LevelFilter::Info)
+        .level_for("tao", log::LevelFilter::Warn)
+        .level_for("wry", log::LevelFilter::Warn)
+        .level_for("reqwest", log::LevelFilter::Warn)
+        .level_for("hyper_util", log::LevelFilter::Warn)
+        .format(|out, message, record| {
+            out.finish(format_args!(
+                "{} {:<5} [{}] {}",
+                chrono::Local::now().format("%Y-%m-%d %H:%M:%S%.3f"),
+                record.level(),
+                record.target(),
+                nexum_core::redact::redact(&message.to_string())
+            ))
+        })
+        .build()
+}
+
+/// Log engine events: one line per activation and per step that did not succeed.
+fn log_engine_event(event: &nexum_core::EngineEvent) {
+    use nexum_core::EngineEvent;
+    match event {
+        EngineEvent::ModeStarted { name, .. } => log::info!("mode '{name}' started"),
+        EngineEvent::StepFinished { action_type, order, success: false, status, message } => {
+            log::warn!("step {order} ({action_type}) {status:?}: {message}")
+        }
+        EngineEvent::ModeFinished { mode_id, success } => {
+            log::info!("mode {mode_id} finished (success: {success})")
+        }
+        _ => {}
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let default_panic = std::panic::take_hook();
+    std::panic::set_hook(Box::new(move |info| {
+        log::error!("panic: {info}");
+        default_panic(info);
+    }));
+
     tauri::Builder::default()
+        .plugin(log_plugin())
         .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
+            log::info!(
+                "Nexum {} starting on {} ({})",
+                app.package_info().version,
+                std::env::consts::OS,
+                std::env::consts::ARCH
+            );
+
             // Persistent store under the OS app-data dir — modes survive restarts.
             let data_dir = app
                 .path()
@@ -305,6 +372,7 @@ pub fn run() {
                 loop {
                     match rx.recv().await {
                         Ok(event) => {
+                            log_engine_event(&event);
                             let _ = handle.emit("engine-event", event);
                         }
                         Err(RecvError::Lagged(_)) => continue,
@@ -348,6 +416,8 @@ pub fn run() {
             });
 
             app.manage(state);
+            #[cfg(feature = "voice")]
+            app.manage(voice::Voice::new(&data_dir));
 
             // Right-click opens the native menu; left-click toggles the window.
             let show_i = MenuItem::with_id(app, "show", "Ouvrir Nexum", true, None::<&str>)?;
@@ -395,22 +465,34 @@ pub fn run() {
                 })
                 .build(app)?;
 
-            // Global hotkey (best-effort): Ctrl/Cmd+Shift+G activates Gaming, even
-            // when the window is closed. Non-fatal — the app runs if it fails.
+            // Global hotkeys (best-effort), even when the window is closed:
+            // Ctrl/Cmd+Shift+G activates Gaming, and with the `voice` feature,
+            // holding Ctrl/Cmd+Shift+Space is push-to-talk. Non-fatal — the app
+            // runs if they fail.
+            let gaming: Shortcut = "CmdOrCtrl+Shift+G".parse().expect("valid shortcut");
+            let talk: Shortcut = voice::SHORTCUT.parse().expect("valid shortcut");
             if app
                 .handle()
                 .plugin(
                     tauri_plugin_global_shortcut::Builder::new()
-                        .with_handler(|app, _shortcut, event| {
-                            if event.state() == ShortcutState::Pressed {
-                                fire_mode(app, GAMING_ID);
+                        .with_handler(move |app, shortcut, event| match event.state() {
+                            ShortcutState::Pressed if *shortcut == gaming => {
+                                fire_mode(app, GAMING_ID)
                             }
+                            #[cfg(feature = "voice")]
+                            ShortcutState::Pressed if *shortcut == talk => voice::begin(app),
+                            #[cfg(feature = "voice")]
+                            ShortcutState::Released if *shortcut == talk => voice::end(app),
+                            _ => {}
                         })
                         .build(),
                 )
                 .is_ok()
             {
-                let _ = app.global_shortcut().register("CmdOrCtrl+Shift+G");
+                let _ = app.global_shortcut().register(gaming);
+                if cfg!(feature = "voice") {
+                    let _ = app.global_shortcut().register(talk);
+                }
             }
 
             Ok(())
@@ -432,7 +514,12 @@ pub fn run() {
             export_mode,
             preview_import,
             import_mode,
-            ai_generate
+            ai_generate,
+            voice::voice_status,
+            voice::voice_start,
+            voice::voice_stop,
+            voice::voice_download_model,
+            feedback::feedback_context
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -481,6 +568,7 @@ fn demo_modes() -> Vec<Mode> {
             name: "Gaming".into(),
             description: Some("High-performance setup and game launch".into()),
             category: Category::Gaming,
+            voice_keywords: vec![],
             steps: vec![
                 step(
                     1,
@@ -513,6 +601,7 @@ fn demo_modes() -> Vec<Mode> {
             name: "Work".into(),
             description: Some("Focus setup, minimal distractions".into()),
             category: Category::Work,
+            voice_keywords: vec![],
             steps: vec![
                 step(
                     1,
@@ -545,6 +634,7 @@ fn demo_modes() -> Vec<Mode> {
             name: "Chill".into(),
             description: Some("Ambient lighting and music".into()),
             category: Category::Chill,
+            voice_keywords: vec![],
             steps: vec![
                 step(
                     1,
