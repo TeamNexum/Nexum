@@ -4,6 +4,30 @@ Livrables pour le jury EIP (piste Entrepreneuriat). Tous rédigés en français,
 cohérents avec **`_BRIEF_PROJET.md`** (source de vérité factuelle — à mettre à
 jour en premier si un chiffre/persona change).
 
+## Livrables officiels EIP
+
+Ce qu'Epitech demande dans les documents G-EIP-600, où le trouver dans le dépôt et où le rendre.
+Le dépôt n'a pas de dossier imposé : les livrables jury vivent dans `docs/eip/`, les documents
+« Structure » dans `docs/`. État au 20/10/2026, à mettre à jour à chaque rendu.
+
+| Livrable officiel | Fichiers dans le dépôt | Où le rendre | Échéance | Ticket | État |
+|---|---|---|---|---|---|
+| **Plan d'action** « Highway to Tech4 » : contexte, spécifications techniques, notes d'intention | [`plan-action/plan-action.md`](./plan-action/plan-action.md) (3 parties rédigées) | Plateforme EIP | **23/10/2026** (équipe) | #113 | En cours : relecture et dépôt par Rares et Max |
+| **Structure** : `deployment.md`, `testing_policy.md`, `technology_environment.md`, stratégie de branches, CI/CD | [`../deployment.md`](../deployment.md), [`../testing_policy.md`](../testing_policy.md), [`../technology_environment.md`](../technology_environment.md) | Dans le dépôt | aucune | | Rédigés ; la CI build et teste, le déploiement reste à faire (#48, #21) |
+| **Workshop Client needs** : 2-3 personas, user stories, backlog MoSCoW | [`USER_JOURNEYS.md`](./USER_JOURNEYS.md), user stories dans [`plan-action/plan-action.md`](./plan-action/plan-action.md) (partie 2) | Support de présentation | Phase 1 | #102, #107 | En cours : priorisation MoSCoW à faire |
+| **Workshop Context, audit & compliance** : benchmark concurrentiel, état de l'art, rapport de conformité (RGPD, OWASP, accessibilité), matrice des compétences | [`ANALYSE_CONCURRENTIELLE.md`](./ANALYSE_CONCURRENTIELLE.md), [`MATRICE_COMPETENCES.md`](./MATRICE_COMPETENCES.md) | Support de présentation | **06/11/2026** (matrice), 30/11/2026 (conformité) | #110, #131, #132, #64 | En cours : matrice à remplir ; état de l'art (#131) et rapport de conformité (#132) à faire |
+| **Workshop Costs** : ressources, comparatif de 2-3 fournisseurs, CAPEX/OPEX, coût à 1k et 10k utilisateurs | [`FINANCIAL_MODEL.md`](./FINANCIAL_MODEL.md) (en partie) | Support de présentation | Phase 1 | #111 | À faire |
+| **Workshop Tech & func specs** : architecture C4 niveau 2, decision record, modèle de données, contrat d'API, maquettes Figma | [`../ARCHITECTURE.md`](../ARCHITECTURE.md), [`../adr/`](../adr/) | Support de présentation | Phase 1 | #108, #109 | En cours |
+| **Workshop Impacts & risks** : matrice de 3 risques ou plus, GreenIT, résilience | [`../rncp/RISK_REGISTER.md`](../rncp/RISK_REGISTER.md) | Support de présentation | Phase 1 | #112 | En cours |
+| **Workshops Diversifiers et Time Machine** : exercices d'idéation | | Atelier | début d'année | | À vérifier : sans doute déjà faits |
+| **Objectifs de la track Entrepreneuriat** : validation marché, outils entrepreneuriaux, objectifs B et C | [`OBJECTIFS.md`](./OBJECTIFS.md) | Suivis et Greenlight | Greenlight | #24, #25, #101 | En cours |
+| **Comptes rendus de suivi** : envoyés au mentor 48 à 72 h avant chaque séance | [`meetings/`](./meetings/) | Mentor | **06/11/2026** (suivi du 09/11) | #120 | En continu |
+| **Beta Test Plan** : rôles, fonctionnalités par parcours, critères de réussite, 1-2 pages | [`beta_test_plan.md`](./beta_test_plan.md) (annexe : [`BTP_BETA_TEST_PLAN.md`](./BTP_BETA_TEST_PLAN.md)) | Section documents du projet sur eip.epitech.eu | **07/02/2027** | | Brouillon à valider en équipe |
+| **Greenlight blanc** : démo en direct + présentation | [`PITCH_PRESENTATION.md`](./PITCH_PRESENTATION.md) | Jury, en visio | **04/04/2027** | | À venir |
+| **Greenlight + RNCP** : démo en direct sans vidéo, présentation, livrables entrepreneuriaux | [`PITCH_PRESENTATION.md`](./PITCH_PRESENTATION.md) | Jury, en présentiel | **05/07/2027** | | À venir |
+
+## Tous les documents
+
 | Document | Contenu | Usage jury |
 |---|---|---|
 | [`_BRIEF_PROJET.md`](./_BRIEF_PROJET.md) | Référence factuelle partagée (personas, chiffres, dates). | Interne |
@@ -24,6 +48,8 @@ jour en premier si un chiffre/persona change).
 | [`SOCIAL_EDITORIAL_CALENDAR.md`](./SOCIAL_EDITORIAL_CALENDAR.md) | Plan de contenu & calendrier éditorial (IG/LinkedIn), 10 semaines. | Image & message |
 | [`BETA_RECRUITMENT_AND_PARTNERSHIPS.md`](./BETA_RECRUITMENT_AND_PARTNERSHIPS.md) | Recrutement 20+ bêta-testeurs + partenaires + templates d'email. | Traction |
 | [`ONE_PAGER.md`](./ONE_PAGER.md) | Fiche projet une page (résumé exécutif). | Pitch / mentors |
+| [`plan-action/plan-action.md`](./plan-action/plan-action.md) | Plan d'action complet « Highway to Tech4 » : 1. contexte, 2. specs techniques (stack, 46 user stories avec critère et état, 4 jalons datés), 3. specs non techniques (une note d'intention par objectif de la track). | **Plan d'action à déposer sur la plateforme EIP (#113)** |
+| [`MATRICE_COMPETENCES.md`](./MATRICE_COMPETENCES.md) | Matrice des compétences (techniques et humaines), analyses individuelles, points forts, manques et plan pour les combler. | **Workshop « Context, audit & compliance » (#110)** |
 | [`OBJECTIFS.md`](./OBJECTIFS.md) | Fiches des 4 objectifs de track (déf. → preuves → statut → à faire) + comptes/liens à créer. | Suivi objectifs |
 | [`SOCIAL_POSTS_DRAFTS.md`](./SOCIAL_POSTS_DRAFTS.md) | Brouillons de posts (IG + LinkedIn) prêts à publier, avec visuels dans `../brand/social/`. | Image & message |
 

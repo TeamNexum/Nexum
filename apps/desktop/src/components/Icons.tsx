@@ -4,8 +4,9 @@ type IconProps = SVGProps<SVGSVGElement> & { size?: number };
 
 export function IconLogo({ size = 24, ...props }: IconProps) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M5 21V3l14 18V3" />
+    <svg width={size} height={size} viewBox="0 0 176 176" {...props}>
+      <path d="M64 0h48v64h-48zM64 112h48v64h-48zM0 64h64v48h-64zM112 64h64v48h-64z" fill="currentColor" />
+      <rect x="128" y="0" width="48" height="48" fill="#777777" />
     </svg>
   );
 }
