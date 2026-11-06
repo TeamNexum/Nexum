@@ -35,7 +35,7 @@ Dependabot et un audit de sécurité (#66). Les versions exactes sont figées da
 | Élément | Aujourd'hui | Prévu |
 |---|---|---|
 | Données des utilisateurs | SQLite local + `integrations.json` dans le dossier de données de l'app | Inchangé : l'app reste utilisable hors ligne |
-| API cloud | Locale, stockage en mémoire | PostgreSQL (#14), hébergement européen pour le RGPD + domaine + HTTPS (#48) ; comparatif des hébergeurs et coûts dans #111 |
+| API cloud | Locale, PostgreSQL via Docker Compose | Hébergement européen pour le RGPD + domaine + HTTPS (#48) ; comparatif des hébergeurs et coûts dans #111 |
 | Distribution | Build CI | Installeurs signés (#21) et mises à jour automatiques (#50) |
 | Secrets (jetons Hue, comptes de messagerie) | Fichier de réglages local | Trousseau du système (#51) |
 

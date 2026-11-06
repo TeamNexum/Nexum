@@ -1,46 +1,40 @@
-// Remote control: when signed in, the desktop polls the cloud command queue so
-// the mobile companion can activate a mode on this machine. Auth stays in the
-// frontend (the JWT lives in localStorage via sync.ts) and delivery reuses the
-// local `activate_mode` Tauri command — so no Rust changes are needed here.
+// Remote control: the desktop polls the cloud so the mobile companion can
+// activate a mode on this machine. When signed in it reads the account's queue
+// (see sync.ts); it always also reads the direct, no-account queue that
+// NexumAndroid uses on the LAN. Delivery reuses the local 'activate_mode' Tauri
+// command.
 
-import { cloudUrl, token } from "./sync";
+import { authedFetch, cloudUrl, isSignedIn, loadSession } from "./sync";
 
 export type RemoteCommand = { kind: "activate_mode"; mode_id: string };
 
 async function fetchNext(): Promise<RemoteCommand | null> {
-  const t = token();
-  const url = cloudUrl();
-
-  // 1. If signed in, check user's private cloud queue
-  if (t) {
+  // 1. Signed in: the account's private queue.
+  await loadSession();
+  if (isSignedIn()) {
     try {
-      const res = await fetch(`${url}/api/commands/next`, {
-        headers: { authorization: `Bearer ${t}` },
-      });
+      const res = await authedFetch("/api/commands/next");
       if (res.ok) {
         const data = (await res.json()) as { command: RemoteCommand | null };
         if (data.command) return data.command;
       }
     } catch {
-      // ignore and try direct queue
+      // cloud unreachable or session gone — still try the direct queue
     }
   }
 
-  // 2. Poll direct / local queue (supports phone remote on LAN or tunnel without auth required)
+  // 2. Direct queue (phone on the LAN or via a tunnel, no account needed).
   try {
-    const res = await fetch(`${url}/api/direct/commands/next`);
-    if (res.ok) {
-      const data = (await res.json()) as { command: RemoteCommand | null };
-      return data.command ?? null;
-    }
+    const res = await fetch(`${cloudUrl()}/api/direct/commands/next`);
+    if (!res.ok) return null;
+    const data = (await res.json()) as { command: RemoteCommand | null };
+    return data.command ?? null;
   } catch {
-    return null;
+    return null; // cloud unreachable — try again next tick
   }
-
-  return null;
 }
 
-/** Push desktop modes to direct cache so mobile sees them immediately */
+/** Publish the desktop's modes to the direct cache so the phone sees them without an account. */
 export async function syncDirectModes(modes: unknown[]): Promise<void> {
   try {
     await fetch(`${cloudUrl()}/api/direct/modes`, {
@@ -48,7 +42,9 @@ export async function syncDirectModes(modes: unknown[]): Promise<void> {
       headers: { "content-type": "application/json" },
       body: JSON.stringify(modes),
     });
-  } catch {}
+  } catch {
+    // cloud unreachable — the next reload publishes again
+  }
 }
 
 /**

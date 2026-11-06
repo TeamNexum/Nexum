@@ -1,0 +1,10 @@
+# Dev mode: reach the API at http://localhost:8787 without Caddy or certificates.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d cloud
+#
+# Never use this file on the server. See deploy/README.md.
+
+services:
+  cloud:
+    ports:
+      - "127.0.0.1:8787:8787"
