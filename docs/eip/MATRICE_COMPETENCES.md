@@ -53,30 +53,30 @@ Ajoute **❤** à côté d'une note si tu veux progresser sur ce sujet cette ann
 
 | Compétence | Arnaud | Enzo | Rares | Max | Raph |
 |---|---|---|---|---|---|
-| Rust | 1 | | | | 2 |
-| React + TypeScript | 2 | | | | 3 |
-| Mobile iOS (Swift, Xcode) | 1 ❤ | | | | 0 |
-| Mobile Android (Kotlin) | 0 | | | | 0 |
-| API et bases de données | 1 | | | | 2 |
-| Infra et déploiement | 1 ❤ | | | | 2 |
-| CI/CD | 2 | | | | 1 |
-| Tests et qualité | 2 | | | | 2 |
-| Intégrations système et objets connectés | 2 | | | | 1 |
-| IA (voix, langage naturel) | 1 ❤ | | | | 1 |
-| Sécurité | 1 | | | | 2 |
-| Design UI / UX | 1 | | | | 1 |
-| Gestion de projet | 3 | | | | 2 |
-| Étude de marché et interviews | 2 | | | | 0 |
-| Modèle économique et finances | 2 | | | | 0 |
-| Communication et réseaux sociaux | 2 | | | | 0 |
-| Pitch et présentation orale | 2 | | | | 1 |
-| RGPD, CGU, licences | 0 ❤ | | | | 2 |
-| Communication dans l'équipe | 2 | | | | 0 ❤ |
-| Organisation et respect des délais | 2 | | | | 1 ❤ |
-| Autonomie | 2 | | | | 2 |
-| Travail en équipe et gestion des désaccords | 2 | | | | 1 |
-| Écoute des utilisateurs | 1 ❤ | | | | 1 |
-| Anglais | 3 | | | | 3 |
+| Rust | 1 | | | 2 ❤ | 2 |
+| React + TypeScript | 2 | | | 2 | 3 |
+| Mobile iOS (Swift, Xcode) | 1 ❤ | | | 0 | 0 |
+| Mobile Android (Kotlin) | 0 | | | 2 | 0 |
+| API et bases de données | 1 | | | 2 | 2 |
+| Infra et déploiement | 1 ❤ | | | 2 | 2 |
+| CI/CD | 2 | | | 2 | 1 |
+| Tests et qualité | 2 | | | 1 | 2 |
+| Intégrations système et objets connectés | 2 | | | 1 | 1 |
+| IA (voix, langage naturel) | 1 ❤ | | | 0 | 1 |
+| Sécurité | 1 | | | 1 ❤ | 2 |
+| Design UI / UX | 1 | | | 1 | 1 |
+| Gestion de projet | 3 | | | 2 | 2 |
+| Étude de marché et interviews | 2 | | | 0 | 0 |
+| Modèle économique et finances | 2 | | | 0 | 0 |
+| Communication et réseaux sociaux | 2 | | | 1 | 0 |
+| Pitch et présentation orale | 2 | | | 1 | 1 |
+| RGPD, CGU, licences | 0 ❤ | | | 2 | 2 |
+| Communication dans l'équipe | 2 | | | 3 | 0 ❤ |
+| Organisation et respect des délais | 2 | | | 3 | 1 ❤ |
+| Autonomie | 2 | | | 2 | 2 |
+| Travail en équipe et gestion des désaccords | 2 | | | 2 ❤ | 1 |
+| Écoute des utilisateurs | 1 ❤ | | | 1 | 1 |
+| Anglais | 3 | | | 3 | 3 |
 
 > Colonne d'Arnaud : proposition à relire et ajuster par Arnaud (même règle que pour tout le monde :
 > ce qu'il sait faire seul aujourd'hui).
