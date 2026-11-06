@@ -1,0 +1,27 @@
+# Annexe — capacités « BTP candidate » du catalogue sans user story
+
+Décompte au 06/11/2026, après réaudit et nouvelles US 59 à 68 : sur 458 capacités classées « BTP candidate », 120 sont recouvertes par une US engagée (63 US) et **338 n'ont aucune US**. Le recouvrement est approximatif (voir `mapping-us-nx.md`). Cette liste n'est pas un engagement ; une proposition de reclassement est dans `reclassement-catalogue-propose.md`.
+
+- Accessibility & localization : 11 sur 16 sans US (NX-982, 985–994)
+- Advanced rules & state reconciliation : 23 sur 24 sans US (NX-563–573, 575–586)
+- Background automation rules : 12 sur 16 sans US (NX-411–413, 415–420, 422–424)
+- Command palette & quick actions : 7 sur 10 sans US (NX-475–476, 478–482)
+- Context & presence engine : 6 sur 7 sans US (NX-325, 327–331)
+- Contexts & desired state : 8 sur 10 sans US (NX-400–402, 404–408)
+- Control Center & dashboards : 15 sur 18 sans US (NX-381–387, 389–390, 393–398)
+- Core automation & mode engine : 31 sur 48 sans US (NX-4–5, 8–14, 16, 18, 23–36, 39, 44–48)
+- Dashboard & monitoring : 12 sur 16 sans US (NX-341–342, 345, 348–356)
+- Data transformation & expression engine : 26 sur 26 sans US (NX-645–670)
+- Generic API & developer integrations : 4 sur 13 sans US (NX-219–220, 226–227)
+- Monitoring & health : 11 sur 12 sans US (NX-425–430, 432–436)
+- Operating system & desktop actions : 29 sur 35 sans US (NX-98–102, 104–120, 123–125, 128–131)
+- Plugin & extension SDK : 17 sur 20 sans US (NX-230–234, 237–246, 248–249)
+- Privacy, local-first & trust : 16 sur 20 sans US (NX-772–774, 776–777, 779–786, 789–791)
+- Queue, concurrency & conflict arbitration : 15 sur 20 sans US (NX-693, 695–699, 701–704, 706, 708–711)
+- Reliability & self-healing : 7 sur 10 sans US (NX-494–497, 500–502)
+- Security & trust : 6 sur 15 sans US (NX-358, 361, 365, 369–371)
+- Testing & reliability engineering : 13 sur 20 sans US (NX-712–713, 719–726, 729–731)
+- Timeline, explainability & simulation : 13 sur 20 sans US (NX-608–609, 612–616, 618–622, 626)
+- Triggers & event detection : 35 sur 48 sans US (NX-54, 58–68, 70–83, 85, 87–93, 96)
+- Workspaces & environment restoration : 15 sur 20 sans US (NX-527, 529–542)
+- Provider abstraction framework : 6 sur 14 sans US (NX-1018, 1020, 1022, 1025, 1027–1028)
