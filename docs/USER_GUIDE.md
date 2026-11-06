@@ -300,8 +300,8 @@ L'onglet **Système** rassemble la gestion de votre compte, la synchronisation e
 
 - **Compte & synchronisation** :
   - Créez un compte ou connectez-vous avec votre e-mail et mot de passe.
-  - **⬆ Envoyer les profils** (*Push*) : téléverse vos profils locaux vers le cloud.
-  - **⬇ Récupérer depuis le cloud** (*Pull*) : importe les profils synchronisés sur votre machine.
+  - **Synchronisation automatique** : une fois connecté, vos profils se synchronisent seuls entre vos machines, quelques secondes après chaque modification et au moins une fois par minute. **Synchroniser maintenant** la lance tout de suite.
+  - **Conflits** : si un même profil a été modifié sur deux machines, aucune modification n'est perdue : la version déjà synchronisée est conservée, et l'autre devient une copie nommée « … (conflit) ».
   - Déconnexion en un clic.
 - **Diagnostic en lecture seule (État des connexions)** :
   - Teste en temps réel la disponibilité de vos intégrations sans modifier vos réglages actuels :

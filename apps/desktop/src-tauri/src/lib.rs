@@ -6,6 +6,7 @@
 
 mod feedback;
 mod integrations;
+mod secrets;
 mod voice;
 
 use std::sync::Arc;
@@ -519,7 +520,10 @@ pub fn run() {
             voice::voice_start,
             voice::voice_stop,
             voice::voice_download_model,
-            feedback::feedback_context
+            feedback::feedback_context,
+            secrets::load_cloud_token,
+            secrets::save_cloud_token,
+            secrets::clear_cloud_token
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

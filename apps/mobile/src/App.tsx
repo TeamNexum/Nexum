@@ -36,6 +36,7 @@ export default function App() {
       setModes(await cloud.modes());
     } catch (e) {
       setErr(msg(e));
+      setSignedIn(isSignedIn());
     }
   }
 
@@ -66,13 +67,14 @@ export default function App() {
       flash(`« ${mode.name} » envoyé à votre PC`);
     } catch (e) {
       setErr(msg(e));
+      setSignedIn(isSignedIn());
     } finally {
       setBusy(false);
     }
   }
 
   function signOut() {
-    cloud.signOut();
+    void cloud.signOut();
     setSignedIn(false);
     setModes([]);
   }
@@ -110,6 +112,7 @@ export default function App() {
           <label>
             Mot de passe
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <small>8 caractères minimum pour un nouveau compte.</small>
           </label>
           <button className="primary" disabled={busy || !email || !password} onClick={() => auth("login")}>
             Se connecter

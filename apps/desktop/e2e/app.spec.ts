@@ -26,7 +26,7 @@ test.describe("Nexum desktop UI (browser preview)", () => {
       route.fulfill({
         status: 200,
         contentType: "application/json",
-        body: JSON.stringify({ token: "e2e-token" }),
+        body: JSON.stringify({ token: "e2e-token", refresh_token: "e2e-refresh", user_id: "e2e-user" }),
       }),
     );
 

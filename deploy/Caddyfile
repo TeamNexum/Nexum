@@ -1,0 +1,6 @@
+# Caddy gets and renews the HTTPS certificate for $NEXUM_DOMAIN on its own
+# (Let's Encrypt). With NEXUM_DOMAIN=localhost it uses a local certificate.
+{$NEXUM_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy cloud:8787
+}
