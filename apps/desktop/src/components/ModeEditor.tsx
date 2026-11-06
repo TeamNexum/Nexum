@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "../api";
 import { CATEGORIES, type ActionStep, type Mode } from "../types";
 import { CATEGORY_META, actionMeta, categoryMeta, catStyle, STARTER_TEMPLATES, toMode, type CatalogMode } from "../modeMeta";
 import ProfileArtwork from "./ProfileArtwork";
+import { tintOf, tintStyle } from "../galaxyTints";
 import VoiceKeywords from "./VoiceKeywords";
 import { useUnavailableActions } from "../stepStatus";
 import { IconSparkles, IconPlus, IconTrash, IconCheck, IconSliders } from "./Icons";
@@ -41,10 +42,25 @@ export default function ModeEditor({
   const [aiPrompt, setAiPrompt] = useState("");
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const presetsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     api.actionCatalog().then(setCatalog).catch(console.error);
   }, []);
+
+  useEffect(() => {
+    const centerSelection = () => {
+      const list = presetsRef.current;
+      const selected = list?.querySelector<HTMLElement>(".preset-nav-item.selected");
+      if (!list || !selected || list.scrollWidth <= list.clientWidth) return;
+      const track = list.getBoundingClientRect();
+      const node = selected.getBoundingClientRect();
+      list.scrollLeft += node.left - track.left - (track.width - node.width) / 2;
+    };
+    centerSelection();
+    window.addEventListener("resize", centerSelection);
+    return () => window.removeEventListener("resize", centerSelection);
+  }, [draft?.id, modes.length]);
 
   async function newMode() {
     setError(null);
@@ -188,7 +204,7 @@ export default function ModeEditor({
             </button>
           </div>
 
-          <div className="preset-item-stack">
+          <div className="preset-item-stack" ref={presetsRef}>
             {modes.length === 0 && <p className="muted">Vos profils enregistrés apparaîtront ici. Commencez avec un modèle ou une page blanche.</p>}
             {modes.map((m) => {
               const cm = categoryMeta(m.category);
@@ -240,7 +256,7 @@ export default function ModeEditor({
           <div className="studio-templates">{STARTER_TEMPLATES.map(t => <button className="studio-template" key={t.name} onClick={() => startTemplate(t)}><ProfileArtwork category={t.category} /><strong>{t.name}</strong><span>{t.steps.length} actions · {t.tagline}</span></button>)}</div>
           </div>
         ) : (
-          <div className="editor-sheet">
+          <div className="editor-sheet" style={tintStyle(tintOf(draft.category))}>
             {/* PROFILE META HEADER */}
             <div className="editor-sheet-header">
               <div
@@ -266,16 +282,19 @@ export default function ModeEditor({
 
                   <div className="form-group flex-1">
                     <label>Catégorie</label>
-                    <select
-                      value={draft.category}
-                      onChange={(e) => patch({ category: e.target.value as Mode["category"] })}
-                    >
-                      {CATEGORIES.map((c) => (
-                        <option key={c} value={c}>
-                          {CATEGORY_META[c].label}
-                        </option>
-                      ))}
-                    </select>
+                    <span className="studio-selector category-selector">
+                      <select
+                        aria-label="Catégorie du profil"
+                        value={draft.category}
+                        onChange={(e) => patch({ category: e.target.value as Mode["category"] })}
+                      >
+                        {CATEGORIES.map((c) => (
+                          <option key={c} value={c}>
+                            {CATEGORY_META[c].label}
+                          </option>
+                        ))}
+                      </select>
+                    </span>
                   </div>
                 </div>
 
@@ -320,21 +339,24 @@ export default function ModeEditor({
                         <div className="step-type-icon">
                           <StepIcon size={16} />
                         </div>
-                        <select
-                          className="step-type-select"
-                          value={step.type}
-                          onChange={(e) => patchStep(i, { type: e.target.value, params: {} })}
-                        >
-                          {catalog.map((a) => {
-                            const meta = actionMeta(a);
-                            return (
-                              <option key={a} value={a}>
-                                {meta.domain} — {meta.label}
-                                {unavailable[a] ? " (indisponible ici)" : ""}
-                              </option>
-                            );
-                          })}
-                        </select>
+                        <span className="studio-selector action-selector">
+                          <select
+                            className="step-type-select"
+                            aria-label={`Type de l’action ${i + 1}`}
+                            value={step.type}
+                            onChange={(e) => patchStep(i, { type: e.target.value, params: {} })}
+                          >
+                            {catalog.map((a) => {
+                              const meta = actionMeta(a);
+                              return (
+                                <option key={a} value={a}>
+                                  {meta.domain} — {meta.label}
+                                  {unavailable[a] ? " (indisponible ici)" : ""}
+                                </option>
+                              );
+                            })}
+                          </select>
+                        </span>
                         {step.enabled && unavailable[step.type] && (
                           <span className="step-unavailable" title={unavailable[step.type]}>
                             Indisponible ici · {unavailable[step.type]}
@@ -387,15 +409,18 @@ export default function ModeEditor({
 
                           <div className="step-error-policy">
                             <span>Si échec :</span>
-                            <select
-                              value={step.on_error}
-                              onChange={(e) =>
-                                patchStep(i, { on_error: e.target.value as ActionStep["on_error"] })
-                              }
-                            >
-                              <option value="continue">Continuer la séquence</option>
-                              <option value="abort">Interrompre le profil</option>
-                            </select>
+                            <span className="studio-selector policy-selector">
+                              <select
+                                aria-label={`Comportement en cas d’échec de l’action ${i + 1}`}
+                                value={step.on_error}
+                                onChange={(e) =>
+                                  patchStep(i, { on_error: e.target.value as ActionStep["on_error"] })
+                                }
+                              >
+                                <option value="continue">Continuer la séquence</option>
+                                <option value="abort">Interrompre le profil</option>
+                              </select>
+                            </span>
                           </div>
                         </div>
                       </div>

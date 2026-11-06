@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { api, IS_DESKTOP } from "../api";
 import { cloudUrl } from "../sync";
+import GalaxyNodeTrack from "./GalaxyNodeTrack";
+import { IconAudio, IconDisplay, IconHue, IconSettings } from "./Icons";
 
 type Check = { id: string; available: boolean; detail: string };
 const labels = [{ id: "audio", name: "Audio" }, { id: "display", name: "Écran" }, { id: "hue", name: "Philips Hue" }, { id: "cloud", name: "Cloud" }];
+const connectionIcons = { audio: IconAudio, display: IconDisplay, hue: IconHue, cloud: IconSettings };
 export default function ConnectionStatus() {
   const [checks, setChecks] = useState<Check[]>([]);
   const [busy, setBusy] = useState(false);
@@ -31,9 +34,10 @@ export default function ConnectionStatus() {
     } finally { clearTimeout(timeout); setBusy(false); }
   }
   return <section className="context-panel connection-panel"><div className="connection-heading"><div><span className="workspace-kicker">DIAGNOSTIC EN LECTURE SEULE</span><h2>État des connexions</h2></div><button className="btn-secondary" disabled={busy} onClick={() => void verify()}>{busy ? "Vérification…" : "Vérifier"}</button></div>
-    <ul className="connection-list">{labels.map(label => {
+    <GalaxyNodeTrack variant="system" className="connection-list" label="État des systèmes connectés" items={labels.map(label => {
       const check = checks.find(c => c.id === label.id);
-      return <li key={label.id}><div><strong>{label.name}</strong><p>{check?.detail ?? "Aucune vérification effectuée"}</p></div><span>{busy ? "En cours" : !check ? "Non vérifié" : check.available ? "Disponible" : "Non confirmé"}</span></li>;
-    })}</ul><p className="connection-time" role="status">{checkedAt ? `Dernière vérification à ${checkedAt}` : "Le contrôle ne modifie ni le volume, ni la luminosité, ni les lumières."}</p>
+      const status = busy ? "En cours" : !check ? "Non vérifié" : check.available ? "Disponible" : "Non confirmé";
+      return { key: label.id, label: label.name, detail: `${status} · ${check?.detail ?? "Aucune vérification effectuée"}`, Icon: connectionIcons[label.id as keyof typeof connectionIcons], tone: !check ? "muted" as const : check.available ? "available" as const : "warning" as const };
+    })} /><p className="connection-time" role="status">{checkedAt ? `Dernière vérification à ${checkedAt}` : "Le contrôle ne modifie ni le volume, ni la luminosité, ni les lumières."}</p>
   </section>;
 }

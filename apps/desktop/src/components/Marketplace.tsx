@@ -3,11 +3,13 @@ import { api } from "../api";
 import type { Mode, RiskReport } from "../types";
 import ProfileDetails from "./ProfileDetails";
 import ImportMode from "./ImportMode";
+import GalaxyNodeTrack from "./GalaxyNodeTrack";
+import { tintOf, tintStyle } from "../galaxyTints";
 import {
   MARKETPLACE_CATALOG,
   RISK_LEVEL_LABEL,
+  actionMeta,
   categoryMeta,
-  catStyle,
   describeStep,
   toMode,
   type CatalogMode,
@@ -83,7 +85,7 @@ export default function Marketplace({ modes, reload }: { modes: Mode[]; reload: 
             const risk = risks[c.name];
             const owned = modes.some((m) => m.name.toLowerCase() === c.name.toLowerCase());
             return (
-              <article key={c.name} className="market-card" style={catStyle(cm.color)}>
+              <article key={c.name} className="market-card" style={tintStyle(tintOf(c.category))}>
                 <header className="mc-head">
                   <span className="mc-icon-wrap">
                     <Icon size={18} />
@@ -95,11 +97,10 @@ export default function Marketplace({ modes, reload }: { modes: Mode[]; reload: 
                   {risk && <span className={`risk-badge ${risk.level}`}>{risk.level}</span>}
                 </header>
                 <p className="mc-tagline">{c.tagline}</p>
-                <ul className="mc-steps">
-                  {c.steps.slice(0, 4).map((s, i) => (
-                    <li key={i}>{describeStep(s)}</li>
-                  ))}
-                </ul>
+                <GalaxyNodeTrack variant="compact" label={`Systèmes du modèle ${c.name}`} items={c.steps.slice(0, 4).map((step, index) => {
+                  const meta = actionMeta(step.type);
+                  return { key: `${step.order}:${index}`, label: meta.domain, detail: describeStep(step), Icon: meta.Icon, tone: index === 0 ? "accent" as const : "muted" as const };
+                })} />
                 <button className="btn-secondary market-preview" onClick={() => { setError(null); setPreview(c); }}>Voir les {c.steps.length} actions</button>
                 <button
                   className="primary"

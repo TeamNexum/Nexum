@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
 import type { AutomationRule, Mode, Trigger } from "../types";
+import GalaxyNodeTrack from "./GalaxyNodeTrack";
+import { categoryMeta } from "../modeMeta";
 
 function describeTrigger(t: Trigger): string {
   switch (t.kind) {
@@ -47,18 +49,17 @@ export default function Automations({ modes }: { modes: Mode[] }) {
         </p>
         <div className="summary-strip"><div><strong>{rules.length}</strong><span>règles configurées</span></div><div><strong>{rules.filter(r => r.enabled).length}</strong><span>activées</span></div><div><strong>{new Set(rules.map(r => r.target_mode_id)).size}</strong><span>profils associés</span></div></div>
         <ul className="rules">
-          {rules.map((r) => (
-            <li key={r.id}>
-              <span className={`dot ${r.enabled ? "on" : "off"}`} />
-              <div>
-                <strong>{r.name}</strong>
-                <small>
-                  {describeTrigger(r.trigger)} → activer <b>{modeName(r.target_mode_id)}</b>
-                </small>
-                <span className="rule-state">{r.enabled ? "Activée" : "Désactivée"} · {r.conditions.length} conditions</span>
-              </div>
-            </li>
-          ))}
+          {rules.map((r) => {
+            const target = modes.find(mode => mode.id === r.target_mode_id);
+            const TargetIcon = categoryMeta(target?.category ?? "custom").Icon;
+            return <li key={r.id} className="rule-trajectory">
+              <div className="rule-heading"><span className={`dot ${r.enabled ? "on" : "off"}`} /><div><strong>{r.name}</strong><span className="rule-state">{r.enabled ? "Activée" : "Désactivée"} · {r.conditions.length} conditions</span></div></div>
+              <GalaxyNodeTrack variant="rule" label={`Trajectoire de la règle ${r.name}`} items={[
+                { key: "trigger", label: "Déclencheur", detail: describeTrigger(r.trigger), tone: r.enabled ? "accent" : "muted" },
+                { key: "target", label: modeName(r.target_mode_id), detail: "Profil activé", Icon: TargetIcon, tone: r.enabled ? "available" : "muted" },
+              ]} />
+            </li>;
+          })}
           {rules.length === 0 && <li className="rules-empty"><div><strong>{error ? "Règles indisponibles" : "Aucune règle configurée"}</strong><small>{error ? "Le moteur de l’application de bureau est nécessaire pour charger vos règles." : "Vos déclencheurs apparaîtront ici dès qu’une règle sera configurée."}</small></div></li>}
         </ul>
       </section>
