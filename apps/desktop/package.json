@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "tauri:voice": "tauri dev --features voice",
-    "bundle": "NO_STRIP=true tauri build",
+    "bundle": "node scripts/bundle.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",

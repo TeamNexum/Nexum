@@ -20,7 +20,7 @@ the LAN (not just localhost) and note your PC's LAN IP (`ip addr` / `ipconfig`):
 ```bash
 # terminal 1 — cloud, exposed on the LAN
 cd nexum
-NEXUM_CLOUD_ADDR=0.0.0.0:8787 cargo run -p nexum-cloud
+npm run dev:cloud:lan    # or: cargo run -p nexum-cloud -- --lan
 
 # terminal 2 — the PWA dev server (also exposed on the LAN)
 cd nexum/apps/mobile

@@ -43,7 +43,10 @@ pub fn router() -> Router {
         .with_state(Arc::new(Direct::default()))
 }
 
-async fn post_command(State(direct): State<Arc<Direct>>, Json(cmd): Json<RemoteCommand>) -> StatusCode {
+async fn post_command(
+    State(direct): State<Arc<Direct>>,
+    Json(cmd): Json<RemoteCommand>,
+) -> StatusCode {
     lock(&direct.commands).push_back(cmd);
     StatusCode::ACCEPTED
 }
@@ -78,8 +81,23 @@ fn demo_modes() -> Vec<Mode> {
         steps: vec![],
     };
     vec![
-        mode(0x6a, "Gaming (PC)", "Volume 70%, luminosité 100%, Hue Purple Night & Steam", Category::Gaming),
-        mode(0x77, "Work (PC)", "Volume 20%, luminosité 70%, Hue Focus White & documents", Category::Work),
-        mode(0xc1, "Chill (PC)", "Volume 40%, Hue Sunset Glow & Spotify Web", Category::Chill),
+        mode(
+            0x6a,
+            "Gaming (PC)",
+            "Volume 70%, luminosité 100%, Hue Purple Night & Steam",
+            Category::Gaming,
+        ),
+        mode(
+            0x77,
+            "Work (PC)",
+            "Volume 20%, luminosité 70%, Hue Focus White & documents",
+            Category::Work,
+        ),
+        mode(
+            0xc1,
+            "Chill (PC)",
+            "Volume 40%, Hue Sunset Glow & Spotify Web",
+            Category::Chill,
+        ),
     ]
 }

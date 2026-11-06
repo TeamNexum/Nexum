@@ -77,9 +77,12 @@ async fn main() {
         }
     };
 
-    // Default to localhost only. Set NEXUM_CLOUD_ADDR=0.0.0.0:8787 to expose the
-    // API on the LAN so the mobile companion (on the same network) can reach it.
-    let addr = std::env::var("NEXUM_CLOUD_ADDR").unwrap_or_else(|_| "127.0.0.1:8787".to_string());
+    // Default to localhost only. `--lan` (npm run dev:cloud:lan) or
+    // NEXUM_CLOUD_ADDR=0.0.0.0:8787 exposes the API on the LAN so the mobile
+    // companion / Android app on the same network can reach it.
+    let lan = std::env::args().any(|arg| arg == "--lan");
+    let default_addr = if lan { "0.0.0.0:8787" } else { "127.0.0.1:8787" };
+    let addr = std::env::var("NEXUM_CLOUD_ADDR").unwrap_or_else(|_| default_addr.to_string());
     let listener = tokio::net::TcpListener::bind(&addr)
         .await
         .expect("failed to bind");

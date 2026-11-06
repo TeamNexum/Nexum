@@ -105,7 +105,7 @@ For a lightweight browser-based remote control:
 ```bash
 # Terminal 1: run cloud bound to LAN
 cd nexum
-NEXUM_CLOUD_ADDR=0.0.0.0:8787 cargo run -p nexum-cloud
+npm run dev:cloud:lan    # or: cargo run -p nexum-cloud -- --lan
 
 # Terminal 2: run mobile PWA
 cd nexum/apps/mobile
