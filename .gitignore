@@ -17,6 +17,7 @@ apps/desktop/src-tauri/gen
 # Env / editor
 .env
 .env.*
+!.env.example
 .DS_Store
 .vscode/*
 !.vscode/extensions.json

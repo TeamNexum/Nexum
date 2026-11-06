@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "dev:cloud": "cargo run -p nexum-cloud",
+    "dev:cloud:lan": "cargo run -p nexum-cloud -- --lan",
     "dev:desktop": "npm run tauri dev --workspace=nexum-desktop",
     "dev:web": "npm run dev --workspace=nexum-desktop",
     "dev": "concurrently -n \"cloud,desktop\" -c \"blue,green\" \"npm run dev:cloud\" \"npm run dev:desktop\"",

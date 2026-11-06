@@ -20,7 +20,7 @@ the LAN (not just localhost) and note your PC's LAN IP (`ip addr` / `ipconfig`):
 ```bash
 # terminal 1 — cloud, exposed on the LAN
 cd nexum
-NEXUM_CLOUD_ADDR=0.0.0.0:8787 cargo run -p nexum-cloud
+npm run dev:cloud:lan    # or: cargo run -p nexum-cloud -- --lan
 
 # terminal 2 — the PWA dev server (also exposed on the LAN)
 cd nexum/apps/mobile
@@ -43,7 +43,7 @@ npm run build      # → dist/ (static; host anywhere with HTTPS for full PWA in
 ```
 
 ## How it works
-- `src/cloud.ts` — REST client: `register`/`login` (JWT in `localStorage`),
+- `src/cloud.ts` — REST client: `register`/`login` (refresh token in `localStorage`, access token in memory),
   `modes()` (GET `/api/modes`), `activate()` (POST `/api/commands`).
 - `src/App.tsx` — sign-in screen, then a grid of the account's modes; a tap
   enqueues an `activate_mode` command.
