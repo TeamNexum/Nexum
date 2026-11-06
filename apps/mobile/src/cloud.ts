@@ -9,7 +9,8 @@ import type { Mode } from "../../../packages/schema-ts/src";
 const URL_KEY = "nexum.cloud.url";
 const REFRESH_KEY = "nexum.cloud.refresh";
 
-export const DEFAULT_CLOUD_URL = "http://localhost:8787";
+export const DEFAULT_CLOUD_URL =
+  import.meta.env.VITE_NEXUM_CLOUD_URL || "http://localhost:8787";
 
 const SESSION_EXPIRED = "Session expirée — reconnectez-vous.";
 

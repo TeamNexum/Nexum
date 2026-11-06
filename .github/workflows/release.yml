@@ -1,0 +1,52 @@
+name: Release
+
+# Builds the desktop installers (unsigned for now) and attaches them to a draft
+# GitHub Release. Push a `v*` tag, or run it by hand from the Actions tab.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  installers:
+    name: Installers (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # 22.04 rather than latest: the .deb/AppImage link against the build
+        # machine's glibc, so an older base runs on more distros.
+        os: [ubuntu-22.04, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Linux OS dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libdbus-1-dev
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: apps/desktop/src-tauri
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Build and publish installers
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Empty until nexum-cloud is hosted: the app then falls back to localhost.
+          VITE_NEXUM_CLOUD_URL: ${{ vars.NEXUM_CLOUD_URL }}
+        with:
+          projectPath: apps/desktop
+          tagName: ${{ github.ref_type == 'tag' && github.ref_name || 'v__VERSION__' }}
+          releaseName: Nexum v__VERSION__
+          releaseBody: Installeurs non signés — voir l'issue #21.
+          releaseDraft: true
+          prerelease: true
