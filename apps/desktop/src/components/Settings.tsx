@@ -11,7 +11,7 @@ import ConnectionStatus from "./ConnectionStatus";
  * replaces the local modes with the account's set — the same account on another
  * machine (or the mobile companion) sees the same modes.
  */
-export default function Settings({ modes, reload, density, onDensity }: { modes: Mode[]; reload: () => void; density: "compact" | "comfort"; onDensity: (value: "compact" | "comfort") => void }) {
+export default function Settings({ modes, reload, density, onDensity, motion, onMotion }: { modes: Mode[]; reload: () => void; density: "compact" | "comfort"; onDensity: (value: "compact" | "comfort") => void; motion: "smooth" | "instant"; onMotion: (value: "smooth" | "instant") => void }) {
   const [url, setUrl] = useState(cloudUrl());
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -130,7 +130,8 @@ export default function Settings({ modes, reload, density, onDensity }: { modes:
         {err && <div className="error">{err}</div>}
       </section>
       <ConnectionStatus />
-      <section className="context-panel"><span className="workspace-kicker">INTERFACE</span><h2>Densité d’affichage</h2><p className="muted">Ajustez l’espace entre les cartes, les actions et les commandes sur toutes les pages.</p><div className="density-options"><button className="btn-secondary" aria-pressed={density === "compact"} onClick={() => onDensity("compact")}>Compact</button><button className="btn-secondary" aria-pressed={density === "comfort"} onClick={() => onDensity("comfort")}>Confort</button></div></section></div>
+      <section className="context-panel"><span className="workspace-kicker">INTERFACE</span><h2>Densité d’affichage</h2><p className="muted">Ajustez l’espace entre les cartes, les actions et les commandes sur toutes les pages.</p><div className="density-options"><button className="btn-secondary" aria-pressed={density === "compact"} onClick={() => onDensity("compact")}>Compact</button><button className="btn-secondary" aria-pressed={density === "comfort"} onClick={() => onDensity("comfort")}>Confort</button></div>
+        <h2 className="settings-subheading">Changement de page</h2><p className="muted">Fluide : la galaxie voyage d’une page à l’autre. Instantané : la page change sans transition.</p><div className="density-options"><button className="btn-secondary" aria-pressed={motion === "smooth"} onClick={() => onMotion("smooth")}>Fluide</button><button className="btn-secondary" aria-pressed={motion === "instant"} onClick={() => onMotion("instant")}>Instantané</button></div></section></div>
       <aside className="settings-aside">
         <section className="context-panel"><span className="workspace-kicker">CONNEXION</span><h2>Serveur de synchronisation</h2><p className="muted">L’adresse utilisée pour connecter votre compte et échanger vos profils.</p>
         <label className="field">

@@ -23,9 +23,9 @@ export default function ProfileDetails({ mode, onClose, onAction, actionLabel, b
   return <dialog ref={ref} className="profile-drawer" aria-labelledby="profile-detail-title"
     onCancel={e => { e.preventDefault(); onClose(); }}
     onClick={e => { if (e.target === e.currentTarget) { const b = e.currentTarget.getBoundingClientRect(); if (e.clientX < b.left || e.clientX > b.right || e.clientY < b.top || e.clientY > b.bottom) onClose(); } }}>
-    <div className="drawer-heading"><span className="workspace-kicker">APERÇU DU PROFIL</span><button autoFocus className="btn-secondary" aria-label="Fermer les détails" onClick={onClose}>×</button></div>
+    <div className="drawer-heading"><span className="workspace-kicker lab">APERÇU DU PROFIL</span><button autoFocus className="btn-secondary" aria-label="Fermer les détails" onClick={onClose}>×</button></div>
     <div className="drawer-body">
-      <ProfileArtwork category={mode.category} />
+      <div className="drawer-galaxy-art"><ProfileArtwork category={mode.category} /></div>
       <div className="drawer-title"><div><span className="workspace-kicker">{categoryMeta(mode.category).label}</span><h2 id="profile-detail-title">{mode.name}</h2></div>
         {onFavorite && <button className="favorite-button" aria-label={favorite ? "Retirer des favoris" : "Ajouter aux favoris"} aria-pressed={favorite} onClick={onFavorite}>{favorite ? "★" : "☆"}</button>}
       </div>

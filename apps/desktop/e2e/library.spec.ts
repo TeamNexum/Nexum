@@ -37,8 +37,14 @@ async function mockDesktop(page: Page) {
 test("previews ordered actions without executing, restores focus and opens the correct editor", async ({ page }) => {
   await mockDesktop(page);
   await page.goto("/");
-  const opener = page.getByRole("button", { name: "Voir le profil Alpha", exact: true });
+  await expect(page.locator(".galaxy-topology-heading")).toContainText("01 ÉTAPES");
+  await expect(page.locator(".galaxy-topology-flow li")).toHaveCount(1);
+  await expect(page.locator(".galaxy-topology-flow li")).toContainText("01 · Audio");
+  await expect(page.locator(".galaxy-topology-flow li")).toContainText("Volume fixé à 40%");
+  const opener = page.getByRole("button", { name: "Afficher le profil Alpha", exact: true });
   await opener.click();
+  const details = page.getByRole("button", { name: "Voir les détails" });
+  await details.click();
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
   await expect(dialog.locator(".profile-action-preview li").first()).toContainText("Volume fixé à 40%");
@@ -46,8 +52,8 @@ test("previews ordered actions without executing, restores focus and opens the c
   expect(await page.evaluate(() => (window as any).__testCalls.includes("activate_mode"))).toBe(false);
   await page.keyboard.press("Escape");
   await expect(dialog).not.toBeVisible();
-  await expect(opener).toBeFocused();
-  await opener.click();
+  await expect(details).toBeFocused();
+  await details.click();
   await dialog.getByRole("button", { name: "Activer ce profil" }).click();
   await expect(dialog.getByRole("status")).toContainText("Profil activé");
   await dialog.getByRole("button", { name: "Modifier dans le Studio" }).click();
@@ -58,7 +64,7 @@ test("activates directly and supports global search, diagnostics and persistent 
   await mockDesktop(page);
   await page.route("**/health", route => route.fulfill({ json: { status: "ok", service: "nexum-cloud" } }));
   await page.goto("/");
-  await page.getByRole("button", { name: "Activer directement Alpha", exact: true }).click();
+  await page.getByRole("button", { name: "Activer ce profil", exact: true }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   expect(await page.evaluate(() => (window as any).__testCalls.filter((c: string) => c === "activate_mode").length)).toBe(1);
   await page.keyboard.press("Control+k");
@@ -84,20 +90,25 @@ test("activates directly and supports global search, diagnostics and persistent 
 test("persists favorites and keyboard ordering, and fits the drawer in a narrow window", async ({ page }) => {
   await mockDesktop(page);
   await page.goto("/");
+  await page.getByRole("button", { name: "Afficher le profil Gamma", exact: true }).click();
   await page.getByRole("button", { name: "Ajouter Gamma aux favoris", exact: true }).click();
+  await page.getByRole("button", { name: "Afficher le profil Beta", exact: true }).click();
   await page.getByRole("button", { name: "Ajouter Beta aux favoris", exact: true }).click();
-  await page.getByRole("button", { name: "Voir le profil Gamma", exact: true }).click();
+  await page.getByRole("button", { name: "Afficher le profil Gamma", exact: true }).click();
+  await page.getByRole("button", { name: "Voir les détails" }).click();
   await page.getByRole("button", { name: "Déplacer le profil avant" }).click();
   await page.keyboard.press("Escape");
-  await expect(page.locator(".saved-profile").first()).toHaveAttribute("data-mode-id", "2");
+  await expect(page.locator(".galaxy-rail-item[data-mode-id]").first()).toHaveAttribute("data-mode-id", "2");
   await page.reload();
-  await expect(page.locator(".saved-profile").first()).toHaveAttribute("data-mode-id", "2");
+  await expect(page.locator(".galaxy-rail-item[data-mode-id]").first()).toHaveAttribute("data-mode-id", "2");
+  await page.getByRole("button", { name: "Afficher le profil Gamma", exact: true }).click();
   await expect(page.getByRole("button", { name: "Retirer Gamma des favoris" })).toHaveAttribute("aria-pressed", "true");
-  await page.getByRole("button", { name: "Réorganiser Gamma", exact: true }).dragTo(page.locator('.saved-profile[data-mode-id="1"]'));
-  await expect(page.locator(".saved-profile").first()).toHaveAttribute("data-mode-id", "1");
+  await page.getByRole("button", { name: "Afficher le profil Gamma", exact: true }).dragTo(page.locator('.galaxy-rail-item[data-mode-id="1"]'));
+  await expect(page.locator(".galaxy-rail-item[data-mode-id]").first()).toHaveAttribute("data-mode-id", "1");
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole("button", { name: "Voir le profil Gamma", exact: true }).click();
+  await page.getByRole("button", { name: "Afficher le profil Gamma", exact: true }).click();
+  await page.getByRole("button", { name: "Voir les détails" }).click();
   const box = await page.getByRole("dialog").boundingBox();
   expect(box!.width).toBeLessThanOrEqual(390);
-  await expect(page.getByRole("button", { name: "Activer ce profil" })).toBeInViewport();
+  await expect(page.getByRole("dialog").getByRole("button", { name: "Activer ce profil" })).toBeInViewport();
 });
