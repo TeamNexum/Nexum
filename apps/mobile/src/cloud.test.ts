@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cloud, cloudUrl, isSignedIn, setCloudUrl } from "./cloud";
+import { cloud, cloudUrl, isInsecureCloudUrl, isSignedIn, setCloudUrl } from "./cloud";
 
 function res(status: number, body: unknown = null) {
   return {
@@ -32,6 +32,23 @@ describe("mobile cloud client", () => {
   it("normalizes the server URL", () => {
     setCloudUrl("http://192.168.1.10:8787/");
     expect(cloudUrl()).toBe("http://192.168.1.10:8787");
+  });
+
+  it("refuses plain http outside the local network, and warns about it on the LAN", () => {
+    expect(() => setCloudUrl("http://example.com")).toThrow();
+    expect(() => setCloudUrl("nonsense")).toThrow();
+    expect(isInsecureCloudUrl("http://192.168.1.10:8787")).toBe(true);
+    expect(isInsecureCloudUrl("https://cloud.example.com")).toBe(false);
+  });
+
+  it("sends the session's tokens only to the server it was created on", async () => {
+    setCloudUrl("https://a.example.com");
+    fetchMock.mockResolvedValueOnce(res(200, session));
+    await cloud.login("a@b.com", "pw");
+    setCloudUrl("https://b.example.com");
+    fetchMock.mockResolvedValue(res(200, []));
+    await cloud.modes();
+    expect(new URL(String(fetchMock.mock.calls[1][0])).host).toBe("a.example.com");
   });
 
   it("login keeps the refresh token, not the access token", async () => {

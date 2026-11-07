@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { cloud, cloudUrl, setCloudUrl, isSignedIn } from "./cloud";
+import { cloud, cloudUrl, setCloudUrl, isInsecureCloudUrl, isSignedIn, parseCloudUrl } from "./cloud";
 import type { Mode } from "../../../packages/schema-ts/src";
 
 const ICON: Record<string, string> = {
@@ -24,6 +24,7 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const insecure = (() => { try { return isInsecureCloudUrl(parseCloudUrl(url)); } catch { return false; } })();
 
   function flash(text: string) {
     setToast(text);
@@ -98,6 +99,7 @@ export default function App() {
               autoCapitalize="none"
               autoCorrect="off"
             />
+            {insecure && <small>⚠ Connexion non chiffrée (http) : à n’utiliser que sur votre réseau local.</small>}
           </label>
           <label>
             E-mail

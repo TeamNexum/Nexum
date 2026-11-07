@@ -6,7 +6,7 @@
 // logic lives in autosync.ts.
 
 import { api, IS_DESKTOP } from "./api";
-import type { Mode } from "./types";
+import { CATEGORIES, type Mode } from "./types";
 
 // Mirrors `FeedbackReport` in services/nexum-cloud/src/feedback.rs.
 export interface FeedbackReport {
@@ -21,9 +21,69 @@ export interface FeedbackReport {
 const URL_KEY = "nexum.cloud.url";
 const REFRESH_KEY = "nexum.cloud.refresh";
 const USER_KEY = "nexum.cloud.user";
+/** The server the current session was created on: its tokens never go anywhere else. */
+const SESSION_URL_KEY = "nexum.cloud.sessionUrl";
 
-export const DEFAULT_CLOUD_URL =
-  import.meta.env.VITE_NEXUM_CLOUD_URL || "http://localhost:8787";
+const FALLBACK_CLOUD_URL = "http://localhost:8787";
+
+// ---- Server address ----------------------------------------------------------
+
+const PRIVATE_V4 = /^(10|127)\.|^192\.168\.|^169\.254\.|^172\.(1[6-9]|2\d|3[01])\./;
+
+/** Loopback, private IPv4/IPv6 ranges and mDNS names: where plain http is tolerated. */
+function isLocalHost(hostname: string): boolean {
+  const host = hostname.replace(/^\[|\]$/g, "").toLowerCase();
+  if (host === "localhost" || host.endsWith(".localhost") || host.endsWith(".local") || host === "::1") return true;
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) return PRIVATE_V4.test(host);
+  return /^f[cd][0-9a-f]{2}:/.test(host) || host.startsWith("fe80:");
+}
+
+function isLoopback(hostname: string): boolean {
+  const host = hostname.replace(/^\[|\]$/g, "").toLowerCase();
+  return host === "localhost" || host.endsWith(".localhost") || host === "::1" || /^127\./.test(host);
+}
+
+/**
+ * A usable cloud address, normalized (no trailing slash), or an Error explaining why not:
+ * https anywhere, plain http only on this machine or the local network.
+ */
+export function parseCloudUrl(input: string): string {
+  let url: URL;
+  try {
+    url = new URL(input.trim());
+  } catch {
+    throw new Error("Adresse du serveur invalide (exemple : https://cloud.exemple.com).");
+  }
+  if (url.protocol !== "https:" && url.protocol !== "http:") {
+    throw new Error("L’adresse du serveur doit commencer par https:// (ou http:// sur le réseau local).");
+  }
+  if (url.username || url.password) throw new Error("L’adresse du serveur ne doit pas contenir d’identifiants.");
+  if (url.protocol === "http:" && !isLocalHost(url.hostname)) {
+    throw new Error("Connexion non chiffrée refusée : utilisez https:// pour un serveur hors du réseau local.");
+  }
+  return `${url.origin}${url.pathname.replace(/\/+$/, "")}`;
+}
+
+/** Plain http beyond this machine: allowed on the LAN, but worth a warning. */
+export function isInsecureCloudUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "http:" && !isLoopback(parsed.hostname);
+  } catch {
+    return false;
+  }
+}
+
+function safeCloudUrl(value: string | null | undefined): string | null {
+  if (!value) return null;
+  try {
+    return parseCloudUrl(value);
+  } catch {
+    return null;
+  }
+}
+
+export const DEFAULT_CLOUD_URL = safeCloudUrl(import.meta.env.VITE_NEXUM_CLOUD_URL) ?? FALLBACK_CLOUD_URL;
 
 const SESSION_EXPIRED = "Session expirée — reconnectez-vous.";
 
@@ -44,11 +104,17 @@ let persisted = true;
 const listeners = new Set<() => void>();
 
 export function cloudUrl(): string {
-  return localStorage.getItem(URL_KEY) || DEFAULT_CLOUD_URL;
+  return safeCloudUrl(localStorage.getItem(URL_KEY)) ?? DEFAULT_CLOUD_URL;
 }
 
+/** Throws (with a user-facing message) if the address is not acceptable. */
 export function setCloudUrl(url: string): void {
-  localStorage.setItem(URL_KEY, url.trim().replace(/\/+$/, ""));
+  localStorage.setItem(URL_KEY, parseCloudUrl(url));
+}
+
+/** Where the current session's requests go: the server it was created on. */
+export function sessionUrl(): string {
+  return safeCloudUrl(localStorage.getItem(SESSION_URL_KEY)) ?? cloudUrl();
 }
 
 /** Read the stored session; safe to call repeatedly. */
@@ -57,6 +123,8 @@ export function loadSession(): Promise<void> {
     // Without a past sign-in there's nothing to read: don't make people who have
     // no account unlock their keychain.
     if (!currentUser()) return;
+    // Sessions from before the URL was recorded belong to the server configured then.
+    if (!localStorage.getItem(SESSION_URL_KEY)) localStorage.setItem(SESSION_URL_KEY, cloudUrl());
     try {
       refreshToken = await vault.load();
     } catch (e) {
@@ -98,10 +166,45 @@ interface Session {
   user_id: string;
 }
 
-async function setSession(session: Session): Promise<void> {
+const UNEXPECTED = "Réponse inattendue du serveur.";
+
+const nonEmpty = (v: unknown): v is string => typeof v === "string" && v.length > 0;
+
+function isSession(v: Partial<Session> | null): v is Session {
+  return !!v && nonEmpty(v.token) && nonEmpty(v.refresh_token) && nonEmpty(v.user_id);
+}
+
+// ---- Response shape guards ---------------------------------------------------
+// Whatever the server sends ends up in the local engine (and runs on activation),
+// so nothing is trusted on its type annotation alone. (Ids are UUIDs; the Rust
+// side rejects anything else when the mode is saved.)
+
+const isRecord = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
+
+function isStep(v: unknown): boolean {
+  return isRecord(v) && Number.isInteger(v.order) && nonEmpty(v.type) && isRecord(v.params) &&
+    typeof v.enabled === "boolean" && (v.on_error === "continue" || v.on_error === "abort");
+}
+
+export function isMode(v: unknown): v is Mode {
+  return isRecord(v) && nonEmpty(v.id) && typeof v.name === "string" &&
+    (v.description === null || v.description === undefined || typeof v.description === "string") &&
+    CATEGORIES.includes(v.category as Mode["category"]) &&
+    Array.isArray(v.steps) && v.steps.every(isStep) &&
+    (v.voice_keywords === undefined || (Array.isArray(v.voice_keywords) && v.voice_keywords.every((k) => typeof k === "string")));
+}
+
+export function isSyncResponse(v: unknown): v is SyncResponse {
+  return isRecord(v) && Array.isArray(v.modes) && Array.isArray(v.conflicts) &&
+    v.conflicts.every((id) => typeof id === "string") &&
+    v.modes.every((m) => isRecord(m) && Number.isInteger(m.revision) && (m.revision as number) >= 0 && isMode(m.mode));
+}
+
+async function setSession(session: Session, url: string): Promise<void> {
   accessToken = session.token;
   refreshToken = session.refresh_token;
   localStorage.setItem(USER_KEY, session.user_id);
+  localStorage.setItem(SESSION_URL_KEY, url);
   try {
     await vault.save(session.refresh_token);
     persisted = true;
@@ -115,6 +218,7 @@ export async function clearSession(): Promise<void> {
   accessToken = null;
   refreshToken = null;
   localStorage.removeItem(USER_KEY);
+  localStorage.removeItem(SESSION_URL_KEY);
   try {
     await vault.clear();
     loading = null;
@@ -127,9 +231,10 @@ export async function clearSession(): Promise<void> {
 /** End the session here and on the server (best effort: it expires anyway). */
 export async function signOut(): Promise<void> {
   const revoked = refreshToken;
+  const url = sessionUrl();
   await clearSession();
   if (!revoked) return;
-  await fetch(`${cloudUrl()}/api/auth/logout`, {
+  await fetch(`${url}/api/auth/logout`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ refresh_token: revoked }),
@@ -148,7 +253,8 @@ function refreshSession(): Promise<void> {
 async function doRefresh(): Promise<void> {
   const used = refreshToken;
   if (!used) throw new Error("Non connecté.");
-  const res = await fetch(`${cloudUrl()}/api/auth/refresh`, {
+  const url = sessionUrl();
+  const res = await fetch(`${url}/api/auth/refresh`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ refresh_token: used }),
@@ -159,8 +265,9 @@ async function doRefresh(): Promise<void> {
     throw new Error(SESSION_EXPIRED);
   }
   if (!res.ok) throw new Error(`Erreur serveur (${res.status}).`);
-  const session = (await res.json()) as Session;
-  if (refreshToken === used) await setSession(session); // else: signed out meanwhile
+  const session = (await res.json().catch(() => null)) as Partial<Session> | null;
+  if (!isSession(session)) throw new Error(UNEXPECTED);
+  if (refreshToken === used) await setSession(session, url); // else: signed out meanwhile
 }
 
 /** A request with the access token, renewed first if it's missing or expired. */
@@ -169,7 +276,7 @@ export async function authedFetch(path: string, init: RequestInit = {}): Promise
   if (!refreshToken) throw new Error("Non connecté.");
   if (!accessToken) await refreshSession();
   const send = () =>
-    fetch(`${cloudUrl()}${path}`, {
+    fetch(`${sessionUrl()}${path}`, {
       ...init,
       headers: { ...init.headers, authorization: `Bearer ${accessToken}` },
     });
@@ -181,15 +288,16 @@ export async function authedFetch(path: string, init: RequestInit = {}): Promise
 
 async function authRequest(path: string, email: string, password: string): Promise<void> {
   await loadSession();
+  const url = cloudUrl();
   let res: Response;
   try {
-    res = await fetch(`${cloudUrl()}${path}`, {
+    res = await fetch(`${url}${path}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
   } catch {
-    throw new Error(`Impossible de joindre le cloud (${cloudUrl()}). Est-il démarré ?`);
+    throw new Error(`Impossible de joindre le cloud (${url}). Est-il démarré ?`);
   }
   if (res.status === 400) {
     throw new Error("E-mail invalide ou mot de passe trop court (8 caractères minimum).");
@@ -197,11 +305,9 @@ async function authRequest(path: string, email: string, password: string): Promi
   if (res.status === 401) throw new Error("E-mail ou mot de passe incorrect.");
   if (res.status === 409) throw new Error("Cet e-mail est déjà utilisé.");
   if (!res.ok) throw new Error(`Erreur serveur (${res.status}).`);
-  const session = (await res.json()) as Partial<Session>;
-  if (!session?.token || !session.refresh_token || !session.user_id) {
-    throw new Error("Réponse inattendue du serveur.");
-  }
-  await setSession(session as Session);
+  const session = (await res.json().catch(() => null)) as Partial<Session> | null;
+  if (!isSession(session)) throw new Error(UNEXPECTED);
+  await setSession(session, url);
   notify();
 }
 
@@ -250,6 +356,8 @@ export const cloud = {
     });
     if (res.status === 401) throw new Error(SESSION_EXPIRED);
     if (!res.ok) throw new Error(`Erreur serveur (${res.status}).`);
-    return (await res.json()) as SyncResponse;
+    const body: unknown = await res.json().catch(() => null);
+    if (!isSyncResponse(body)) throw new Error(UNEXPECTED);
+    return body;
   },
 };
