@@ -7,7 +7,7 @@
 // side loses work.
 
 import { api } from "./api";
-import { cloud, cloudUrl, currentUser, isSignedIn, loadSession, onSessionChange, type ModeChange } from "./sync";
+import { cloud, currentUser, isSignedIn, loadSession, onSessionChange, sessionUrl, type ModeChange } from "./sync";
 import type { Mode } from "./types";
 
 const BASE_KEY = "nexum.cloud.syncBase";
@@ -138,7 +138,7 @@ async function exchange(local: LocalModes, owner: string, summary: SyncSummary):
 
 /** Bring this machine and the cloud in line. Throws if the cloud can't be reached. */
 export async function syncOnce(local: LocalModes = localModes): Promise<SyncSummary> {
-  const owner = `${cloudUrl()}|${currentUser()}`;
+  const owner = `${sessionUrl()}|${currentUser()}`;
   const summary: SyncSummary = { changed: false, conflicts: [] };
   // Conflict copies are local edits too, so they need a second exchange.
   if (await exchange(local, owner, summary)) await exchange(local, owner, summary);

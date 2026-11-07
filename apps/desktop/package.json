@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "build:e2e": "tauri build --debug --no-bundle --config src-tauri/tauri.e2e.conf.json",
     "test:e2e:tauri": "node e2e/tauri-smoke.mjs",
     "gen:types": "cargo test -p nexum-schema --features ts --manifest-path ../../Cargo.toml && cargo test -p nexum-core --features ts --manifest-path ../../Cargo.toml"
   },

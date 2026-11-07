@@ -8,7 +8,7 @@ const edgeDriver = resolve("src-tauri", "target", "debug", "msedgedriver.exe");
 const modeId = "00000000-0000-4000-8000-00000000e2e0";
 const port = 20000 + process.pid % 10000;
 const base = `http://127.0.0.1:${port}`;
-assert.ok(existsSync(binary), `Tauri binary missing: ${binary}; run npm run tauri build -- --debug --no-bundle`);
+assert.ok(existsSync(binary), `Tauri binary missing: ${binary}; run npm run build:e2e (enables window.__TAURI__ for this test)`);
 
 const driver = spawn(
   process.platform === "win32" ? "tauri-driver.exe" : "tauri-driver",

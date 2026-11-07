@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { IS_DESKTOP } from "../api";
 import { onSyncStatus, syncNow, syncStatus } from "../autosync";
-import { cloud, cloudUrl, setCloudUrl, isSessionPersisted, isSignedIn, loadSession, onSessionChange } from "../sync";
+import { cloud, cloudUrl, setCloudUrl, isInsecureCloudUrl, isSessionPersisted, isSignedIn, loadSession, onSessionChange, parseCloudUrl, sessionUrl } from "../sync";
+import { isDirectEnabled, setDirectEnabled, syncDirectModes, withdrawDirectModes } from "../remote";
 import type { Mode } from "../types";
 import ConnectionStatus from "./ConnectionStatus";
 import VoiceSettings from "./VoiceSettings";
@@ -21,6 +22,11 @@ export default function Settings({ modes, density, onDensity, motion, onMotion, 
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [sync, setSync] = useState(syncStatus());
+  const [direct, setDirect] = useState(isDirectEnabled());
+  /** A new server address waiting for the user to accept being signed out. */
+  const [pendingUrl, setPendingUrl] = useState<string | null>(null);
+  const [urlErr, setUrlErr] = useState<string | null>(null);
+  const insecure = (() => { try { return isInsecureCloudUrl(parseCloudUrl(url)); } catch { return false; } })();
 
   useEffect(() => {
     const update = () => setSignedIn(isSignedIn());
@@ -39,9 +45,28 @@ export default function Settings({ modes, density, onDensity, motion, onMotion, 
   }
 
   const saveUrl = () => {
-    setCloudUrl(url);
-    setMsg(`Cloud défini sur ${cloudUrl()}.`);
+    setMsg(null);
+    setUrlErr(null);
+    let next: string;
+    try { next = parseCloudUrl(url); } catch (e) { setUrlErr(String(e instanceof Error ? e.message : e)); return; }
+    // The session's tokens only ever go to the server they came from.
+    if (signedIn && next !== sessionUrl()) { setPendingUrl(next); return; }
+    setCloudUrl(next);
+    setUrl(next);
+    setMsg(`Cloud défini sur ${next}.`);
   };
+
+  const confirmUrlChange = () =>
+    announce(async () => {
+      const next = pendingUrl;
+      setPendingUrl(null);
+      if (!next) return;
+      await cloud.signOut();
+      setSignedIn(false);
+      setCloudUrl(next);
+      setUrl(next);
+      setMsg(`Déconnecté. Cloud défini sur ${next} : reconnectez-vous sur ce serveur.`);
+    });
 
   const auth = (mode: "login" | "register") =>
     announce(async () => {
@@ -49,8 +74,18 @@ export default function Settings({ modes, density, onDensity, motion, onMotion, 
       await cloud[mode](email, password);
       setSignedIn(true);
       setPassword("");
+      if (isDirectEnabled()) await withdrawDirectModes(); // the account queue takes over
+
       const done = mode === "register" ? "Compte créé et connecté." : "Connecté.";
       setMsg(isSessionPersisted() ? done : `${done} Trousseau indisponible : il faudra vous reconnecter au prochain lancement.`);
+    });
+
+  const toggleDirect = (enabled: boolean) =>
+    announce(async () => {
+      await setDirectEnabled(enabled);
+      setDirect(enabled);
+      if (enabled) await syncDirectModes(modes);
+      setMsg(enabled ? "Télécommande directe activée." : "Télécommande directe désactivée.");
     });
 
   const signOut = () =>
@@ -145,12 +180,32 @@ export default function Settings({ modes, density, onDensity, motion, onMotion, 
         <label className="field">
           Serveur cloud
           <div className="sim-row">
-            <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder={cloudUrl()} />
-            <button onClick={saveUrl}>Enregistrer</button>
+            <input value={url} onChange={(e) => { setUrl(e.target.value); setPendingUrl(null); setUrlErr(null); }} placeholder={cloudUrl()} />
+            <button disabled={busy} onClick={saveUrl}>Enregistrer</button>
           </div>
         </label>
-
-
+        {urlErr && <div className="error" role="alert">{urlErr}</div>}
+        {insecure && <p className="muted" role="note">⚠ Connexion non chiffrée (http) : mot de passe et jetons circulent en clair. À n’utiliser que sur un réseau local de confiance.</p>}
+        {pendingUrl && (
+          <div className="error" role="alert">
+            Changer de serveur vous déconnectera de {sessionUrl()}.
+            <div className="sim-row">
+              <button disabled={busy} onClick={() => setPendingUrl(null)}>Annuler</button>
+              <button className="primary" disabled={busy} onClick={confirmUrlChange}>Se déconnecter et changer</button>
+            </div>
+          </div>
+        )}
+        </section>
+        <section className="context-panel"><span className="workspace-kicker">SANS COMPTE</span><h2>Télécommande directe</h2>
+          <p className="muted">
+            Permet à l’application Android de lancer vos profils sans compte. Attention : toute personne qui peut
+            joindre ce serveur peut alors voir vos profils et les déclencher. À n’activer que sur un réseau de confiance.
+            {signedIn && " Indisponible tant que vous êtes connecté : votre compte est utilisé à la place."}
+          </p>
+          <div className="density-options">
+            <button className="btn-secondary" aria-pressed={!direct} disabled={busy} onClick={() => toggleDirect(false)}>Désactivée</button>
+            <button className="btn-secondary" aria-pressed={direct} disabled={busy || signedIn || !IS_DESKTOP} onClick={() => toggleDirect(true)}>Activée</button>
+          </div>
         </section>
         <section className="context-panel"><span className="workspace-kicker">BÊTA</span><h2>Un bug, une idée ?</h2><p className="muted">Écrivez à l'équipe en quelques secondes, avec une capture si besoin.</p><button className="primary" onClick={onFeedback}>Envoyer un retour</button></section>
         <section className="context-panel"><span className="workspace-kicker">SUR CET APPAREIL</span><h2>Votre bibliothèque locale</h2>

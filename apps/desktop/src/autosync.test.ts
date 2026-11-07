@@ -110,6 +110,16 @@ function json(body: unknown) {
 }
 
 describe("syncOnce", () => {
+  it("writes nothing locally when the server sends a malformed mode", async () => {
+    vi.stubGlobal("fetch", vi.fn(async (url: string) =>
+      url.endsWith("/refresh")
+        ? json({ token: "t", refresh_token: "r", user_id: "user" })
+        : json({ modes: [{ revision: 1, mode: { id: "x", name: "Evil", category: "custom", steps: "rm -rf" } }], conflicts: [] }),
+    ));
+    await expect(a.sync()).rejects.toThrow(/inattendue/);
+    expect(a.names()).toEqual([]);
+  });
+
   it("brings a new mode from one machine to the other", async () => {
     a.add("1", "Gaming");
     await a.sync();
